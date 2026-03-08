@@ -1,0 +1,939 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Marketplace | الصفحة الرئيسية</title>
+  <style>
+    :root{
+      --bg:#0b1220; --panel:#0f1a2f; --card:#101d36; --muted:#9fb0d0;
+      --text:#eaf0ff; --line:rgba(255,255,255,.10);
+      --accent:#6ea8ff; --accent2:#39d98a; --warn:#ffcc66; --danger:#ff6b6b;
+      --shadow:0 18px 50px rgba(0,0,0,.45);
+      --r:18px;
+      --container:1200px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif;
+      background:
+        radial-gradient(900px 450px at 12% 8%, rgba(110,168,255,.18), transparent 60%),
+        radial-gradient(800px 420px at 88% 18%, rgba(57,217,138,.12), transparent 60%),
+        radial-gradient(900px 520px at 40% 92%, rgba(255,204,102,.10), transparent 55%),
+        var(--bg);
+      color:var(--text);
+    }
+    a{color:inherit; text-decoration:none}
+    .container{width:min(var(--container), 100%); margin-inline:auto; padding:0 18px}
+    .topbar{
+      position:sticky; top:0; z-index:50;
+      background:rgba(11,18,32,.72); backdrop-filter: blur(10px);
+      border-bottom:1px solid var(--line);
+    }
+    .topbar .row{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:12px 0;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px; font-weight:900; letter-spacing:.3px;
+    }
+    .mark{
+      width:38px; height:38px; border-radius:14px;
+      background:linear-gradient(135deg, rgba(110,168,255,.95), rgba(57,217,138,.85));
+      box-shadow:0 14px 32px rgba(110,168,255,.18);
+    }
+    .logo-img{
+  width:70px;       /* نفس حجم الشريط العلوي */
+  height:70px;
+  border-radius:14px;
+  object-fit:cover; /* مهم لو الصورة مربعة */
+  display:block;
+}
+
+    .quick{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:center;
+    }
+    .chip{
+      padding:8px 12px; border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.02);
+      color:var(--muted);
+      font-size:13px;
+    }
+    .chip:hover{color:var(--text); border-color:rgba(110,168,255,.35)}
+    .actions{display:flex; gap:10px; align-items:center}
+    .iconbtn{
+      display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      padding:9px 12px; border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(16,29,54,.55);
+      color:var(--text);
+      font-weight:700; font-size:13px;
+    }
+    .iconbtn:hover{border-color:rgba(110,168,255,.35)}
+    .counter{
+      display:inline-flex; min-width:20px; height:20px; padding:0 6px;
+      align-items:center; justify-content:center;
+      border-radius:999px; font-size:12px; font-weight:800;
+      background:rgba(110,168,255,.18); border:1px solid rgba(110,168,255,.35);
+    }
+
+    /* Hero */
+    .hero{
+      margin-top:18px;
+      border:1px solid var(--line); border-radius:calc(var(--r) + 6px);
+      overflow:hidden;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.03), transparent),
+        radial-gradient(900px 420px at 18% 20%, rgba(110,168,255,.28), transparent 62%),
+        radial-gradient(700px 380px at 85% 30%, rgba(57,217,138,.18), transparent 60%),
+        rgba(16,29,54,.55);
+      box-shadow:var(--shadow);
+    }
+    .hero-inner{
+      padding:26px;
+      display:grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap:16px;
+      align-items:center;
+    }
+    .hero h1{margin:0 0 10px; font-size:34px; line-height:1.25}
+    .hero p{margin:0; color:var(--muted); line-height:1.9}
+    .search{
+      display:flex; gap:10px; margin-top:14px; flex-wrap:wrap;
+    }
+    .search input{
+      flex:1;
+      min-width:240px;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(11,18,32,.55);
+      color:var(--text);
+      outline:none;
+    }
+    .search input:focus{border-color:rgba(110,168,255,.55); box-shadow:0 0 0 4px rgba(110,168,255,.10)}
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      padding:12px 14px; border-radius:14px;
+      border:1px solid rgba(110,168,255,.35);
+      background:linear-gradient(135deg, rgba(110,168,255,.26), rgba(57,217,138,.10));
+      color:var(--text);
+      font-weight:800;
+      cursor:pointer;
+    }
+    .btn:hover{filter:brightness(1.06)}
+    .hero-card{
+      border:1px solid var(--line); border-radius:var(--r);
+      background:rgba(11,18,32,.45);
+      padding:16px;
+      display:grid; gap:10px;
+    }
+    .hero-metrics{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    .metric{
+      border:1px solid var(--line); border-radius:16px;
+      padding:12px; background:rgba(16,29,54,.55);
+    }
+    .metric b{display:block; font-size:18px}
+    .metric span{color:var(--muted); font-size:12px}
+
+    /* Section */
+    .section{margin-top:20px}
+    .section-head{
+      display:flex; align-items:end; justify-content:space-between; gap:10px;
+      margin-bottom:10px;
+    }
+    .section-head h2{margin:0; font-size:18px}
+    .section-head p{margin:0; color:var(--muted); font-size:13px; line-height:1.8}
+    .grid4{display:grid; grid-template-columns:repeat(4, 1fr); gap:12px}
+    .grid3{display:grid; grid-template-columns:repeat(3, 1fr); gap:12px}
+
+    .card{
+      border:1px solid var(--line); border-radius:var(--r);
+      background:rgba(16,29,54,.55);
+      box-shadow:0 12px 34px rgba(0,0,0,.22);
+      overflow:hidden;
+    }
+    .pad{padding:14px}
+    .tag{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.03);
+      color:var(--muted); font-size:12px; font-weight:700;
+    }
+    .tag.sponsored{
+      color:#ffe9b7;
+      background:rgba(255,204,102,.14);
+      border-color:rgba(255,204,102,.35);
+    }
+    .tag.good{
+      color:#c7ffe6; background:rgba(57,217,138,.12); border-color:rgba(57,217,138,.35);
+    }
+
+    /* Category cards */
+    .cat{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:14px;
+      background:
+        radial-gradient(120px 80px at 20% 30%, rgba(110,168,255,.18), transparent 70%),
+        rgba(16,29,54,.55);
+    }
+    .cat b{display:block}
+    .cat span{display:block; margin-top:2px; color:var(--muted); font-size:12px}
+    .arrow{opacity:.75}
+
+    /* Products + filters */
+    .shop{
+      display:grid; grid-template-columns: 320px 1fr; gap:12px;
+      align-items:start;
+    }
+    .filters{
+      position:sticky; top:78px;
+      border:1px solid var(--line); border-radius:var(--r);
+      background:rgba(16,29,54,.55);
+      box-shadow:0 12px 34px rgba(0,0,0,.22);
+      padding:14px;
+    }
+    .filters h3{margin:0 0 10px; font-size:15px}
+    .fgroup{display:grid; gap:8px; margin-bottom:10px}
+    label{font-size:13px; color:var(--muted)}
+    input, select{
+      width:100%;
+      padding:11px 12px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(11,18,32,.55);
+      color:var(--text);
+      outline:none;
+    }
+    input:focus, select:focus{border-color:rgba(110,168,255,.55); box-shadow:0 0 0 4px rgba(110,168,255,.10)}
+    datalist option{background:#0b1220; color:var(--text)}
+    .filters .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    .small{font-size:12px; color:var(--muted); line-height:1.7}
+    .products{display:grid; grid-template-columns:repeat(3, 1fr); gap:12px}
+    .pimg{
+      height:170px; background:
+        linear-gradient(180deg, rgba(255,255,255,.03), transparent),
+        radial-gradient(200px 120px at 30% 30%, rgba(110,168,255,.25), transparent 60%),
+        radial-gradient(220px 140px at 70% 40%, rgba(57,217,138,.16), transparent 60%),
+        rgba(11,18,32,.55);
+      border-bottom:1px solid var(--line);
+      position:relative;
+    }
+    .pimg .badge{
+      position:absolute; top:12px; right:12px;
+      padding:6px 10px; border-radius:999px;
+      font-size:12px; font-weight:800;
+      border:1px solid rgba(255,204,102,.35);
+      background:rgba(255,204,102,.14);
+      color:#ffe9b7;
+    }
+    .pmeta{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:10px}
+    .price{font-weight:900}
+    .muted{color:var(--muted)}
+    .stars{color:#ffd27a; font-size:12px; letter-spacing:1px}
+    .pactions{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap}
+    .btn2{
+      display:inline-flex; align-items:center; justify-content:center;
+      padding:10px 12px; border-radius:14px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.03);
+      color:var(--text);
+      font-weight:800; font-size:13px;
+    }
+    .btn2:hover{border-color:rgba(110,168,255,.35)}
+    .btn2.primary{
+      border-color:rgba(110,168,255,.35);
+      background:linear-gradient(135deg, rgba(110,168,255,.22), rgba(57,217,138,.10));
+    }
+
+    /* Vendors */
+    .vendor{
+      display:flex; gap:12px; align-items:center; justify-content:space-between;
+    }
+    .avatar{
+      width:44px; height:44px; border-radius:16px;
+      background:linear-gradient(135deg, rgba(110,168,255,.35), rgba(57,217,138,.18));
+      border:1px solid var(--line);
+    }
+    .vendor b{display:block}
+    .vendor span{display:block; color:var(--muted); font-size:12px; margin-top:2px}
+
+    /* About + Contact */
+    .two{
+      display:grid; grid-template-columns: 1.2fr 1fr; gap:12px;
+    }
+    textarea{min-height:120px; resize:vertical}
+
+    /* Footer */
+    footer{
+      margin-top:24px;
+      border-top:1px solid var(--line);
+      background:rgba(11,18,32,.65);
+      padding:18px 0;
+    }
+    .foot{
+      display:grid; grid-template-columns: 1.2fr 1fr 1fr; gap:12px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.9;
+    }
+    .foot b{color:var(--text)}
+    .links{display:grid; gap:6px}
+    .links a{color:var(--muted)}
+    .links a:hover{color:var(--text)}
+
+    /* Overlays via :target (Cart / Favorites) */
+    .overlay{
+      position:fixed; inset:0; background:rgba(0,0,0,.55);
+      opacity:0; pointer-events:none; transition:.2s ease;
+      z-index:99;
+    }
+    .overlay:target{opacity:1; pointer-events:auto}
+    .drawer{
+      position:absolute; top:0; bottom:0; left:0;
+      width:min(520px, 100%);
+      background:rgba(15,26,47,.95);
+      border-right:1px solid var(--line);
+      box-shadow: -20px 0 70px rgba(0,0,0,.55);
+      transform:translateX(-12px);
+    }
+    .overlay:target .drawer{transform:translateX(0)}
+    .drawer .dhead{
+      padding:14px; border-bottom:1px solid var(--line);
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    }
+    .close{
+      padding:8px 10px; border-radius:12px;
+      border:1px solid var(--line); color:var(--muted);
+      background:rgba(255,255,255,.03);
+    }
+    .close:hover{color:var(--text); border-color:rgba(110,168,255,.35)}
+    .drawer .content{padding:14px}
+    .item{
+      display:flex; justify-content:space-between; gap:10px;
+      border:1px solid var(--line); border-radius:16px;
+      padding:12px; background:rgba(16,29,54,.55); margin-bottom:10px;
+    }
+    .sum{
+      border-top:1px solid var(--line);
+      margin-top:12px; padding-top:12px;
+      display:grid; gap:8px; color:var(--muted);
+    }
+    .sum b{color:var(--text)}
+    .checkout{
+      display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;
+    }
+
+    @media (max-width: 1080px){
+      .hero-inner{grid-template-columns:1fr}
+      .grid4{grid-template-columns:repeat(2, 1fr)}
+      .grid3{grid-template-columns:1fr}
+      .shop{grid-template-columns:1fr}
+      .filters{position:relative; top:auto}
+      .products{grid-template-columns:repeat(2, 1fr)}
+      .two{grid-template-columns:1fr}
+      .foot{grid-template-columns:1fr}
+    }
+    @media (max-width: 560px){
+      .products{grid-template-columns:1fr}
+      .quick{display:none}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Overlays -->
+  <section id="favorites" class="overlay" aria-label="المفضلة">
+    <aside class="drawer" role="dialog" aria-modal="true">
+      <div class="dhead">
+        <b>المفضلة <span class="counter">3</span></b>
+        <a class="close" href="#">إغلاق</a>
+      </div>
+      <div class="content">
+        <div class="item">
+          <div>
+            <b>سماعات لاسلكية Pro</b>
+            <div class="muted">إلكترونيات • ⭐ 4.7</div>
+          </div>
+          <b class="price">$59</b>
+        </div>
+        <div class="item">
+          <div>
+            <b>حقيبة يد فاخرة</b>
+            <div class="muted">أزياء • ⭐ 4.5</div>
+          </div>
+          <b class="price">$44</b>
+        </div>
+        <div class="item">
+          <div>
+            <b>عطر شرقي</b>
+            <div class="muted">عطور • ⭐ 4.8</div>
+          </div>
+          <b class="price">$35</b>
+        </div>
+        <div class="small">* هذه واجهة فقط — الـ Backend يملأ العناصر الحقيقية.</div>
+      </div>
+    </aside>
+  </section>
+
+  <section id="cart" class="overlay" aria-label="السلة">
+    <aside class="drawer" role="dialog" aria-modal="true">
+      <div class="dhead">
+        <b>السلة <span class="counter">2</span></b>
+        <a class="close" href="#">إغلاق</a>
+      </div>
+      <div class="content">
+        <div class="item">
+          <div>
+            <b>هاتف ذكي X</b>
+            <div class="muted">الكمية: 1</div>
+          </div>
+          <b class="price">$299</b>
+        </div>
+
+        <div class="item">
+          <div>
+            <b>شاحن سريع 30W</b>
+            <div class="muted">الكمية: 2</div>
+          </div>
+          <b class="price">$38</b>
+        </div>
+
+        <div class="sum">
+          <div style="display:flex; justify-content:space-between"><span>المجموع</span><b>$337</b></div>
+          <div style="display:flex; justify-content:space-between"><span>الشحن (تقديري)</span><b>$8</b></div>
+          <div style="display:flex; justify-content:space-between"><span>الإجمالي</span><b>$345</b></div>
+        </div>
+
+        <div class="checkout">
+          <a class="btn2 primary" href="cart-checkout.html">إتمام الشراء</a>
+          <a class="btn2" href="#favorites">عرض المفضلة</a>
+        </div>
+
+        <div class="small">السلة هنا Overlay بالـ CSS — صفحة الدفع كاملة موجودة بملف <b>cart-checkout.html</b>.</div>
+      </div>
+    </aside>
+  </section>
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="container">
+      <div class="row">
+        <a class="brand" href="index.html" aria-label="العودة للصفحة الرئيسية">
+          <img class="logo-img" src="assets/logo.png" alt="Marketplace Logo">
+          <span>JBHN Market</span>
+        </a>
+
+        <nav class="quick" aria-label="وصول سريع">
+          <a class="chip" href="#categories">التصنيفات</a>
+          <a class="chip" href="#deals">العروض</a>
+          <a class="chip" href="#sponsored">الإعلانات الممولة</a>
+          <a class="chip" href="#products">المنتجات</a>
+          <a class="chip" href="#vendors">البائعون</a>
+          <a class="chip" href="#contact">تواصل معنا</a>
+        </nav>
+
+        <div class="actions">
+          <a class="iconbtn" href="#favorites">المفضلة <span class="counter">3</span></a>
+          <a class="iconbtn" href="#cart">السلة <span class="counter">2</span></a>
+          <a class="iconbtn" href="login.html">الحساب</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- Hero -->
+    <section class="hero" aria-label="بانر ترحيبي">
+      <div class="hero-inner">
+        <div>
+          
+          <h1>اكتشف أفضل المنتجات من بائعين متعددين — مع عروض وإعلانات ممولة باحتراف</h1>
+          <p>
+            ابحث بسرعة، قارن المنتجات، واستفد من العروض.
+            الواجهة مصممة لتكون بسيطة وغير مزدحمة وتناسب UX/UI الحديث.
+          </p>
+
+          <!-- <form class="search" action="search-results.html" method="get" aria-label="بحث"> -->
+            <form action="/search" method="get">بحث
+
+            <input name="q" type="search" placeholder="ابحث عن منتج… مثال: سماعات، هاتف، عطر" />
+            <button class="btn" type="submit">بحث</button>
+            <a class="btn" href="#products" style="border-color:rgba(255,255,255,.14); background:rgba(255,255,255,.03)">استعراض المنتجات</a>
+          </form>
+        </div>
+
+        <aside class="hero-card" aria-label="مؤشرات سريعة">
+          <div class="hero-metrics">
+            <div class="metric">
+              <b>+12K</b>
+              <span>منتج متاح</span>
+            </div>
+            <div class="metric">
+              <b>+340</b>
+              <span>بائع موثوق</span>
+            </div>
+            <div class="metric">
+              <b>خصم</b>
+              <span>حتى 40% اليوم</span>
+            </div>
+            <div class="metric">
+              <b>ممول</b>
+              <span>إظهار منتجات مميزة</span>
+            </div>
+          </div>
+
+          <div class="small">
+            * الأرقام للعرض فقط. الـ Backend يربط البيانات الحقيقية.
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- Categories -->
+    <section id="categories" class="section">
+      <div class="section-head">
+        <div>
+          <h2>التصنيفات</h2>
+          <p>اختيار سريع للوصول للمنتجات حسب الصنف.</p>
+        </div>
+        <a class="chip" href="search-results.html">عرض كل التصنيفات</a>
+      </div>
+
+      <div class="grid4">
+        <a class="card cat" href="search-results.html">
+          <div><b>إلكترونيات</b><span>هواتف • سماعات • شواحن</span></div>
+          <span class="arrow">←</span>
+        </a>
+        <a class="card cat" href="search-results.html">
+          <div><b>أزياء</b><span>ملابس • أحذية • حقائب</span></div>
+          <span class="arrow">←</span>
+        </a>
+        <a class="card cat" href="search-results.html">
+          <div><b>عطور وتجميل</b><span>عطور • عناية • مكياج</span></div>
+          <span class="arrow">←</span>
+        </a>
+        <a class="card cat" href="search-results.html">
+          <div><b>منزل ومطبخ</b><span>أدوات • ديكور • تجهيزات</span></div>
+          <span class="arrow">←</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Deals -->
+    <section id="deals" class="section">
+      <div class="section-head">
+        <div>
+          <h2>العروض</h2>
+          <p>عروض مميزة على منتجات مختارة.</p>
+        </div>
+        <span class="tag">محدودة الوقت</span>
+      </div>
+
+      <div class="grid3">
+        <article class="card">
+          <div class="pad">
+            <span class="tag good">خصم 25%</span>
+            <h3 style="margin:10px 0 6px">باقة إكسسوارات هاتف</h3>
+            <div class="muted">شاحن + كابل + جراب</div>
+            <div class="pmeta">
+              <b class="price">$19</b>
+              <span class="muted"><s>$25</s></span>
+            </div>
+            <div class="pactions">
+              <a class="btn2 primary" href="product.html">عرض التفاصيل</a>
+              <a class="btn2" href="#cart">إضافة للسلة</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="pad">
+            <span class="tag good">خصم 15%</span>
+            <h3 style="margin:10px 0 6px">عطر شرقي فاخر</h3>
+            <div class="muted">ثبات طويل • حجم 100ml</div>
+            <div class="pmeta">
+              <b class="price">$35</b>
+              <span class="muted"><s>$41</s></span>
+            </div>
+            <div class="pactions">
+              <a class="btn2 primary" href="product.html">عرض التفاصيل</a>
+              <a class="btn2" href="#favorites">إضافة للمفضلة</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="pad">
+            <span class="tag good">خصم 40%</span>
+            <h3 style="margin:10px 0 6px">حقيبة سفر</h3>
+            <div class="muted">خامة ممتازة • حجم متوسط</div>
+            <div class="pmeta">
+              <b class="price">$48</b>
+              <span class="muted"><s>$80</s></span>
+            </div>
+            <div class="pactions">
+              <a class="btn2 primary" href="product.html">عرض التفاصيل</a>
+              <a class="btn2" href="#cart">إضافة للسلة</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Sponsored Ads -->
+    <section id="sponsored" class="section">
+      <div class="section-head">
+        <div>
+          <h2>الإعلانات الممولة</h2>
+          <p>منتجات مميزة تظهر هنا كإعلان ممول مستقل.</p>
+        </div>
+        <span class="tag sponsored">Sponsored</span>
+      </div>
+
+      <div class="grid3">
+        <article class="card">
+          <div class="pimg">
+            <span class="badge">إعلان ممول</span>
+          </div>
+          <div class="pad">
+            <div class="muted">من متجر: TechZone</div>
+            <h3 style="margin:6px 0">سماعات Pro ANC</h3>
+            <div class="pmeta">
+              <span class="stars">★★★★★</span>
+              <b class="price">$59</b>
+            </div>
+            <div class="pactions">
+              <a class="btn2 primary" href="product.html">عرض المنتج</a>
+              <a class="btn2" href="#cart">إضافة للسلة</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="pimg">
+            <span class="badge">إعلان ممول</span>
+          </div>
+          <div class="pad">
+            <div class="muted">من متجر: BeautyLab</div>
+            <h3 style="margin:6px 0">سيروم فيتامين C</h3>
+            <div class="pmeta">
+              <span class="stars">★★★★☆</span>
+              <b class="price">$22</b>
+            </div>
+            <div class="pactions">
+              <a class="btn2 primary" href="product.html">عرض المنتج</a>
+              <a class="btn2" href="#favorites">حفظ</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="pimg">
+            <span class="badge">إعلان ممول</span>
+          </div>
+          <div class="pad">
+            <div class="muted">من متجر: HomePlus</div>
+            <h3 style="margin:6px 0">طقم أدوات مطبخ</h3>
+            <div class="pmeta">
+              <span class="stars">★★★★★</span>
+              <b class="price">$31</b>
+            </div>
+            <div class="pactions">
+              <a class="btn2 primary" href="product.html">عرض المنتج</a>
+              <a class="btn2" href="#cart">إضافة للسلة</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Products + Filters -->
+    <section id="products" class="section">
+      <div class="section-head">
+        <div>
+          <h2>المنتجات</h2>
+          <p>فلترة حسب السعر، الصنف، والتقييم (واجهة جاهزة للربط مع الـ Backend).</p>
+        </div>
+        <a class="chip" href="search-results.html">عرض المزيد</a>
+      </div>
+
+      <div class="shop">
+        <aside class="filters" aria-label="فلاتر المنتجات">
+          <h3>فلترة</h3>
+
+          <form action="search-results.html" method="get">
+            <div class="fgroup">
+              <label for="q">بحث</label>
+              <input id="q" name="q" type="search" placeholder="اسم المنتج..." />
+            </div>
+
+            <div class="fgroup">
+              <label for="cat">الصنف (اكتب أو اختر)</label>
+              <input id="cat" name="category" list="cats" placeholder="مثال: إلكترونيات" />
+              <datalist id="cats">
+                <option value="إلكترونيات"></option>
+                <option value="أزياء وملابس"></option>
+                <option value="عطور وتجميل"></option>
+                <option value="منزل ومطبخ"></option>
+                <option value="رياضة"></option>
+                <option value="كتب"></option>
+              </datalist>
+              <div class="small">ألوان القوائم واضحة قدر الإمكان (تختلف حسب المتصفح).</div>
+            </div>
+
+            <div class="row2">
+              <div class="fgroup">
+                <label for="min">السعر من</label>
+                <input id="min" name="minPrice" type="number" placeholder="0" />
+              </div>
+              <div class="fgroup">
+                <label for="max">السعر إلى</label>
+                <input id="max" name="maxPrice" type="number" placeholder="999" />
+              </div>
+            </div>
+
+            <div class="fgroup">
+              <label for="rate">التقييم (اكتب أو اختر)</label>
+              <input id="rate" name="rating" list="rates" placeholder="مثال: 4.5" />
+              <datalist id="rates">
+                <option value="5.0"></option>
+                <option value="4.5"></option>
+                <option value="4.0"></option>
+                <option value="3.5"></option>
+              </datalist>
+            </div>
+
+            <button class="btn" type="submit" style="width:100%">تطبيق الفلاتر</button>
+          </form>
+        </aside>
+
+        <div class="products" aria-label="قائمة المنتجات">
+          <!-- منتج ممول (نوع الإعلان الثاني: كلمة ممول عند صورة المنتج) -->
+          <article class="card">
+            <div class="pimg">
+              <span class="badge">ممول</span>
+            </div>
+            <div class="pad">
+              <div class="muted">إلكترونيات • من متجر TechZone</div>
+              <h3 style="margin:6px 0">ساعة ذكية S</h3>
+              <div class="pmeta">
+                <span class="stars">★★★★★</span>
+                <b class="price">$79</b>
+              </div>
+              <div class="pactions">
+                <a class="btn2 primary" href="product.html">تفاصيل</a>
+                <a class="btn2" href="#cart">إضافة للسلة</a>
+                <a class="btn2" href="#favorites">مفضلة</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="pimg"></div>
+            <div class="pad">
+              <div class="muted">أزياء • من متجر StyleHub</div>
+              <h3 style="margin:6px 0">حذاء رياضي</h3>
+              <div class="pmeta">
+                <span class="stars">★★★★☆</span>
+                <b class="price">$54</b>
+              </div>
+              <div class="pactions">
+                <a class="btn2 primary" href="product.html">تفاصيل</a>
+                <a class="btn2" href="#cart">إضافة للسلة</a>
+                <a class="btn2" href="#favorites">مفضلة</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="pimg"></div>
+            <div class="pad">
+              <div class="muted">عطور • من متجر Aroma</div>
+              <h3 style="margin:6px 0">عطر فانيلا</h3>
+              <div class="pmeta">
+                <span class="stars">★★★★★</span>
+                <b class="price">$29</b>
+              </div>
+              <div class="pactions">
+                <a class="btn2 primary" href="product.html">تفاصيل</a>
+                <a class="btn2" href="#cart">إضافة للسلة</a>
+                <a class="btn2" href="#favorites">مفضلة</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="pimg"></div>
+            <div class="pad">
+              <div class="muted">منزل • من متجر HomePlus</div>
+              <h3 style="margin:6px 0">مصباح مكتبي</h3>
+              <div class="pmeta">
+                <span class="stars">★★★★☆</span>
+                <b class="price">$18</b>
+              </div>
+              <div class="pactions">
+                <a class="btn2 primary" href="product.html">تفاصيل</a>
+                <a class="btn2" href="#cart">إضافة للسلة</a>
+                <a class="btn2" href="#favorites">مفضلة</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="pimg"></div>
+            <div class="pad">
+              <div class="muted">إلكترونيات • من متجر TechZone</div>
+              <h3 style="margin:6px 0">شاحن سريع</h3>
+              <div class="pmeta">
+                <span class="stars">★★★★★</span>
+                <b class="price">$19</b>
+              </div>
+              <div class="pactions">
+                <a class="btn2 primary" href="product.html">تفاصيل</a>
+                <a class="btn2" href="#cart">إضافة للسلة</a>
+                <a class="btn2" href="#favorites">مفضلة</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="pimg"></div>
+            <div class="pad">
+              <div class="muted">رياضة • من متجر FitPro</div>
+              <h3 style="margin:6px 0">حبل مقاومة</h3>
+              <div class="pmeta">
+                <span class="stars">★★★☆☆</span>
+                <b class="price">$12</b>
+              </div>
+              <div class="pactions">
+                <a class="btn2 primary" href="product.html">تفاصيل</a>
+                <a class="btn2" href="#cart">إضافة للسلة</a>
+                <a class="btn2" href="#favorites">مفضلة</a>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Vendors -->
+    <section id="vendors" class="section">
+      <div class="section-head">
+        <div>
+          <h2>البائعون في المتجر</h2>
+          <p>اختر متجرًا لعرض جميع منتجاته.</p>
+        </div>
+        <a class="chip" href="vendors.html">عرض كل البائعين</a>
+      </div>
+
+      <div class="grid3">
+        <article class="card pad">
+          <div class="vendor">
+            <div style="display:flex; gap:10px; align-items:center">
+              <div class="avatar" aria-hidden="true"></div>
+              <div>
+                <b>TechZone</b>
+                <span>إلكترونيات • تقييم 4.8</span>
+              </div>
+            </div>
+            <a class="btn2 primary" href="store.html">عرض المتجر</a>
+          </div>
+        </article>
+
+        <article class="card pad">
+          <div class="vendor">
+            <div style="display:flex; gap:10px; align-items:center">
+              <div class="avatar" aria-hidden="true"></div>
+              <div>
+                <b>StyleHub</b>
+                <span>أزياء • تقييم 4.5</span>
+              </div>
+            </div>
+            <a class="btn2 primary" href="store.html">عرض المتجر</a>
+          </div>
+        </article>
+
+        <article class="card pad">
+          <div class="vendor">
+            <div style="display:flex; gap:10px; align-items:center">
+              <div class="avatar" aria-hidden="true"></div>
+              <div>
+                <b>Aroma</b>
+                <span>عطور • تقييم 4.9</span>
+              </div>
+            </div>
+            <a class="btn2 primary" href="store.html">عرض المتجر</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- About + Contact -->
+    <section class="section two" aria-label="من نحن وتواصل معنا">
+      <article class="card pad">
+        <h2 style="margin:0 0 6px">من نحن</h2>
+        <p class="muted" style="margin:0; line-height:1.9">
+          نحن منصة تجارة إلكترونية متعددة البائعين، هدفنا توفير تجربة شراء سهلة وسريعة
+          مع نظام عروض وإعلانات ممولة لزيادة ظهور المنتجات المميزة بطريقة منظمة وغير مزعجة.
+        </p>
+        <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap">
+          <span class="tag">UX/UI</span>
+          <span class="tag">Multi-Vendor</span>
+          <span class="tag sponsored">Ads</span>
+        </div>
+      </article>
+
+      <article id="contact" class="card pad">
+        <h2 style="margin:0 0 6px">تواصل معنا</h2>
+        <form action="#" method="post" style="display:grid; gap:10px; margin-top:10px">
+          <div style="display:grid; gap:8px">
+            <label for="name">الاسم</label>
+            <input id="name" name="name" type="text" placeholder="اسمك الكامل" required />
+          </div>
+          <div style="display:grid; gap:8px">
+            <label for="email2">الإيميل</label>
+            <input id="email2" name="email" type="email" placeholder="name@example.com" required />
+          </div>
+          <div style="display:grid; gap:8px">
+            <label for="msg">الرسالة</label>
+            <textarea id="msg" name="message" placeholder="كيف يمكننا مساعدتك؟" required></textarea>
+          </div>
+          <button class="btn" type="submit">إرسال</button>
+          <div class="small">* الإرسال هنا واجهة فقط — اربطه بالـ Backend.</div>
+        </form>
+      </article>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="foot">
+        <div>
+          <b>Marketplace</b>
+          <div>واجهة داكنة بسيطة، أداء أفضل، وتنظيم واضح للأقسام.</div>
+          <div style="margin-top:10px" class="small">© جميع الحقوق محفوظة</div>
+        </div>
+        <div class="links">
+          <b>روابط</b>
+          <a href="#categories">التصنيفات</a>
+          <a href="#products">المنتجات</a>
+          <a href="#vendors">البائعون</a>
+          <a href="cart-checkout.html">الدفع</a>
+        </div>
+        <div class="links">
+          <b>الحساب</b>
+          <a href="login.html">تسجيل دخول مشتري</a>
+          <a href="seller-register-login.html">بوابة البائع</a>
+          <a href="seller-dashboard.html">لوحة البائع (للبائع فقط)</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
