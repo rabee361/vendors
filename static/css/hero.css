@@ -1,0 +1,182 @@
+/* Hero Section */
+.hero {
+    margin-top: 18px;
+    border: 1px solid var(--line);
+    border-radius: calc(var(--r) + 6px);
+    overflow: hidden;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, .03), transparent),
+        radial-gradient(900px 420px at 18% 20%, rgba(110, 168, 255, .28), transparent 62%),
+        radial-gradient(700px 380px at 85% 30%, rgba(57, 217, 138, .18), transparent 60%),
+        rgba(16, 29, 54, .55);
+    box-shadow: var(--shadow);
+}
+
+.hero-inner {
+    padding: 26px;
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 16px;
+    align-items: center;
+}
+
+.hero h1 {
+    margin: 0 0 10px;
+    font-size: 34px;
+    line-height: 1.25;
+}
+
+.hero p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.9;
+}
+
+.hero-card {
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    background: rgba(11, 18, 32, .45);
+    padding: 16px;
+    display: grid;
+    gap: 10px;
+}
+
+.hero-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.metric {
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 12px;
+    background: rgba(16, 29, 54, .55);
+}
+
+.metric b {
+    display: block;
+    font-size: 18px;
+}
+
+.metric span {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+/* Overlays (Cart / Favorites / Modals) */
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .55);
+    opacity: 0;
+    pointer-events: none;
+    transition: .2s ease;
+    z-index: 99;
+}
+
+.overlay:target {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.drawer {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: min(520px, 100%);
+    background: rgba(15, 26, 47, .95);
+    border-right: 1px solid var(--line);
+    box-shadow: -20px 0 70px rgba(0, 0, 0, .55);
+    transform: translateX(-12px);
+}
+
+.overlay:target .drawer {
+    transform: translateX(0);
+}
+
+.drawer .dhead {
+    padding: 14px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.close {
+    padding: 8px 10px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    background: rgba(255, 255, 255, .03);
+}
+
+.close:hover {
+    color: var(--text);
+    border-color: rgba(110, 168, 255, .35);
+}
+
+.drawer .content {
+    padding: 14px;
+}
+
+.item {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 12px;
+    background: rgba(16, 29, 54, .55);
+    margin-bottom: 10px;
+}
+
+.sum {
+    border-top: 1px solid var(--line);
+    margin-top: 12px;
+    padding-top: 12px;
+    display: grid;
+    gap: 8px;
+    color: var(--muted);
+}
+
+.sum b {
+    color: var(--text);
+}
+
+.checkout {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+/* Modal specific (Product comparison) */
+.modal {
+    width: min(980px, 100%);
+    border: 1px solid var(--line);
+    border-radius: calc(var(--r) + 6px);
+    background: rgba(15, 26, 47, .97);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin: auto;
+}
+
+.mhead {
+    padding: 14px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(180deg, rgba(110, 168, 255, .12), rgba(255, 255, 255, .02));
+}
+
+.overlay.modal-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+}

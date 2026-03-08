@@ -1,0 +1,34 @@
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 12px;
+    border-bottom: 1px solid var(--line);
+    text-align: right;
+    vertical-align: top;
+}
+
+th {
+    color: var(--muted);
+    font-weight: 900;
+    background: rgba(255, 255, 255, .02);
+}
+
+.status {
+    font-weight: 900;
+}
+
+.status.p {
+    color: #ffe9b7;
+}
+
+.status.c {
+    color: #c7ffe6;
+}
+
+.status.r {
+    color: #ffb7b7;
+}
