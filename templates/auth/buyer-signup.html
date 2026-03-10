@@ -1,0 +1,47 @@
+{% extends 'auth/base.html' %}
+{% block content %}
+    <title>البائع | تسجيل/دخول</title>
+    <main class="wrap">
+
+        <!-- تسجيل بائع جديد -->
+        <section class="panel" aria-label="تسجيل بائع جديد">
+            <div class="head">
+                <b>إنشاء حساب بائع جديد</b>
+                <span class="badge"
+                    style="border-color:rgba(110,168,255,.35); background:rgba(110,168,255,.12); color:#dbe8ff;">New
+                    Store</span>
+            </div>
+
+            <form action="{% url 'buyer_signup' %}" method="post" class="grid">
+                {% csrf_token %}
+                <div class="row2">
+                    <div>
+                        <label for="fullName">الاسم الكامل</label>
+                        <input id="fullName" name="full_name" type="text" placeholder="مثال: أحمد خالد" required />
+                    </div>
+                    <div>
+                        <label for="email">الإيميل</label>
+                        <input id="email" name="email" type="email" placeholder="name@example.com" required />
+                    </div>
+                </div>
+
+                <div class="row2">
+                    <div>
+                        <label for="password">كلمة المرور</label>
+                        <input id="password" name="password" type="password" placeholder="••••••••" required />
+                    </div>
+                    <div>
+                        <label for="confirm_password">تأكيد كلمة المرور</label>
+                        <input id="confirm_password" name="confirm_password" type="password" placeholder="••••••••" required />
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn" type="submit">إنشاء حساب + دخول</button>
+                    <a class="btn ghost" href="{% url 'home' %}">زيارة المتجر</a>
+                </div>
+            </form>
+        </section>
+
+    </main>
+{% endblock %}

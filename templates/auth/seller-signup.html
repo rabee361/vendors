@@ -1,0 +1,79 @@
+{% extends 'auth/base.html' %}
+{% block content %}
+    <title>البائع | تسجيل/دخول</title>
+    <main class="wrap">
+
+        <!-- تسجيل بائع جديد -->
+        <section class="panel" aria-label="تسجيل بائع جديد">
+            <div class="head">
+                <b>إنشاء حساب بائع جديد</b>
+                <span class="badge"
+                    style="border-color:rgba(110,168,255,.35); background:rgba(110,168,255,.12); color:#dbe8ff;">New
+                    Store</span>
+            </div>
+
+            <form action="{% url 'vendor_signup' %}" method="post" class="grid">
+                {% csrf_token %}
+                <div class="row2">
+                    <div>
+                        <label for="fullName">الاسم الكامل</label>
+                        <input id="fullName" name="full_name" type="text" placeholder="مثال: أحمد خالد" required />
+                    </div>
+                    <div>
+                        <label for="email">الإيميل</label>
+                        <input id="email" name="email" type="email" placeholder="name@example.com" required />
+                    </div>
+                </div>
+
+                <div class="row2">
+                    <div>
+                        <label for="address">العنوان</label>
+                        <input id="address" name="address" type="text" placeholder="المدينة - الحي - الشارع" required />
+                    </div>
+                    <div>
+                        <label for="password">كلمة المرور</label>
+                        <input id="password" name="password" type="password" placeholder="••••••••" required />
+                    </div>
+                </div>
+
+                <div class="row2">
+                    <div>
+                        <label for="confirm_password">تأكيد كلمة المرور</label>
+                        <input id="confirm_password" name="confirm_password" type="password" placeholder="••••••••" required />
+                    </div>
+                    <div>
+                        <label for="storeName">اسم المتجر</label>
+                        <input id="storeName" name="store_name" type="text" placeholder="مثال: متجر النخبة" required />
+                    </div>
+                </div>
+
+                <div class="row2">
+                    <div>
+                        <label for="storeCategory">تصنيف المتجر (اكتب أو اختر)</label>
+                        <input id="storeCategory" name="store_category" list="storeCats"
+                            placeholder="مثال: إلكترونيات / ملابس / عطور..." required />
+                        <datalist id="storeCats">
+                            <option value="إلكترونيات"></option>
+                            <option value="أزياء وملابس"></option>
+                            <option value="عطور وتجميل"></option>
+                            <option value="منزل ومطبخ"></option>
+                            <option value="رياضة"></option>
+                            <option value="كتب ومستلزمات دراسية"></option>
+                            <option value="هواتف وإكسسوارات"></option>
+                        </datalist>
+                    </div>
+                    <div>
+                        <label for="phone">رقم الهاتف (اختياري)</label>
+                        <input id="phone" name="phone" type="tel" placeholder="+963 9xx xxx xxx" />
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn" type="submit">إنشاء حساب + دخول اللوحة</button>
+                    <a class="btn ghost" href="{% url 'home' %}">زيارة المتجر</a>
+                </div>
+            </form>
+        </section>
+
+    </main>
+{% endblock %}

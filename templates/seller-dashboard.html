@@ -9,40 +9,9 @@
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
   <link rel="stylesheet" href="{% static 'css/tables.css' %}">
   <style>
+    /* Specific overrides for Dashboard */
     :root {
-      --bg: #0b1220;
-      --panel: #0f1a2f;
-      --card: #101d36;
-      --muted: #9fb0d0;
-      --text: #eaf0ff;
-      --line: rgba(255, 255, 255, .10);
-      --accent: #6ea8ff;
-      --accent2: #39d98a;
-      --warn: #ffcc66;
-      --danger: #ff6b6b;
-      --shadow: 0 18px 50px rgba(0, 0, 0, .45);
-      --r: 18px;
       --container: 1300px;
-    }
-
-    * {
-      box-sizing: border-box
-    }
-
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif;
-      background:
-        radial-gradient(900px 450px at 12% 8%, rgba(110, 168, 255, .18), transparent 60%),
-        radial-gradient(800px 420px at 88% 18%, rgba(57, 217, 138, .12), transparent 60%),
-        radial-gradient(900px 520px at 40% 92%, rgba(255, 204, 102, .10), transparent 55%),
-        var(--bg);
-      color: var(--text);
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none
     }
 
     .shell {
@@ -58,21 +27,6 @@
       top: 0;
       height: 100vh;
       padding: 16px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 900
-    }
-
-    .mark {
-      width: 42px;
-      height: 42px;
-      border-radius: 16px;
-      background: linear-gradient(135deg, rgba(110, 168, 255, .95), rgba(57, 217, 138, .85));
-      box-shadow: 0 14px 32px rgba(110, 168, 255, .18);
     }
 
     .store {
@@ -153,53 +107,10 @@
       padding: 18px
     }
 
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 12px 0 16px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 18px
-    }
-
-    .muted {
-      color: var(--muted)
-    }
-
     .chips {
       display: flex;
       gap: 10px;
       flex-wrap: wrap
-    }
-
-    .chip {
-      padding: 8px 12px;
-      border-radius: 999px;
-      border: 1px solid var(--line);
-      color: var(--muted);
-      background: rgba(255, 255, 255, .02)
-    }
-
-    .chip:hover {
-      color: var(--text);
-      border-color: rgba(110, 168, 255, .35)
-    }
-
-    .card {
-      border: 1px solid var(--line);
-      border-radius: var(--r);
-      background: rgba(16, 29, 54, .55);
-      box-shadow: 0 12px 34px rgba(0, 0, 0, .22);
-      overflow: hidden;
-    }
-
-    .pad {
-      padding: 14px
     }
 
     .grid2 {
@@ -233,35 +144,6 @@
       margin-top: 2px
     }
 
-    label {
-      font-size: 13px;
-      color: var(--muted)
-    }
-
-    input,
-    select,
-    textarea {
-      width: 100%;
-      padding: 12px 12px;
-      border-radius: 14px;
-      border: 1px solid var(--line);
-      background: rgba(11, 18, 32, .55);
-      color: var(--text);
-      outline: none;
-    }
-
-    input::placeholder,
-    textarea::placeholder {
-      color: rgba(159, 176, 208, .7)
-    }
-
-    input:focus,
-    select:focus,
-    textarea:focus {
-      border-color: rgba(110, 168, 255, .55);
-      box-shadow: 0 0 0 4px rgba(110, 168, 255, .10)
-    }
-
     datalist option {
       background: #0b1220;
       color: var(--text)
@@ -270,29 +152,6 @@
     textarea {
       min-height: 120px;
       resize: vertical
-    }
-
-    .row2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 12px 14px;
-      border-radius: 14px;
-      border: 1px solid rgba(110, 168, 255, .35);
-      background: linear-gradient(135deg, rgba(110, 168, 255, .24), rgba(57, 217, 138, .10));
-      color: var(--text);
-      font-weight: 900;
-      cursor: pointer;
-    }
-
-    .btn:hover {
-      filter: brightness(1.06)
     }
 
     .btn.ghost {
@@ -321,47 +180,6 @@
     }
 
     /* :has دعم ممتاز بمتصفحات حديثة */
-
-    table {
-      width: 100%;
-      border-collapse: collapse
-    }
-
-    th,
-    td {
-      padding: 12px;
-      border-bottom: 1px solid var(--line);
-      text-align: right;
-      vertical-align: top
-    }
-
-    th {
-      color: var(--muted);
-      font-weight: 900;
-      background: rgba(255, 255, 255, .02)
-    }
-
-    .status {
-      font-weight: 900
-    }
-
-    .status.p {
-      color: #ffe9b7
-    }
-
-    .status.c {
-      color: #c7ffe6
-    }
-
-    .status.r {
-      color: #ffb7b7
-    }
-
-    .small {
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.7
-    }
 
     @media (max-width: 1080px) {
       .shell {

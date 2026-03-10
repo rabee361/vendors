@@ -1,6 +1,11 @@
 from django import forms
-from django.contrib.auth.models import User
-from .models import Category
+from django.core.exceptions import ValidationError
+from django.contrib.auth import get_user_model
+from .models import StoreCategory, OTPCode
+from utils.validators import SyrianPhoneValidator
+from utils.types import UserType
+
+User = get_user_model()
 
 class BuyerLoginForm(forms.Form):
     email = forms.EmailField(widget=forms.EmailInput(attrs={
@@ -26,45 +31,101 @@ class SellerLoginForm(forms.Form):
         'required': True
     }))
 
-class SellerRegistrationForm(forms.Form):
+class VendorSignupForm(forms.Form):
     full_name = forms.CharField(max_length=150, widget=forms.TextInput(attrs={
-        'id': 'fullName',
-        'placeholder': 'مثال: أحمد خالد',
-        'required': True
+        'id': 'fullName', 'placeholder': 'مثال: أحمد خالد', 'required': True
     }))
     email = forms.EmailField(widget=forms.EmailInput(attrs={
-        'id': 'email',
-        'placeholder': 'name@example.com',
-        'required': True
-    }))
-    password = forms.CharField(widget=forms.PasswordInput(attrs={
-        'id': 'password',
-        'placeholder': '••••••••',
-        'required': True
+        'id': 'email', 'placeholder': 'name@example.com', 'required': True
     }))
     address = forms.CharField(max_length=300, widget=forms.TextInput(attrs={
-        'id': 'address',
-        'placeholder': 'المدينة - الحي - الشارع',
-        'required': True
+        'id': 'address', 'placeholder': 'المدينة - الحي - الشارع', 'required': True
+    }))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={
+        'id': 'password', 'placeholder': '••••••••', 'required': True
+    }))
+    confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={
+        'id': 'confirm_password', 'placeholder': '••••••••', 'required': True
     }))
     store_name = forms.CharField(max_length=150, widget=forms.TextInput(attrs={
-        'id': 'storeName',
-        'placeholder': 'مثال: متجر النخبة',
-        'required': True
+        'id': 'storeName', 'placeholder': 'مثال: متجر النخبة', 'required': True
     }))
     store_category = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
-        'id': 'storeCategory',
-        'list': 'storeCats',
-        'placeholder': 'مثال: إلكترونيات / ملابس / عطور...',
-        'required': True
+        'id': 'storeCategory', 'list': 'storeCats', 'placeholder': 'مثال: إلكترونيات / ملابس / عطور...', 'required': True
     }))
-    rating = forms.DecimalField(max_digits=2, decimal_places=1, widget=forms.NumberInput(attrs={
-        'id': 'rating',
-        'list': 'ratings',
-        'placeholder': 'مثال: 4.5',
-        'required': True
+    phone = forms.CharField(
+        max_length=20, 
+        required=False, 
+        validators=[SyrianPhoneValidator()],
+        widget=forms.TextInput(attrs={'id': 'phone', 'placeholder': '+963 9xx xxx xxx'})
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get("password")
+        confirm_password = cleaned_data.get("confirm_password")
+
+        if password != confirm_password:
+            raise ValidationError("كلمات المرور غير متطابقة.")
+        return cleaned_data
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise ValidationError("هذا البريد الإلكتروني مسجل مسبقاً.")
+        return email
+
+class BuyerSignupForm(forms.Form):
+    full_name = forms.CharField(max_length=150, widget=forms.TextInput(attrs={
+        'id': 'fullName', 'placeholder': 'مثال: أحمد خالد', 'required': True
     }))
-    phone = forms.CharField(max_length=20, required=False, widget=forms.TextInput(attrs={
-        'id': 'phone',
-        'placeholder': '+963 9xx xxx xxx'
+    email = forms.EmailField(widget=forms.EmailInput(attrs={
+        'id': 'email', 'placeholder': 'name@example.com', 'required': True
     }))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={
+        'id': 'password', 'placeholder': '••••••••', 'required': True
+    }))
+    confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={
+        'id': 'confirm_password', 'placeholder': '••••••••', 'required': True
+    }))
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get("password")
+        confirm_password = cleaned_data.get("confirm_password")
+
+        if password != confirm_password:
+            raise ValidationError("كلمات المرور غير متطابقة.")
+        return cleaned_data
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise ValidationError("هذا البريد الإلكتروني مسجل مسبقاً.")
+        return email
+
+class OTPForm(forms.Form):
+    email = forms.EmailField(widget=forms.EmailInput(attrs={
+        'id': 'email', 'placeholder': 'name@example.com', 'required': True
+    }))
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if OTPCode.check_limit(email):
+            raise ValidationError("لقد تجاوزت الحد المسموح به من طلبات الرمز. يرجى المحاولة لاحقاً.")
+        
+        if not User.objects.filter(email=email).exists():
+            raise ValidationError("هذا البريد الإلكتروني غير مسجل لدينا.")
+            
+        return email
+
+class VerifyOTPForm(forms.Form):
+    code = forms.IntegerField(widget=forms.NumberInput(attrs={
+        'id': 'otpCode', 'placeholder': '123456', 'required': True
+    }))
+
+    def clean_code(self):
+        code = self.cleaned_data.get('code')
+        if not (100000 <= code <= 999999):
+            raise ValidationError("رمز التحقق يجب أن يتكون من 6 أرقام.")
+        return code

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your OTP Code</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&family=Noto+Sans+Arabic:wght@100..900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Cairo', 'Noto Sans Arabic', sans-serif;
+            background-color: #faf8ff;
+            color: #2d1b69;
+            line-height: 1.6;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.15);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #c7b3ff 0%, #b8a3ff 50%, #a693ff 100%);
+            padding: 40px 30px;
+            text-align: center;
+            color: #ffffff;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+        
+        .content {
+            padding: 50px 30px;
+            text-align: center;
+        }
+        
+        .greeting {
+            font-size: 20px;
+            color: #2d1b69;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        
+        .message {
+            font-size: 16px;
+            color: #6b46c1;
+            margin-bottom: 40px;
+            line-height: 1.7;
+        }
+        
+        .otp-container {
+            background: linear-gradient(180deg, #f1ecfd 0%, #c5b5fa 50%, #c5baf3 100%);
+            border-radius: 16px;
+            padding: 30px;
+            margin: 30px 0;
+            border: 2px solid #e9d5ff;
+        }
+        
+        .otp-label {
+            font-size: 14px;
+            color: #9333ea;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+        
+        .otp-code {
+            font-size: 36px;
+            font-weight: 800;
+            color: #2d1b69;
+            letter-spacing: 8px;
+            font-family: 'Courier New', monospace;
+            background-color: #ffffff;
+            padding: 20px 30px;
+            border-radius: 12px;
+            border: 3px solid #8b5cf6;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
+        }
+        
+        .expiry-info {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f4ff;
+            border-radius: 10px;
+            border-left: 4px solid #f59e0b;
+        }
+        
+        .expiry-info p {
+            font-size: 14px;
+            color: #6b46c1;
+            margin: 0;
+        }
+        
+        .security-note {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: rgba(239, 68, 68, 0.05);
+            border-radius: 10px;
+            border-left: 4px solid #ef4444;
+        }
+        
+        .security-note p {
+            font-size: 14px;
+            color: #ef4444;
+            margin: 0;
+            font-weight: 500;
+        }
+        
+        .footer {
+            background-color: #f8f4ff;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e9d5ff;
+        }
+        
+        .footer p {
+            font-size: 14px;
+            color: #9333ea;
+            margin-bottom: 10px;
+        }
+        
+        .footer .company-name {
+            font-weight: 700;
+            color: #2d1b69;
+        }
+        
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                margin: 10px;
+                border-radius: 8px;
+            }
+            
+            .header {
+                padding: 30px 20px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .content {
+                padding: 30px 20px;
+            }
+            
+            .otp-code {
+                font-size: 28px;
+                letter-spacing: 4px;
+                padding: 15px 20px;
+            }
+            
+            .footer {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>🔐 Verification Code</h1>
+            <p>Secure access to your account</p>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">
+                Hello! 👋
+            </div>
+            
+            <div class="message">
+                We received a request to verify your account. Please use the verification code below to complete the process.
+            </div>
+            
+            <div class="otp-container">
+                <div class="otp-label">Your Verification Code</div>
+                <div class="otp-code">{{ otp_code }}</div>
+            </div>
+            
+            <div class="expiry-info">
+                <p>⏰ <strong>This code will expire in 10 minutes</strong> for your security.</p>
+            </div>
+            
+            <div class="security-note">
+                <p>🛡️ <strong>Security Notice:</strong> Never share this code with anyone. Our team will never ask for your verification code.</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>If you didn't request this code, please ignore this email.</p>
+            <p class="company-name">Your Store Team</p>
+            <p>© 2024 All rights reserved</p>
+        </div>
+    </div>
+</body>
+</html>

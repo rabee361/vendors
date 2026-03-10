@@ -40,6 +40,31 @@ a {
     padding: 0 18px
 }
 
+/* Header & Brand */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0 16px;
+    border-bottom: 1px solid var(--line);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 900
+}
+
+.mark {
+    width: 38px;
+    height: 38px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(110, 168, 255, .95), rgba(57, 217, 138, .85));
+    box-shadow: 0 12px 30px rgba(110, 168, 255, .18);
+}
+
 /* Common UI Elements */
 
 .btn {
