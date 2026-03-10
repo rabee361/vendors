@@ -129,3 +129,31 @@ class VerifyOTPForm(forms.Form):
         if not (100000 <= code <= 999999):
             raise ValidationError("رمز التحقق يجب أن يتكون من 6 أرقام.")
         return code
+
+class AccountUpdateForm(forms.Form):
+    display_name = forms.CharField(max_length=150, widget=forms.TextInput(attrs={
+        'id': 'displayName', 'placeholder': 'الاسم المعروض'
+    }))
+    phone = forms.CharField(max_length=20, required=False, widget=forms.TextInput(attrs={
+        'id': 'accountPhone', 'placeholder': '+963 9xx xxx xxx'
+    }))
+    avatar = forms.ImageField(required=False, widget=forms.FileInput(attrs={
+        'id': 'avatarInput'
+    }))
+
+class CheckoutForm(forms.Form):
+    full_name = forms.CharField(max_length=150, widget=forms.TextInput(attrs={
+        'id': 'fn', 'placeholder': 'الاسم الكامل', 'required': True
+    }))
+    phone = forms.CharField(max_length=20, widget=forms.TextInput(attrs={
+        'id': 'ph', 'placeholder': '+963 9xx xxx xxx', 'required': True
+    }))
+    city = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
+        'id': 'ct', 'placeholder': 'المدينة', 'required': True
+    }))
+    address = forms.CharField(widget=forms.Textarea(attrs={
+        'id': 'adr', 'placeholder': 'العنوان التفصيلي', 'required': True
+    }))
+    notes = forms.CharField(required=False, widget=forms.Textarea(attrs={
+        'id': 'nts', 'placeholder': 'ملاحظات إضافية'
+    }))

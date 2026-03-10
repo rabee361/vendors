@@ -10,6 +10,18 @@ basePatterns = [
     path('otp/', base.OtpCodeView.as_view(), name='otp'),
     path('verify-otp/', base.VerifyOtpView.as_view(), name='verify_otp'),
     path('vendors/', base.VendorsView.as_view(), name='vendors'),
+    path('categories/', base.CategoriesView.as_view(), name='category_list'),
+    path('products/', base.ProductListView.as_view(), name='product_list'),
+    path('products/<int:product_id>/', base.ProductDetailView.as_view(), name='product'),
+    path('cart/', base.CartHTMXView.as_view(), name='cart_htmx'),
+    path('cart/add/<int:product_id>/', base.AddToCartView.as_view(), name='add_to_cart'),
+    path('cart/remove/<int:product_id>/', base.RemoveFromCartView.as_view(), name='remove_from_cart'),
+    path('cart/update/<int:product_id>/', base.UpdateCartView.as_view(), name='update_cart'),
+    path('favorites/toggle/<int:product_id>/', base.ToggleFavoriteView.as_view(), name='toggle_favorite'),
+    path('favorites/remove/<int:product_id>/', base.RemoveFavoriteView.as_view(), name='remove_favorite'),
+    path('account/update/', base.AccountUpdateView.as_view(), name='account_update'),
+    path('auth/change-password/', base.ChangePasswordView.as_view(), name='change_password'),
+    path('checkout/', base.CheckoutView.as_view(), name='checkout'),
 ]
 
 moderatorPatterns = [
@@ -22,8 +34,6 @@ vendorPatterns = [
     # path('auth/signup', views.base.vendor_auth_view.as_view(), name='vendor_auth'),
     # path('dashboard', views.base.vendor_dashboard_view.as_view(), name='vendor_dashboard'),
     path('signup/', base.VendorSignupView.as_view(), name='vendor_signup'),
-    path('products/', base.ProductListView.as_view(), name='product_list'),
-    path('products/<int:product_id>/', base.ProductDetailView.as_view(), name='product'),
 ] 
 
 urlpatterns = [

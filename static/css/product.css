@@ -1,0 +1,55 @@
+/* Specific styles for product detail page */
+.product-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
+  align-items: start
+}
+
+.product-img-container {
+  height: 320px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .03), transparent),
+    radial-gradient(240px 160px at 30% 30%, rgba(110, 168, 255, .25), transparent 60%),
+    radial-gradient(260px 180px at 70% 40%, rgba(57, 217, 138, .16), transparent 60%),
+    rgba(11, 18, 32, .55);
+  border-bottom: 1px solid var(--line);
+  position: relative;
+}
+
+.product-info h1 {
+  margin: 0 0 6px;
+  font-size: 22px
+}
+
+.product-details-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  border-top: 1px solid var(--line);
+  margin-top: 12px;
+  padding-top: 12px;
+}
+
+.product-specs {
+  margin: 10px 0 0;
+  padding: 0 18px;
+  color: var(--muted);
+  line-height: 1.9
+}
+
+.product-specs li {
+  margin: 6px 0
+}
+
+@media (max-width: 980px) {
+  .product-grid {
+    grid-template-columns: 1fr
+  }
+
+  .product-img-container {
+    height: 260px
+  }
+}

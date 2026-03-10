@@ -1,0 +1,125 @@
+from django.conf import settings
+from .models import Cart, CartItem, Product
+
+class CartService:
+    def __init__(self, request):
+        self.request = request
+        self.session = request.session
+        cart = self.session.get('cart')
+        if not cart:
+            cart = self.session['cart'] = {}
+        self.cart = cart
+
+    def add(self, product_id, quantity=1, override_quantity=False):
+        product_id = str(product_id)
+        if self.request.user.is_authenticated:
+            cart_obj, _ = Cart.objects.get_or_create(user=self.request.user)
+            item, created = CartItem.objects.get_or_create(cart=cart_obj, product_id=product_id)
+            if override_quantity:
+                item.quantity = quantity
+            else:
+                if not created:
+                    item.quantity += quantity
+                else:
+                    item.quantity = quantity
+            item.save()
+        else:
+            if product_id in self.cart:
+                if override_quantity:
+                    self.cart[product_id] = quantity
+                else:
+                    self.cart[product_id] += quantity
+            else:
+                self.cart[product_id] = quantity
+            self.save()
+
+    def remove(self, product_id):
+        product_id = str(product_id)
+        if self.request.user.is_authenticated:
+            CartItem.objects.filter(cart__user=self.request.user, product_id=product_id).delete()
+        else:
+            if product_id in self.cart:
+                del self.cart[product_id]
+                self.save()
+
+    def update(self, product_id, quantity):
+        self.add(product_id, quantity, override_quantity=True)
+
+    def save(self):
+        self.session['cart'] = self.cart
+        self.session.modified = True
+
+    def get_context(self):
+        grouped_items = {}
+        cart_count = 0
+        total_price = 0
+        
+        if self.request.user.is_authenticated:
+            cart_obj, _ = Cart.objects.get_or_create(user=self.request.user)
+            if not cart_obj.session_key and self.request.session.session_key:
+                cart_obj.session_key = self.request.session.session_key
+                cart_obj.save()
+            items = cart_obj.items.select_related('product', 'product__tenant').all()
+            for item in items:
+                vendor = item.product.tenant
+                if vendor not in grouped_items:
+                    grouped_items[vendor] = {
+                        'items': [],
+                        'subtotal': 0
+                    }
+                item_total = item.quantity * item.product.price
+                grouped_items[vendor]['items'].append({
+                    'product': item.product,
+                    'quantity': item.quantity,
+                    'total': item_total,
+                    'id': item.id
+                })
+                grouped_items[vendor]['subtotal'] += item_total
+                cart_count += item.quantity
+                total_price += item_total
+                
+        else:
+            product_ids = self.cart.keys()
+            products = Product.objects.select_related('tenant').filter(id__in=product_ids)
+            for product in products:
+                quantity = self.cart[str(product.id)]
+                vendor = product.tenant
+                if vendor not in grouped_items:
+                    grouped_items[vendor] = {
+                        'items': [],
+                        'subtotal': 0
+                    }
+                item_total = quantity * product.price
+                grouped_items[vendor]['items'].append({
+                    'product': product,
+                    'quantity': quantity,
+                    'total': item_total,
+                    'id': f"session_{product.id}"
+                })
+                grouped_items[vendor]['subtotal'] += item_total
+                cart_count += quantity
+                total_price += item_total
+
+        return {
+            'grouped_items': dict(grouped_items),
+            'cart_count': cart_count,
+            'cart_total': total_price,
+            'cart_product_ids': [str(pid) for pid in (self.cart.keys() if not self.request.user.is_authenticated else items.values_list('product_id', flat=True))]
+        }
+
+    def sync_to_db(self, user):
+        if self.cart:
+            cart_obj, created = Cart.objects.get_or_create(user=user)
+            if self.request.session.session_key:
+                cart_obj.session_key = self.request.session.session_key
+                cart_obj.save()
+                
+            for product_id, quantity in self.cart.items():
+                item, item_created = CartItem.objects.get_or_create(cart=cart_obj, product_id=product_id)
+                # Overriding the DB quantity with session quantity
+                item.quantity = quantity
+                item.save()
+            
+            # Clear session cart after sync
+            self.session['cart'] = {}
+            self.session.modified = True

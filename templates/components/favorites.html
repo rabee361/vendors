@@ -1,0 +1,44 @@
+<section id="favorites" class="overlay" aria-label="المفضلة">
+    <aside class="drawer" role="dialog" aria-modal="true">
+    <div class="dhead">
+        <b>المفضلة <span class="counter" id="favorites-counter">{{ favorites_count }}</span></b>
+        <a class="close" onclick="closeOverlay('favorites')" style="cursor: pointer;">إغلاق</a>
+    </div>
+    <!-- OOB Update for Topbar -->
+    <span id="fav-count" hx-swap-oob="true" class="badge">{{ favorites_count }}</span>
+    <div class="content">
+        {% if favorite_items %}
+            {% for item in favorite_items %}
+            <div class="item">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    {% if item.image %}
+                    <img src="{{ item.image.url }}" alt="{{ item.name }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
+                    {% else %}
+                    <div style="width: 50px; height: 50px; background: #eee; border-radius: 8px;"></div>
+                    {% endif %}
+                    <div>
+                        <b>{{ item.name }}</b>
+                        <div class="muted">{{ item.category.name|default:"عام" }} • ⭐ {{ item.rating|default:"0.0" }}</div>
+                    </div>
+                </div>
+                <div style="text-align: left;">
+                    <b class="price">${{ item.price }}</b>
+                    <br>
+                    <button class="remove-btn" hx-post="{% url 'remove_favorite' item.id %}" hx-target="#favorites" hx-swap="outerHTML" aria-label="إزالة من المفضلة">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                    <button class="btn2 primary" hx-post="{% url 'add_to_cart' item.id %}" hx-vals='{"quantity": 1}' hx-target="#cart" hx-swap="outerHTML" style="margin-top: 5px;">
+                        <i class="fas fa-cart-plus"></i>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="text-align: center; padding: 40px 20px;">
+                <i class="far fa-heart" style="font-size: 48px; color: var(--muted); margin-bottom: 20px;"></i>
+                <p class="muted">قائمة المفضلة فارغة.</p>
+            </div>
+        {% endif %}
+    </div>
+    </aside>
+</section>

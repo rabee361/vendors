@@ -64,95 +64,6 @@
     font-size: 12px;
 }
 
-/* Overlays (Cart / Favorites / Modals) */
-.overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, .55);
-    opacity: 0;
-    pointer-events: none;
-    transition: .2s ease;
-    z-index: 99;
-}
-
-.overlay:target {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.drawer {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: min(520px, 100%);
-    background: rgba(15, 26, 47, .95);
-    border-right: 1px solid var(--line);
-    box-shadow: -20px 0 70px rgba(0, 0, 0, .55);
-    transform: translateX(-12px);
-}
-
-.overlay:target .drawer {
-    transform: translateX(0);
-}
-
-.drawer .dhead {
-    padding: 14px;
-    border-bottom: 1px solid var(--line);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-}
-
-.close {
-    padding: 8px 10px;
-    border-radius: 12px;
-    border: 1px solid var(--line);
-    color: var(--muted);
-    background: rgba(255, 255, 255, .03);
-}
-
-.close:hover {
-    color: var(--text);
-    border-color: rgba(110, 168, 255, .35);
-}
-
-.drawer .content {
-    padding: 14px;
-}
-
-.item {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    border: 1px solid var(--line);
-    border-radius: 16px;
-    padding: 12px;
-    background: rgba(16, 29, 54, .55);
-    margin-bottom: 10px;
-}
-
-.sum {
-    border-top: 1px solid var(--line);
-    margin-top: 12px;
-    padding-top: 12px;
-    display: grid;
-    gap: 8px;
-    color: var(--muted);
-}
-
-.sum b {
-    color: var(--text);
-}
-
-.checkout {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 10px;
-}
-
 /* Modal specific (Product comparison) */
 .modal {
     width: min(980px, 100%);
@@ -172,11 +83,4 @@
     align-items: center;
     gap: 10px;
     background: linear-gradient(180deg, rgba(110, 168, 255, .12), rgba(255, 255, 255, .02));
-}
-
-.overlay.modal-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 18px;
 }

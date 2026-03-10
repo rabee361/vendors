@@ -1,0 +1,64 @@
+<section id="account" class="overlay" aria-label="الحساب الشخصي">
+    <aside class="drawer" role="dialog" aria-modal="true">
+        <div class="dhead">
+            <b>إعدادات الحساب</b>
+            <a class="close" onclick="closeOverlay('account')" style="cursor: pointer;">إغلاق</a>
+        </div>
+        
+        <div class="content" style="overflow-y: auto; height: calc(100vh - 60px);">
+            <form action="{% url 'account_update' %}" method="post" enctype="multipart/form-data" class="account-form">
+                {% csrf_token %}
+                
+                <div style="text-align: center; margin-bottom: 24px;">
+                    <div class="account-avatar">
+                        {% if user.avatar %}
+                            <img src="{{ user.avatar.url }}" alt="{{ user.first_name }}" id="avatar-preview">
+                        {% else %}
+                            <div class="account-avatar-letter">{{ user.first_name|default:user.username|slice:":1"|upper }}</div>
+                        {% endif %}
+                    </div>
+                    <label for="avatar-input" class="btn2 primary" style="margin-top: 12px; cursor: pointer;">
+                        تغيير الصورة
+                    </label>
+                    <input type="file" name="avatar" id="avatar-input" style="display: none;" onchange="previewImage(this)">
+                </div>
+
+                <div class="fgroup">
+                    <label for="display-name">الاسم المعروض</label>
+                    <input type="text" name="display_name" id="display-name" value="{{ user.first_name }}" placeholder="أدخل اسمك..." required>
+                </div>
+
+                <div class="fgroup">
+                    <label>البريد الإلكتروني</label>
+                    <div class="account-info">{{ user.email }}</div>
+                    <span class="small">* لا يمكن تغيير البريد الإلكتروني حالياً.</span>
+                </div>
+
+                <div class="fgroup">
+                    <label for="phone">رقم الهاتف</label>
+                    <input type="text" name="phone" id="phone" value="{{ user.phone|default:'' }}" placeholder="+963 9xx xxx xxx">
+                </div>
+
+                <div style="margin-top: 20px; display: grid; gap: 12px;">
+                    <button type="submit" class="btn primary" style="width: 100%;">حفظ التغييرات</button>
+                    <a href="{% url 'change_password' %}" class="btn2" style="width: 100%; justify-content: center;">
+                        <i class="fas fa-key" style="margin-left: 8px;"></i> تغيير كلمة المرور
+                    </a>
+                </div>
+            </form>
+        </div>
+    </aside>
+</section>
+
+<script>
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            const avatar = document.querySelector('.account-avatar');
+            avatar.innerHTML = `<img src="${e.target.result}" id="avatar-preview">`;
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>

@@ -10,6 +10,8 @@ from django.utils import timezone
 
 class CustomUser(AbstractUser):
     user_type = models.CharField(max_length=10, choices=UserType.choices, default=UserType.BUYER)
+    avatar = models.ImageField(upload_to='users/avatars/', blank=True, null=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
 
     @property
     def is_buyer(self):
@@ -24,10 +26,10 @@ class CustomUser(AbstractUser):
         return self.user_type == UserType.ADMIN
 
     def clean(self):
-        if self.image and self.image.size > 2 * 1024 * 1024:  # 2MB in bytes
+        if self.avatar and self.avatar.size > 2 * 1024 * 1024:  # 2MB in bytes
             raise ValidationError('حجم الصورة يجب أن لا يتجاوز 2 ميجابايت')
 
-        if self.image and not self.image.name.endswith(('.jpg', '.jpeg', '.png','webp')):
+        if self.avatar and not self.avatar.name.endswith(('.jpg', '.jpeg', '.png','webp')):
             raise ValidationError('يجب أن يكون الصورة بصيغة jpg أو jpeg أو png أو webp')
 
     def create_otp(self, code_type=CodeTypes.SIGNUP):
@@ -42,7 +44,6 @@ class CustomUser(AbstractUser):
 
 class Buyer(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='buyer_profile')
-    phone = models.CharField(max_length=20, blank=True)
     address = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

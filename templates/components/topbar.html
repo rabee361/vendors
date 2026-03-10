@@ -1,10 +1,11 @@
+
+{% load static %}
 <!-- Topbar -->
 <header class="topbar">
     <div class="container">
     <div class="row">
-        <a class="brand" href="index.html" aria-label="العودة للصفحة الرئيسية">
-        <img class="logo-img" src="assets/logo.png" alt="Marketplace Logo">
-        <span>JBHN Market</span>
+        <a class="brand" href="{% url 'home' %}" aria-label="العودة للصفحة الرئيسية">
+        <img class="logo-img" src="{% static 'images/logo.png' %}" alt="Marketplace Logo">
         </a>
 
         <nav class="quick" aria-label="وصول سريع">
@@ -17,9 +18,22 @@
         </nav>
 
         <div class="actions">
-        <a class="iconbtn" href="#favorites">المفضلة <span class="counter">3</span></a>
-        <a class="iconbtn" href="#cart">السلة <span class="counter">2</span></a>
-        <a class="iconbtn" href="login.html">الحساب</a>
+        <button id="theme-toggler" class="theme-toggle" aria-label="تبديل المظهر">
+            <i class="fas fa-moon"></i>
+        </button>
+        <a class="iconbtn" onclick="toggleOverlay('favorites')" title="المفضلة" style="cursor: pointer;">
+            <i class="fa-regular fa-heart"></i>
+            <span class="badge" id="fav-count">{{ favorites_count|default:0 }}</span>
+        </a>
+        <a class="iconbtn" onclick="toggleOverlay('cart')" title="السلة" style="cursor: pointer;">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span class="badge" id="cart-count">{{ cart_count|default:0 }}</span>
+        </a>
+        {% if user.is_authenticated %}
+        <a class="iconbtn" onclick="toggleOverlay('account')" title="الحساب" style="cursor: pointer;"><i class="far fa-user"></i></a>
+        {% else %}
+        <a class="iconbtn" href="{% url 'login' %}" aria-label="الحساب"><i class="far fa-user"></i></a>
+        {% endif %}
         </div>
     </div>
     </div>

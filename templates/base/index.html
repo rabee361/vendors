@@ -1,0 +1,395 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/hero.css' %}">{% endblock %}
+
+{% block content %}
+
+<main class="container">
+
+  <!-- Hero -->
+  <section class="hero" aria-label="بانر ترحيبي">
+    <div class="hero-inner">
+      <div>
+
+        <h1>اكتشف أفضل المنتجات من بائعين متعددين — مع عروض وإعلانات ممولة باحتراف</h1>
+        <p>
+          ابحث بسرعة، قارن المنتجات، واستفد من العروض.
+          الواجهة مصممة لتكون بسيطة وغير مزدحمة وتناسب UX/UI الحديث.
+        </p>
+
+        <!-- <form class="search" action="search-results.html" method="get" aria-label="بحث"> -->
+        <form action="/search" method="get">بحث
+
+          <input name="q" type="search" placeholder="ابحث عن منتج… مثال: سماعات، هاتف، عطر" />
+          <button class="btn" type="submit">بحث</button>
+          <a class="btn" href="#products"
+            style="border-color:rgba(255,255,255,.14); background:rgba(255,255,255,.03)">استعراض المنتجات</a>
+        </form>
+      </div>
+
+      <aside class="hero-card" aria-label="مؤشرات سريعة">
+        <div class="hero-metrics">
+          <div class="metric">
+            <b>+12K</b>
+            <span>منتج متاح</span>
+          </div>
+          <div class="metric">
+            <b>+340</b>
+            <span>بائع موثوق</span>
+          </div>
+          <div class="metric">
+            <b>خصم</b>
+            <span>حتى 40% اليوم</span>
+          </div>
+          <div class="metric">
+            <b>ممول</b>
+            <span>إظهار منتجات مميزة</span>
+          </div>
+        </div>
+
+        <div class="small">
+          * الأرقام للعرض فقط. الـ Backend يربط البيانات الحقيقية.
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Categories -->
+  <section id="categories" class="section">
+    <div class="section-head">
+      <div>
+        <h2>التصنيفات</h2>
+        <p>اختيار سريع للوصول للمنتجات حسب الصنف.</p>
+      </div>
+      <a class="chip" href="{% url 'category_list' %}">عرض كل التصنيفات</a>
+    </div>
+
+    <div class="grid4">
+      {% for category in categories %}
+      <a class="card cat" href="{% url 'product_list' %}?category={{ category.name }}">
+        <div><b>{{ category.name }}</b><span>{{ category.description|truncatewords:5 }}</span></div>
+        <span class="arrow">←</span>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Deals -->
+  <section id="deals" class="section">
+    <div class="section-head">
+      <div>
+        <h2>العروض</h2>
+        <p>عروض مميزة على منتجات مختارة.</p>
+      </div>
+      <span class="tag">محدودة الوقت</span>
+    </div>
+
+    <div class="grid3">
+      <article class="card">
+        <div class="pad">
+          <span class="tag good">خصم 25%</span>
+          <h3 style="margin:10px 0 6px">باقة إكسسوارات هاتف</h3>
+          <div class="muted">شاحن + كابل + جراب</div>
+          <div class="pmeta">
+            <b class="price">$19</b>
+            <span class="muted"><s>$25</s></span>
+          </div>
+          <div class="pactions">
+            <a class="paction-btn view" href="product.html" aria-label="عرض التفاصيل"><i class="fas fa-eye"></i></a>
+            <button class="paction-btn primary cart {% if 1|slugify in cart_product_ids %}active{% endif %}" 
+              hx-post="{% url 'add_to_cart' 1 %}" hx-vals='{"quantity": 1}'
+              hx-target="#cart" hx-swap="outerHTML" aria-label="إضافة للسلة"
+              hx-on::after-request="this.classList.toggle('active')"><i class="fas fa-cart-plus"></i></button>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="pad">
+          <span class="tag good">خصم 15%</span>
+          <h3 style="margin:10px 0 6px">عطر شرقي فاخر</h3>
+          <div class="muted">ثبات طويل • حجم 100ml</div>
+          <div class="pmeta">
+            <b class="price">$35</b>
+            <span class="muted"><s>$41</s></span>
+          </div>
+          <div class="pactions">
+            <a class="paction-btn view" href="product.html" aria-label="عرض التفاصيل"><i class="fas fa-eye"></i></a>
+            <button class="paction-btn fav {% if '2' in favorite_product_ids %}active{% endif %}"
+              hx-post="{% url 'toggle_favorite' 2 %}" hx-target="#favorites" hx-swap="outerHTML"
+              aria-label="إضافة للمفضلة" hx-on::after-request="this.classList.toggle('active')"><i class="fas fa-heart"></i></button>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="pad">
+          <span class="tag good">خصم 40%</span>
+          <h3 style="margin:10px 0 6px">حقيبة سفر</h3>
+          <div class="muted">خامة ممتازة • حجم متوسط</div>
+          <div class="pmeta">
+            <b class="price">$48</b>
+            <span class="muted"><s>$80</s></span>
+          </div>
+          <div class="pactions">
+            <a class="paction-btn view" href="product.html" aria-label="عرض التفاصيل"><i class="fas fa-eye"></i></a>
+            <button class="paction-btn primary cart {% if 2|slugify in cart_product_ids %}active{% endif %}" 
+              hx-post="{% url 'add_to_cart' 2 %}" hx-vals='{"quantity": 1}'
+              hx-target="#cart" hx-swap="outerHTML" aria-label="إضافة للسلة"
+              hx-on::after-request="this.classList.toggle('active')"><i class="fas fa-cart-plus"></i></button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- Sponsored Ads -->
+  <section id="sponsored" class="section">
+    <div class="section-head">
+      <div>
+        <h2>الإعلانات الممولة</h2>
+        <p>منتجات مميزة تظهر هنا كإعلان ممول مستقل.</p>
+      </div>
+      <span class="tag sponsored">Sponsored</span>
+    </div>
+
+    <div class="grid3">
+      <article class="card">
+        <div class="pimg">
+          <span class="badge">إعلان ممول</span>
+        </div>
+        <div class="pad">
+          <div class="muted">من متجر: TechZone</div>
+          <h3 style="margin:6px 0">سماعات Pro ANC</h3>
+          <div class="pmeta">
+            <span class="stars">★★★★★</span>
+            <b class="price">$59</b>
+          </div>
+          <div class="pactions">
+            <a class="paction-btn view" href="product.html" aria-label="عرض المنتج"><i class="fas fa-eye"></i></a>
+            <button class="paction-btn primary cart {% if 3|slugify in cart_product_ids %}active{% endif %}" 
+              hx-post="{% url 'add_to_cart' 3 %}" hx-vals='{"quantity": 1}'
+              hx-target="#cart" hx-swap="outerHTML" aria-label="إضافة للسلة"
+              hx-on::after-request="this.classList.toggle('active')"><i class="fas fa-cart-plus"></i></button>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="pimg">
+          <span class="badge">إعلان ممول</span>
+        </div>
+        <div class="pad">
+          <div class="muted">من متجر: BeautyLab</div>
+          <h3 style="margin:6px 0">سيروم فيتامين C</h3>
+          <div class="pmeta">
+            <span class="stars">★★★★☆</span>
+            <b class="price">$22</b>
+          </div>
+          <div class="pactions">
+            <a class="paction-btn view" href="product.html" aria-label="عرض المنتج"><i class="fas fa-eye"></i></a>
+            <button class="paction-btn fav {% if '3' in favorite_product_ids %}active{% endif %}"
+              hx-post="{% url 'toggle_favorite' 3 %}" hx-target="#favorites" hx-swap="outerHTML" aria-label="حفظ"
+              hx-on::after-request="this.classList.toggle('active')"><i
+                class="fas fa-heart"></i></button>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="pimg">
+          <span class="badge">إعلان ممول</span>
+        </div>
+        <div class="pad">
+          <div class="muted">من متجر: HomePlus</div>
+          <h3 style="margin:6px 0">طقم أدوات مطبخ</h3>
+          <div class="pmeta">
+            <span class="stars">★★★★★</span>
+            <b class="price">$31</b>
+          </div>
+          <div class="pactions">
+            <a class="paction-btn view" href="product.html" aria-label="عرض المنتج"><i class="fas fa-eye"></i></a>
+            <button class="paction-btn primary cart {% if 4|slugify in cart_product_ids %}active{% endif %}" 
+              hx-post="{% url 'add_to_cart' 4 %}" hx-vals='{"quantity": 1}'
+              hx-target="#cart" hx-swap="outerHTML" aria-label="إضافة للسلة"
+              hx-on::after-request="this.classList.toggle('active')"><i class="fas fa-cart-plus"></i></button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- Products + Filters (Showing Featured/Latest) -->
+  <section id="products" class="section">
+    <div class="section-head">
+      <div>
+        <h2>المنتجات</h2>
+        <p>استكشف أحدث المنتجات المضافة للمتجر.</p>
+      </div>
+      <a class="chip" href="{% url 'product_list' %}">عرض المزيد</a>
+    </div>
+
+    <div class="shop">
+      <aside class="filters" aria-label="فلاتر المنتجات">
+        <h3>فلترة</h3>
+
+        <form action="search-results.html" method="get">
+          <div class="fgroup">
+            <label for="q">بحث</label>
+            <input id="q" name="q" type="search" placeholder="اسم المنتج..." />
+          </div>
+
+          <div class="fgroup">
+            <label for="cat">الصنف (اكتب أو اختر)</label>
+            <input id="cat" name="category" list="cats" placeholder="مثال: إلكترونيات" />
+            <datalist id="cats">
+              <option value="إلكترونيات"></option>
+              <option value="أزياء وملابس"></option>
+              <option value="عطور وتجميل"></option>
+              <option value="منزل ومطبخ"></option>
+              <option value="رياضة"></option>
+              <option value="كتب"></option>
+            </datalist>
+            <div class="small">ألوان القوائم واضحة قدر الإمكان (تختلف حسب المتصفح).</div>
+          </div>
+
+          <div class="row2">
+            <div class="fgroup">
+              <label for="min">السعر من</label>
+              <input id="min" name="minPrice" type="number" placeholder="0" />
+            </div>
+            <div class="fgroup">
+              <label for="max">السعر إلى</label>
+              <input id="max" name="maxPrice" type="number" placeholder="999" />
+            </div>
+          </div>
+
+          <div class="fgroup">
+            <label for="rate">التقييم (اكتب أو اختر)</label>
+            <input id="rate" name="rating" list="rates" placeholder="مثال: 4.5" />
+            <datalist id="rates">
+              <option value="5.0"></option>
+              <option value="4.5"></option>
+              <option value="4.0"></option>
+              <option value="3.5"></option>
+            </datalist>
+          </div>
+
+          <button class="btn" type="submit" style="width:100%">تطبيق الفلاتر</button>
+        </form>
+      </aside>
+
+      <div class="products" aria-label="قائمة المنتجات">
+        {% for product in products %}
+        <article class="card">
+          <div class="pimg">
+            {% if product.is_sponsored_badge %}
+            <span class="badge">ممول</span>
+            {% endif %}
+            {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}"
+              style="width:100%; height:100%; object-fit:cover; border-radius:12px 12px 0 0;">
+            {% endif %}
+          </div>
+          <div class="pad">
+            <div class="muted">{{ product.category.name|default:"عام" }} • من متجر {{ product.tenant.store_name }}</div>
+            <h3 style="margin:6px 0">{{ product.name }}</h3>
+            <div class="pmeta">
+              <span class="stars">
+                {% if product.rating >= 1 %}★{% else %}☆{% endif %}
+                {% if product.rating >= 2 %}★{% else %}☆{% endif %}
+                {% if product.rating >= 3 %}★{% else %}☆{% endif %}
+                {% if product.rating >= 4 %}★{% else %}☆{% endif %}
+                {% if product.rating >= 5 %}★{% else %}☆{% endif %}
+              </span>
+              <b class="price">${{ product.price }}</b>
+            </div>
+            <div class="pactions">
+              <a class="paction-btn view" href="{% url 'product' product.id %}" aria-label="عرض التفاصيل"><i
+                  class="fas fa-eye"></i></a>
+              <button class="paction-btn primary cart {% if product.id|slugify in cart_product_ids %}active{% endif %}" 
+                hx-post="{% url 'add_to_cart' product.id %}"
+                hx-vals='{"quantity": 1}' hx-target="#cart" hx-swap="outerHTML" aria-label="إضافة للسلة"
+                hx-on::after-request="this.classList.toggle('active')"><i
+                  class="fas fa-cart-plus"></i></button>
+              <button class="paction-btn fav {% if product.id|slugify in favorite_product_ids %}active{% endif %}"
+                hx-post="{% url 'toggle_favorite' product.id %}" hx-target="#favorites" hx-swap="outerHTML"
+                aria-label="مفضلة" hx-on::after-request="this.classList.toggle('active')"><i class="fas fa-heart"></i></button>
+            </div>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+  </section>
+
+  <!-- Vendors -->
+  <section id="vendors" class="section">
+    <div class="section-head">
+      <div>
+        <h2>البائعون في المتجر</h2>
+        <p>اختر متجرًا لعرض جميع منتجاته.</p>
+      </div>
+      <a class="chip" href="{% url 'vendors' %}">عرض كل البائعين</a>
+    </div>
+
+    <div class="grid3">
+      {% for vendor in vendors %}
+      <article class="card pad">
+        <div class="vendor">
+          <div style="display:flex; gap:10px; align-items:center">
+            {% if vendor.avatar %}
+            <img src="{{ vendor.avatar.url }}" class="avatar" alt="{{ vendor.store_name }}">
+            {% else %}
+            <div class="avatar" aria-hidden="true"></div>
+            {% endif %}
+            <div>
+              <b>{{ vendor.store_name }}</b>
+              <span>{{ vendor.category.name|default:"عام" }} • تقييم {{ vendor.rating|default:"0.0" }}</span>
+            </div>
+          </div>
+          <a class="btn2 primary" href="#">عرض المتجر</a>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- About + Contact -->
+  <section class="section two" aria-label="من نحن وتواصل معنا">
+    <article class="card pad">
+      <h2 style="margin:0 0 6px">من نحن</h2>
+      <p class="muted" style="margin:0; line-height:1.9">
+        نحن منصة تجارة إلكترونية متعددة البائعين، هدفنا توفير تجربة شراء سهلة وسريعة
+        مع نظام عروض وإعلانات ممولة لزيادة ظهور المنتجات المميزة بطريقة منظمة وغير مزعجة.
+      </p>
+      <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap">
+        <span class="tag">UX/UI</span>
+        <span class="tag">Multi-Vendor</span>
+        <span class="tag sponsored">Ads</span>
+      </div>
+    </article>
+
+    <article id="contact" class="card pad">
+      <h2 style="margin:0 0 6px">تواصل معنا</h2>
+      <form action="#" method="post" style="display:grid; gap:10px; margin-top:10px">
+        <div style="display:grid; gap:8px">
+          <label for="name">الاسم</label>
+          <input id="name" name="name" type="text" placeholder="اسمك الكامل" required />
+        </div>
+        <div style="display:grid; gap:8px">
+          <label for="email2">الإيميل</label>
+          <input id="email2" name="email" type="email" placeholder="name@example.com" required />
+        </div>
+        <div style="display:grid; gap:8px">
+          <label for="msg">الرسالة</label>
+          <textarea id="msg" name="message" placeholder="كيف يمكننا مساعدتك؟" required></textarea>
+        </div>
+        <button class="btn" type="submit">إرسال</button>
+        <div class="small">* الإرسال هنا واجهة فقط — اربطه بالـ Backend.</div>
+      </form>
+    </article>
+  </section>
+
+</main>
+
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<!-- Products + Filters -->
+<section id="products" class="section">
+    <div class="section-head">
+        <div>
+            <h2>المنتجات</h2>
+            <p>فلترة حسب السعر، الصنف، والتقييم (واجهة جاهزة للربط مع الـ Backend).</p>
+        </div>
+        <a class="chip" href="search-results.html">عرض المزيد</a>
+    </div>
+
+    <div class="shop">
+        <aside class="filters" aria-label="فلاتر المنتجات">
+            <h3>فلترة</h3>
+
+            <form action="{% url 'product_list' %}" method="get">
+                <div class="fgroup">
+                    <label for="q">بحث</label>
+                    <input id="q" name="q" type="search" placeholder="اسم المنتج..." value="{{ query }}" />
+                </div>
+
+                <div class="fgroup">
+                    <label for="cat">الصنف (اكتب أو اختر)</label>
+                    <input id="cat" name="category" list="cats" placeholder="مثال: إلكترونيات"
+                        value="{{ category_name }}" />
+                    <datalist id="cats">
+                        {% for cat in categories %}
+                        <option value="{{ cat.name }}"></option>
+                        {% endfor %}
+                    </datalist>
+                    <div class="small">ألوان القوائم واضحة قدر الإمكان (تختلف حسب المتصفح).</div>
+                </div>
+
+                <div class="row2">
+                    <div class="fgroup">
+                        <label for="min">السعر من</label>
+                        <input id="min" name="minPrice" type="number" placeholder="0" value="{{ min_price }}" />
+                    </div>
+                    <div class="fgroup">
+                        <label for="max">السعر إلى</label>
+                        <input id="max" name="maxPrice" type="number" placeholder="999" value="{{ max_price }}" />
+                    </div>
+                </div>
+
+                <div class="fgroup">
+                    <label for="rate">التقييم (اكتب أو اختر)</label>
+                    <input id="rate" name="rating" list="rates" placeholder="مثال: 4.5" value="{{ rating }}" />
+                    <datalist id="rates">
+                        <option value="5.0"></option>
+                        <option value="4.5"></option>
+                        <option value="4.0"></option>
+                        <option value="3.5"></option>
+                    </datalist>
+                </div>
+
+                <button class="btn" type="submit" style="width:100%">تطبيق الفلاتر</button>
+            </form>
+        </aside>
+
+        <div class="products" aria-label="قائمة المنتجات">
+            {% for product in products %}
+            <article class="card">
+                <div class="pimg">
+                    {% if product.is_sponsored_badge %}
+                    <span class="badge">ممول</span>
+                    {% endif %}
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                        style="width:100%; height:100%; object-fit:cover; border-radius:12px 12px 0 0;">
+                    {% else %}
+                    <div style="width:100%; height:100%; background: #eee; border-radius:12px 12px 0 0;"></div>
+                    {% endif %}
+                </div>
+                <div class="pad">
+                    <div class="muted">{{ product.category.name|default:"عام" }} • من متجر {{ product.tenant.store_name
+                        }}</div>
+                    <h3 style="margin:6px 0">{{ product.name }}</h3>
+                    <div class="pmeta">
+                        <span class="stars">
+                            {% if product.rating >= 1 %}★{% else %}☆{% endif %}
+                            {% if product.rating >= 2 %}★{% else %}☆{% endif %}
+                            {% if product.rating >= 3 %}★{% else %}☆{% endif %}
+                            {% if product.rating >= 4 %}★{% else %}☆{% endif %}
+                            {% if product.rating >= 5 %}★{% else %}☆{% endif %}
+                        </span>
+                        <b class="price">${{ product.price }}</b>
+                    </div>
+                    <div class="pactions">
+                        <a class="paction-btn view" href="{% url 'product' product.id %}" aria-label="عرض التفاصيل"><i
+                                class="fas fa-eye"></i></a>
+                        <button class="paction-btn primary cart {% if product.id|slugify in cart_product_ids %}active{% endif %}" 
+                  hx-post="{% url 'add_to_cart' product.id %}"
+                  hx-vals='{"quantity": 1}' hx-target="#cart" hx-swap="outerHTML" aria-label="إضافة للسلة"
+                  hx-on::after-request="this.classList.toggle('active')"><i
+                    class="fas fa-cart-plus"></i></button>
+                        <button class="paction-btn fav {% if product.id|slugify in favorite_product_ids %}active{% endif %}"
+                  hx-post="{% url 'toggle_favorite' product.id %}" hx-target="#favorites" hx-swap="outerHTML"
+                  aria-label="مفضلة" hx-on::after-request="this.classList.toggle('active')"><i class="fas fa-heart"></i></button>
+                    </div>
+                </div>
+            </article>
+            {% empty %}
+            <p class="muted" style="grid-column: 1 / -1; text-align: center; padding: 20px;">لا توجد منتجات تطابق البحث.
+            </p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

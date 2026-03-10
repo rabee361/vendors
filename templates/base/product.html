@@ -1,0 +1,125 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block title %}{{ product.name }} | Marketplace{% endblock %}
+<!-- <link rel="stylesheet" href="{% static 'css/product.css' %}"> -->
+
+{% block content %}
+<!-- Compare Modal -->
+<section id="compare" class="overlay" aria-label="مقارنة المنتجات">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="mhead">
+      <b>مقارنة المنتجات</b>
+      <a class="close" href="#">إغلاق</a>
+    </div>
+    <div class="pad">
+      <div class="small">* هذه واجهة مقارنة بدون JS. الـ Backend يملأ الأعمدة حسب اختيار المستخدم.</div>
+    </div>
+    <div style="overflow:auto">
+      <table aria-label="جدول المقارنة">
+        <thead>
+          <tr>
+            <th style="min-width:170px">الميزة</th>
+            <th style="min-width:240px">المنتج الحالي</th>
+            <th style="min-width:240px">منتج للمقارنة</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>الاسم</td>
+            <td>سماعات Pro ANC</td>
+            <td>سماعات Lite</td>
+          </tr>
+          <tr>
+            <td>السعر</td>
+            <td><b>$59</b></td>
+            <td><b>$39</b></td>
+          </tr>
+          <tr>
+            <td>التقييم</td>
+            <td>4.7 / 5</td>
+            <td>4.3 / 5</td>
+          </tr>
+          <tr>
+            <td>ميزة أساسية</td>
+            <td>عزل ضوضاء + بطارية 30 ساعة</td>
+            <td>بطارية 18 ساعة</td>
+          </tr>
+          <tr>
+            <td>الضمان</td>
+            <td>12 شهر</td>
+            <td>6 أشهر</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pad">
+      <a class="btn primary" href="#cart">إضافة المنتج للسلة</a>
+      <a class="btn" href="index.html">عودة للمتجر</a>
+    </div>
+  </div>
+</section>
+
+<div class="container">
+  <div class="product-grid">
+    <section class="card" aria-label="صورة المنتج">
+      <div class="product-img-container">
+        {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width:100%; height:100%; object-fit:cover;">
+        {% endif %}
+        {% if product.is_sponsored_badge %}
+        <span class="badge">ممول</span>
+        {% endif %}
+      </div>
+      <div class="pad">
+        <div class="muted">من متجر: {{ product.tenant.store_name }} • {{ product.category.name|default:"عام" }}</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:8px">
+          <span class="stars">
+            {% if product.rating >= 1 %}★{% else %}☆{% endif %}
+            {% if product.rating >= 2 %}★{% else %}☆{% endif %}
+            {% if product.rating >= 3 %}★{% else %}☆{% endif %}
+            {% if product.rating >= 4 %}★{% else %}☆{% endif %}
+            {% if product.rating >= 5 %}★{% else %}☆{% endif %}
+          </span>
+          <span class="muted">{{ product.rating|default:"0.0" }} ({{ product.rating_count|default:"0" }} تقييم)</span>
+        </div>
+        <div class="product-details-row">
+          <div>
+            <div class="muted">السعر</div>
+            <div class="price">${{ product.price }}</div>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap">
+            <a class="btn primary" href="#">شراء الآن</a>
+            <a class="btn" href="#">مفضلة</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card pad product-info" aria-label="تفاصيل المنتج">
+      <h1>{{ product.name }}</h1>
+      <p class="muted" style="margin:0; line-height:1.9">
+        {{ product.description }}
+      </p>
+
+      <div class="product-details-row">
+        <div style="display:flex; gap:10px; flex-wrap:wrap">
+          <button class="paction-btn primary cart {% if product.id|slugify in cart_product_ids %}active{% endif %}" hx-post="{% url 'add_to_cart' product.id %}"
+            hx-vals='{"quantity": 1}' hx-target="#cart" hx-swap="outerHTML" aria-label="إضافة للسلة"
+            hx-on::after-request="this.classList.toggle('active')"><i
+              class="fas fa-cart-plus"></i></button>
+          <button class="paction-btn fav {% if product.id|slugify in favorite_product_ids %}active{% endif %}"
+            hx-post="{% url 'toggle_favorite' product.id %}" hx-target="#favorites" hx-swap="outerHTML"
+            aria-label="مفضلة" hx-on::after-request="this.classList.toggle('active')"><i class="fas fa-heart"></i></button>
+          <a class="paction-btn" href="#compare" aria-label="مقارنة"><i class="fas fa-exchange-alt"></i></a>
+          <a class="paction-btn" href="#" aria-label="عرض متجر البائع"><i class="fas fa-store"></i></a>
+        </div>
+      </div>
+
+      <div style="margin-top:12px" class="small">
+        * زر المقارنة يفتح جدول منبثق بالـ CSS فقط. عندك بالـ Backend خيار إرسال منتجات المقارنة ضمن Query/Session.
+      </div>
+    </section>
+  </div>
+</div>
+
+{% endblock %}

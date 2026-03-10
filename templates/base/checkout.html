@@ -1,0 +1,82 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}إتمام الشراء | Marketplace{% endblock %}
+
+{% block content %}
+<main class="container" style="padding-top: 40px;">
+    <h1 style="margin-bottom: 30px;">إتمام عملية الشراء</h1>
+    
+    <div class="checkout-grid">
+        <!-- Shipping Info -->
+        <section class="checkout-section">
+            <h2><i class="fas fa-shipping-fast" style="margin-left: 10px;"></i> معلومات الشحن</h2>
+            <form action="{% url 'checkout' %}" method="post" id="checkout-form" class="checkout-form">
+                {% csrf_token %}
+                <div class="row2">
+                    <div class="fgroup">
+                        <label for="full-name">الاسم الكامل</label>
+                        <input type="text" name="full_name" id="full-name" value="{{ user.first_name|default:'' }}" placeholder="مثال: أحمد خالد" required>
+                    </div>
+                    <div class="fgroup">
+                        <label for="phone">رقم الهاتف</label>
+                        <input type="text" name="phone" id="phone" value="{{ user.phone|default:'' }}" placeholder="+963 9xx xxx xxx" required>
+                    </div>
+                </div>
+                
+                <div class="fgroup">
+                    <label for="city">المدينة</label>
+                    <input type="text" name="city" id="city" placeholder="مثال: دمشق، حلب..." required>
+                </div>
+                
+                <div class="fgroup">
+                    <label for="address">العنوان التفصيلي</label>
+                    <textarea name="address" id="address" placeholder="المنطقة - الشارع - البناء - رقم الشقة" required></textarea>
+                </div>
+                
+                <div class="fgroup">
+                    <label for="notes">ملاحظات إضافية (اختياري)</label>
+                    <textarea name="notes" id="notes" placeholder="أي معلومات إضافية للتوصيل..." style="min-height: 80px;"></textarea>
+                </div>
+            </form>
+        </section>
+
+        <!-- Order Summary -->
+        <aside class="checkout-section" style="position: sticky; top: 100px;">
+            <h2><i class="fas fa-shopping-bag" style="margin-left: 10px;"></i> ملخص الطلب</h2>
+            
+            <div style="max-height: 400px; overflow-y: auto; margin-bottom: 20px;">
+                {% for vendor, data in grouped_items.items %}
+                    <div class="vendor-cart-group" style="padding: 10px; margin-bottom: 12px;">
+                        <div class="vendor-head" style="margin-bottom: 8px; padding-bottom: 4px;">
+                            <b style="font-size: 13px;">{{ vendor.store_name }}</b>
+                        </div>
+                        {% for item in data.items %}
+                            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+                                <span>{{ item.quantity }} × {{ item.product.name }}</span>
+                                <b>${{ item.total }}</b>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="sum">
+                <div style="display:flex; justify-content:space-between"><span>المجموع الفرعي</span><b>${{ cart_total }}</b></div>
+                <div style="display:flex; justify-content:space-between"><span>تكلفة الشحن</span><b>$0</b></div>
+                <div class="checkout-total" style="display:flex; justify-content:space-between">
+                    <span>الإجمالي الكلي</span>
+                    <b class="price" style="font-size: 24px; color: var(--accent2);">${{ cart_total }}</b>
+                </div>
+            </div>
+
+            <button type="submit" form="checkout-form" class="btn primary" style="width: 100%; margin-top: 24px; font-size: 18px; padding: 16px;">
+                تأكيد وطلب الآن
+            </button>
+            <a href="{% url 'home' %}" class="btn2" style="width: 100%; margin-top: 12px; justify-content: center;">
+                الظهور للمتجر
+            </a>
+        </aside>
+    </div>
+</main>
+{% endblock %}

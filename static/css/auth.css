@@ -13,6 +13,16 @@
     --r: 18px;
 }
 
+[data-theme="light"] {
+    --bg: #eef3fb;
+    --panel: #f8faff;
+    --card: #ffffff;
+    --text: #1a2744;
+    --muted: #5b7199;
+    --line: rgba(110, 168, 255, .12);
+    --shadow: 0 8px 32px rgba(74, 144, 226, .08);
+}
+
 * {
     box-sizing: border-box
 }
