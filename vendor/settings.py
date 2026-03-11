@@ -26,6 +26,7 @@ SECRET_KEY = "django-insecure-h1238h5r$4be!rcgx44&r_)r6aq)dgaeh=0xmjpy=j-!^ve)3!
 DEBUG = True
 
 ALLOWED_HOSTS = ["honeybunny.online", "www.honeybunny.online", "127.0.0.1", "localhost"]
+CSRF_TRUSTED_ORIGINS = ["https://honeybunny.online", "https://www.honeybunny.online"]
 
 
 # Application definition
