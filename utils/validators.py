@@ -1,3 +1,5 @@
+import re
+from django.core.exceptions import ValidationError
 
 class SyrianPhoneValidator:
     def __call__(self, value):

@@ -1,6 +1,6 @@
 from django.urls import include
 from django.urls import path
-from .views import base, moderators
+from .views import base, moderators, vendor
 
 
 basePatterns = [
@@ -35,10 +35,8 @@ moderatorPatterns = [
 ]
 
 vendorPatterns = [
-    # path('auth/login', views.base.vendor_auth_view.as_view(), name='vendor_auth'),
-    # path('auth/logout', views.base.vendor_auth_view.as_view(), name='vendor_auth'),
-    # path('auth/signup', views.base.vendor_auth_view.as_view(), name='vendor_auth'),
-    # path('dashboard', views.base.vendor_dashboard_view.as_view(), name='vendor_dashboard'),
+    path('dashboard/', vendor.VendorDashboardView.as_view(), name='vendor_dashboard'),
+    path('store/', vendor.VendorStoreView.as_view(), name='vendor_store'),
     path('signup/', base.VendorSignupView.as_view(), name='vendor_signup'),
 ] 
 

@@ -1,8 +1,9 @@
 {% extends 'base/base.html' %}
 {% load static %}
 {% block title %}{{ product.name }} | Marketplace{% endblock %}
-<!-- <link rel="stylesheet" href="{% static 'css/product.css' %}"> -->
-
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/product.css' %}">
+{% endblock %}
 {% block content %}
 <!-- Compare Modal -->
 <section id="compare" class="overlay" aria-label="مقارنة المنتجات">
@@ -67,7 +68,7 @@
         <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width:100%; height:100%; object-fit:cover;">
         {% endif %}
         {% if product.is_sponsored_badge %}
-        <span class="badge">ممول</span>
+        <span class="product-badge">ممول</span>
         {% endif %}
       </div>
       <div class="pad">

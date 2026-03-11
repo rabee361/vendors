@@ -6,14 +6,14 @@ class UserType(models.TextChoices):
     ADMIN = 'admin', 'Admin'
 
 class AdType(models.TextChoices):
-    SECTION = 'section', 'Sponsored Section'
-    BADGE = 'badge', 'Badge on Image'
+    SECTION = 'section', 'قسم الإعلانات الممولة'
+    BADGE = 'badge', 'وسم ممول على الصورة'
 
 class AdStatus(models.TextChoices):
-    ACTIVE = 'active', 'Active'
-    PENDING = 'pending', 'Pending Review'
-    EXPIRED = 'expired', 'Expired'
-    REJECTED = 'rejected', 'Rejected'
+    ACTIVE = 'active', 'نشط'
+    PENDING = 'pending', 'قيد المراجعة'
+    EXPIRED = 'expired', 'منتهي'
+    REJECTED = 'rejected', 'مرفوض'
 
 class OrderStatus(models.TextChoices):
     PREPARING = 'preparing', 'قيد التجهيز'

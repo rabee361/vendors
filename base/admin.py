@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import (
     CustomUser, Buyer, AdminUser,
-    ProductCategory, Vendor, Product, Deal, SponsoredAd, 
+    ProductCategory, Vendor, Product, Offer, SponsoredAd, 
     Cart, CartItem, Favorite, Order, OrderItem, 
     ContactMessage, VendorStats, StoreCategory, OTPCode
 )
@@ -61,9 +61,9 @@ class ProductAdmin(admin.ModelAdmin):
     search_fields = ('name', 'tenant__store_name')
     prepopulated_fields = {'slug': ('name',)}
 
-@admin.register(Deal)
-class DealAdmin(admin.ModelAdmin):
-    list_display = ('product', 'discount_percentage', 'start_date', 'end_date', 'is_active')
+@admin.register(Offer)
+class OfferAdmin(admin.ModelAdmin):
+    list_display = ('product', 'discount', 'start_date', 'end_date', 'is_active')
     list_filter = ('is_active',)
 
 class CartItemInline(admin.TabularInline):

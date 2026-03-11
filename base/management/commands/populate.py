@@ -7,7 +7,7 @@ from django.conf import settings
 from faker import Faker
 from base.models import (
     Buyer, Vendor, StoreCategory, ProductCategory, Product, 
-    Deal, SponsoredAd, Cart, CartItem, Favorite, Order, 
+    Offer, SponsoredAd, Cart, CartItem, Favorite, Order, 
     OrderItem, ContactMessage, VendorStats, OTPCode
 )
 from utils.types import UserType, AdType, AdStatus, OrderStatus, CodeTypes
@@ -137,10 +137,10 @@ class Command(BaseCommand):
             if vendor_products:
                 for _ in range(random.randint(1, 3)):
                     prod = random.choice(vendor_products)
-                    Deal.objects.create(
+                    Offer.objects.create(
                         tenant=vendor,
                         product=prod,
-                        discount_percentage=random.randint(5, 50),
+                        discount=random.randint(5, 50),
                         original_price=prod.price,
                         start_date=fake.date_this_year(),
                         end_date=fake.date_between(start_date='today', end_date='+30d'),
@@ -154,7 +154,8 @@ class Command(BaseCommand):
                  SponsoredAd.objects.create(
                     ad_type=random.choice(AdType.values),
                     budget=random.uniform(50, 500),
-                    duration_days=random.randint(7, 30),
+                    days_count=random.randint(7, 30),
+                    product=random.choice(all_products),
                     status=AdStatus.ACTIVE
                 )
 

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>متجر البائع | Marketplace</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="{% static 'css/hero.css' %}">
+  <style>
+    .hero .pad {
+      padding: 18px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 16px
+    }
+
+    .pimg {
+      height: 170px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, .03), transparent), radial-gradient(220px 140px at 30% 30%, rgba(110, 168, 255, .25), transparent 60%), rgba(11, 18, 32, .55);
+      border-bottom: 1px solid var(--line)
+    }
+
+    .price {
+      font-weight: 950
+    }
+
+    @media (max-width:1000px) {
+      .grid {
+        grid-template-columns: 1fr
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <a class="brand" href="index.html"><span class="mark"></span><span>Marketplace</span></a>
+      <div style="display:flex; gap:10px; flex-wrap:wrap">
+        <a class="chip" href="vendors.html">البائعون</a>
+        <a class="chip" href="index.html#products">المنتجات</a>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="pad">
+        <div>
+          <h1 style="margin:0 0 6px; font-size:22px">TechZone</h1>
+          <div class="muted">إلكترونيات • تقييم 4.8 • شحن سريع</div>
+        </div>
+        <a class="btn" href="index.html#cart">عرض السلة</a>
+      </div>
+    </section>
+
+    <h2 style="margin:16px 0 6px">منتجات المتجر</h2>
+    <p class="muted" style="margin:0; line-height:1.8">هنا تظهر كل منتجات البائع المختار.</p>
+
+    <div class="grid">
+      <article class="card">
+        <div class="pimg"></div>
+        <div class="pad">
+          <b>سماعات Pro ANC</b>
+          <div class="muted">⭐ 4.7</div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px">
+            <span class="price">$59</span>
+            <a class="btn" href="product.html">تفاصيل</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="pimg"></div>
+        <div class="pad">
+          <b>شاحن سريع 30W</b>
+          <div class="muted">⭐ 4.9</div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px">
+            <span class="price">$19</span>
+            <a class="btn" href="product.html">تفاصيل</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="pimg"></div>
+        <div class="pad">
+          <b>ساعة ذكية S</b>
+          <div class="muted">⭐ 4.6</div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px">
+            <span class="price">$79</span>
+            <a class="btn" href="product.html">تفاصيل</a>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</body>
+
+</html>
