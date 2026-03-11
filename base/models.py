@@ -147,6 +147,7 @@ class Deal(models.Model):
 class SponsoredAd(models.Model):
     ad_type = models.CharField(max_length=20, choices=AdType.choices)
     budget = models.DecimalField(max_digits=10, decimal_places=2)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     duration_days = models.PositiveIntegerField()
     status = models.CharField(max_length=20, choices=AdStatus.choices, default=AdStatus.PENDING)
     start_date = models.DateField(auto_now_add=True)

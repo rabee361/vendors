@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth import get_user_model
 from ..forms import BuyerSignupForm, VendorSignupForm, BuyerLoginForm, SellerLoginForm, OTPForm, VerifyOTPForm
-from ..models import Vendor, Product, ProductCategory, StoreCategory, Buyer, OTPCode, Favorite
+from ..models import Vendor, Product, ProductCategory, StoreCategory, Buyer, OTPCode, Favorite, SponsoredAd
 from utils.types import UserType, CodeTypes
 from utils.email import send_otp_email
 from urllib.parse import quote
@@ -19,9 +19,10 @@ User = get_user_model()
 class HomeView(View):
     def get(self, request):
         vendors = Vendor.objects.select_related('category').filter(is_active=True)[:4]
+        ads = SponsoredAd.objects.all()[:3]
         categories = ProductCategory.objects.all()[:4]
         products = Product.objects.select_related('tenant', 'category', 'tenant__category').filter(is_active=True)[:6]
-        return render(request, 'base/index.html', {'vendors': vendors, 'categories': categories, 'products': products})
+        return render(request, 'base/index.html', {'vendors': vendors, 'categories': categories, 'products': products, 'ads': ads})
 
 
 class BuyerSignupView(FormView):

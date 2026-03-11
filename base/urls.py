@@ -1,6 +1,7 @@
 from django.urls import include
 from django.urls import path
-from .views import base
+from .views import base, moderators
+
 
 basePatterns = [
     path('', base.HomeView.as_view(), name='home'),
@@ -20,12 +21,17 @@ basePatterns = [
     path('favorites/toggle/<int:product_id>/', base.ToggleFavoriteView.as_view(), name='toggle_favorite'),
     path('favorites/remove/<int:product_id>/', base.RemoveFavoriteView.as_view(), name='remove_favorite'),
     path('account/update/', base.AccountUpdateView.as_view(), name='account_update'),
-    path('auth/change-password/', base.ChangePasswordView.as_view(), name='change_password'),
+    path('change-password/', base.ChangePasswordView.as_view(), name='change_password'),
     path('checkout/', base.CheckoutView.as_view(), name='checkout'),
 ]
 
 moderatorPatterns = [
-    # path('dashboard/', base.ModeratorDashboardView.as_view(), name='moderator_dashboard'),
+    path('vendors/', moderators.ModeratorVendorsView.as_view(), name='moderator_vendors'),
+    path('stats/', moderators.ModeratorStatsView.as_view(), name='moderator_stats'),
+    path('list/', moderators.ModeratorListView.as_view(), name='moderator_list'),
+    path('add/', moderators.ModeratorAddView.as_view(), name='moderator_add'),
+    path('update/<int:pk>/', moderators.ModeratorUpdateView.as_view(), name='moderator_update'),
+    path('delete/<int:pk>/', moderators.ModeratorDeleteView.as_view(), name='moderator_delete'),
 ]
 
 vendorPatterns = [

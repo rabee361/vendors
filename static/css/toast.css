@@ -1,3 +1,4 @@
+@import "variables.css";
 /* Toast Notification System */
 #toast-container {
     position: fixed;

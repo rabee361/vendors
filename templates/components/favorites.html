@@ -1,5 +1,5 @@
 <section id="favorites" class="overlay" aria-label="المفضلة">
-    <aside class="drawer" role="dialog" aria-modal="true">
+    <aside class="drawer" role="dialog" aria-modal="true" onclick="event.stopPropagation()">
     <div class="dhead">
         <b>المفضلة <span class="counter" id="favorites-counter">{{ favorites_count }}</span></b>
         <a class="close" onclick="closeOverlay('favorites')" style="cursor: pointer;">إغلاق</a>
@@ -24,7 +24,7 @@
                 <div style="text-align: left;">
                     <b class="price">${{ item.price }}</b>
                     <br>
-                    <button class="remove-btn" hx-post="{% url 'remove_favorite' item.id %}" hx-target="#favorites" hx-swap="outerHTML" aria-label="إزالة من المفضلة">
+                    <button class="remove-btn" hx-post="{% url 'remove_favorite' item.id %}" hx-target="#favorites .drawer" hx-select=".drawer" hx-swap="outerHTML" aria-label="إزالة من المفضلة">
                         <i class="fas fa-trash-alt"></i>
                     </button>
                     <button class="btn2 primary" hx-post="{% url 'add_to_cart' item.id %}" hx-vals='{"quantity": 1}' hx-target="#cart" hx-swap="outerHTML" style="margin-top: 5px;">

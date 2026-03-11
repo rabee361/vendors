@@ -1,3 +1,4 @@
+@import "variables.css";
 /* Hero Section */
 .hero {
     margin-top: 18px;
@@ -13,56 +14,54 @@
 }
 
 .hero-inner {
-    padding: 26px;
-    display: grid;
-    grid-template-columns: 1.3fr 1fr;
-    gap: 16px;
-    align-items: center;
+    padding: 60px 26px;
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 .hero h1 {
-    margin: 0 0 10px;
-    font-size: 34px;
-    line-height: 1.25;
+    margin: 0 0 16px;
+    font-size: 42px;
+    line-height: 1.2;
+    background: linear-gradient(135deg, var(--text), var(--muted));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .hero p {
     margin: 0;
     color: var(--muted);
-    line-height: 1.9;
-}
-
-.hero-card {
-    border: 1px solid var(--line);
-    border-radius: var(--r);
-    background: rgba(11, 18, 32, .45);
-    padding: 16px;
-    display: grid;
-    gap: 10px;
-}
-
-.hero-metrics {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-
-.metric {
-    border: 1px solid var(--line);
-    border-radius: 16px;
-    padding: 12px;
-    background: rgba(16, 29, 54, .55);
-}
-
-.metric b {
-    display: block;
     font-size: 18px;
+    line-height: 1.6;
 }
 
-.metric span {
-    color: var(--muted);
-    font-size: 12px;
+.hero-footer {
+    background: rgba(0, 0, 0, .2);
+    border-top: 1px solid var(--line);
+    padding: 16px 26px;
 }
+
+.hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.stat-item b {
+    color: var(--accent);
+    font-size: 16px;
+}
+
 
 /* Modal specific (Product comparison) */
 .modal {

@@ -11,19 +11,18 @@
     {% for vendor in vendors %}
     <article class="card">
       <div class="pad">
-        <div style="display:flex; gap:10px; align-items:center">
-          {% if vendor.avatar %}
-          <img src="{{ vendor.avatar.url }}" class="avatar" alt="{{ vendor.store_name }}">
-          {% else %}
-          <div class="avatar"></div>
-          {% endif %}
-          <div><b>{{ vendor.store_name }}</b>
-            <div class="muted">
-              {{ vendor.category.name|default:"عام" }} • تقييم {{ vendor.rating|default:"0.0" }}
+          <div class="vendor-card">
+            <div style="text-align: right; display: flex; align-items: center; gap: 10px">
+              {% if vendor.avatar %}
+              <img src="{{ vendor.avatar.url }}" class="avatar" alt="{{ vendor.store_name }}">
+              {% else %}
+              <div class="avatar" aria-hidden="true"></div>
+              {% endif %}
+              <b>{{ vendor.store_name }}</b>
+              <span>{{ vendor.category.name|default:"عام" }} • تقييم {{ vendor.rating|default:"0.0" }}</span>
             </div>
+            <a class="btn2 primary" href="#"><span class="arrow"><i class="fas fa-arrow-left"></i></span></a>
           </div>
-        </div>
-        <a class="btn" href="#">عرض المتجر</a>
       </div>
     </article>
     {% empty %}

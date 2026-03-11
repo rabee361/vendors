@@ -1,0 +1,74 @@
+{% extends 'moderator/base.html' %}
+{% load static %}
+
+{% block title %}إدارة المشرفين{% endblock %}
+{% block header %}المشرفين{% endblock %}
+
+{% block content %}
+<div class="table-controls">
+    <div class="search-box">
+        <i class="fas fa-search"></i>
+        <form method="get" action="{% url 'moderator_list' %}">
+            <input type="text" name="q" value="{{ request.GET.q }}" placeholder="بحث عن مشرف..." class="card">
+        </form>
+    </div>
+    <div class="filters">
+        <a href="{% url 'moderator_add' %}" class="btn accent" style="text-decoration: none; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-plus"></i>
+            إضافة مشرف
+        </a>
+    </div>
+</div>
+
+<div class="card" style="padding: 0; overflow: hidden;">
+    <link rel="stylesheet" href="{% static 'css/tables.css' %}">
+    <table>
+        <thead>
+            <tr>
+                <th>المشرف</th>
+                <th>البريد الإلكتروني</th>
+                <th>الهاتف</th>
+                <th>تاريخ الانضمام</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for mod in moderators %}
+            <tr>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        {% if mod.avatar %}
+                        <img src="{{ mod.avatar.url }}" style="width: 32px; height: 32px; border-radius: 8px; object-fit: cover;">
+                        {% else %}
+                        <div style="width: 32px; height: 32px; border-radius: 8px; background: var(--line); display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-user" style="font-size: 14px; color: var(--muted);"></i>
+                        </div>
+                        {% endif %}
+                        <b>{{ mod.username }}</b>
+                    </div>
+                </td>
+                <td>{{ mod.email }}</td>
+                <td>{{ mod.phone|default:"-" }}</td>
+                <td>{{ mod.date_joined|date:"Y/m/d" }}</td>
+                <td>
+                    <div style="display: flex; gap: 12px; font-size: 18px;">
+                        <a href="{% url 'moderator_update' mod.id %}" style="color: var(--accent);" title="تعديل">
+                            <i class="fas fa-pen-to-square"></i>
+                        </a>
+                        <a href="{% url 'moderator_delete' mod.id %}" style="color: var(--danger);" title="حذف" onclick="return confirm('هل أنت متأكد من حذف هذا المشرف؟')">
+                            <i class="fas fa-trash-can"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 40px; color: var(--muted);">
+                    لا يوجد مشرفين حالياً.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

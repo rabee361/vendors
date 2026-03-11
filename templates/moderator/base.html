@@ -1,0 +1,85 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}لوحة التحكم{% endblock %} | Moderator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/moderator/moderator.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <div class="mod-wrap">
+        <aside class="sidebar">
+            <div class="nav-brand">
+                <i class="fas fa-shield-alt"></i>
+                <span>لوحة التحكم</span>
+            </div>
+            
+            <nav class="nav-list">
+                <a href="{% url 'moderator_stats' %}" class="nav-item {% if request.resolver_match.url_name == 'moderator_stats' %}active{% endif %}">
+                    <i class="fas fa-chart-line"></i>
+                    <span>الإحصائيات</span>
+                </a>
+                <a href="{% url 'moderator_vendors' %}" class="nav-item {% if request.resolver_match.url_name == 'moderator_vendors' %}active{% endif %}">
+                    <i class="fas fa-store"></i>
+                    <span>البائعين</span>
+                </a>
+                <a href="{% url 'moderator_list' %}" class="nav-item {% if request.resolver_match.url_name == 'moderator_list' or 'moderator_add' in request.resolver_match.url_name or 'moderator_update' in request.resolver_match.url_name %}active{% endif %}">
+                    <i class="fas fa-shield-halved"></i>
+                    <span>المشرفين</span>
+                </a>
+                <a href="{% url 'home' %}" class="nav-item" style="margin-top: auto;">
+                    <i class="fas fa-arrow-right-from-bracket"></i>
+                    <span>العودة للمتجر</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="mod-content">
+            <div class="mod-topbar">
+                <div class="row">
+                    <div class="topbar-actions">
+                        <button class="hamburger-btn" id="sidebarToggle">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <button class="theme-toggle" id="theme-toggler">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </div>
+                    <div class="user-info">
+                        <span>{{ request.user.username }}</span>
+                        <div class="avatar-sm">
+                            {% if request.user.avatar %}
+                                <img src="{{ request.user.avatar.url }}" alt="avatar">
+                            {% else %}
+                                <i class="fas fa-user-circle"></i>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <header class="mod-header">
+                <h1>{% block header %}{% endblock %}</h1>
+            </header>
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="{% static 'js/theme-toggle.js' %}"></script>
+    <script>
+        // Sidebar Toggle
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+            });
+        }
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

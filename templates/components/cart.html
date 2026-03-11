@@ -1,5 +1,5 @@
 <section id="cart" class="overlay" aria-label="السلة">
-    <aside class="drawer" role="dialog" aria-modal="true">
+    <aside class="drawer" role="dialog" aria-modal="true" onclick="event.stopPropagation()">
         <div class="dhead">
             <b>سلة التسوق <span class="counter" id="cart-counter">{{ cart_count }}</span></b>
             <a class="close" onclick="closeOverlay('cart')" style="cursor: pointer;">إغلاق</a>
@@ -21,15 +21,15 @@
                                     <b>{{ item.product.name }}</b>
                                     <div class="muted">الكمية: </div>
                                     <div class="quantity-control">
-                                        <button class="qty-btn" hx-post="{% url 'update_cart' item.product.id %}" hx-vals='{"quantity": {{ item.quantity|add:"-1" }} }' hx-target="#cart" hx-swap="outerHTML"><i class="fas fa-minus"></i></button>
+                                        <button class="qty-btn" type="button" hx-post="{% url 'update_cart' item.product.id %}" hx-vals='{"quantity": {{ item.quantity|add:"-1" }} }' hx-target="#cart .drawer" hx-select=".drawer" hx-swap="outerHTML"><i class="fas fa-minus"></i></button>
                                         <span class="qty-display">{{ item.quantity }}</span>
-                                        <button class="qty-btn" hx-post="{% url 'update_cart' item.product.id %}" hx-vals='{"quantity": {{ item.quantity|add:"1" }} }' hx-target="#cart" hx-swap="outerHTML"><i class="fas fa-plus"></i></button>
+                                        <button class="qty-btn" type="button" hx-post="{% url 'update_cart' item.product.id %}" hx-vals='{"quantity": {{ item.quantity|add:"1" }} }' hx-target="#cart .drawer" hx-select=".drawer" hx-swap="outerHTML"><i class="fas fa-plus"></i></button>
                                     </div>
                                 </div>
                                 <div style="text-align: left;">
                                     <b class="price">${{ item.total }}</b>
                                     <br>
-                                    <button class="remove-btn" hx-post="{% url 'remove_from_cart' item.product.id %}" hx-target="#cart" hx-swap="outerHTML" aria-label="إزالة المعدة">
+                                    <button class="remove-btn" type="button" hx-post="{% url 'remove_from_cart' item.product.id %}" hx-target="#cart .drawer" hx-select=".drawer" hx-swap="outerHTML" aria-label="إزالة المعدة">
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
                                 </div>

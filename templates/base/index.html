@@ -8,49 +8,18 @@
 
   <!-- Hero -->
   <section class="hero" aria-label="بانر ترحيبي">
-    <div class="hero-inner">
-      <div>
-
-        <h1>اكتشف أفضل المنتجات من بائعين متعددين — مع عروض وإعلانات ممولة باحتراف</h1>
-        <p>
-          ابحث بسرعة، قارن المنتجات، واستفد من العروض.
-          الواجهة مصممة لتكون بسيطة وغير مزدحمة وتناسب UX/UI الحديث.
-        </p>
-
-        <!-- <form class="search" action="search-results.html" method="get" aria-label="بحث"> -->
-        <form action="/search" method="get">بحث
-
-          <input name="q" type="search" placeholder="ابحث عن منتج… مثال: سماعات، هاتف، عطر" />
-          <button class="btn" type="submit">بحث</button>
-          <a class="btn" href="#products"
-            style="border-color:rgba(255,255,255,.14); background:rgba(255,255,255,.03)">استعراض المنتجات</a>
-        </form>
       </div>
 
-      <aside class="hero-card" aria-label="مؤشرات سريعة">
-        <div class="hero-metrics">
-          <div class="metric">
-            <b>+12K</b>
-            <span>منتج متاح</span>
-          </div>
-          <div class="metric">
-            <b>+340</b>
-            <span>بائع موثوق</span>
-          </div>
-          <div class="metric">
-            <b>خصم</b>
-            <span>حتى 40% اليوم</span>
-          </div>
-          <div class="metric">
-            <b>ممول</b>
-            <span>إظهار منتجات مميزة</span>
-          </div>
-        </div>
-
-        <div class="small">
-          * الأرقام للعرض فقط. الـ Backend يربط البيانات الحقيقية.
-        </div>
-      </aside>
+      <!-- Stats now moved to bottom via CSS or layout change in next step -->
+    </div>
+    
+    <div class="hero-footer">
+      <div class="hero-stats">
+        <div class="stat-item"><b>+12K</b> <span>منتج متاح</span></div>
+        <div class="stat-item"><b>+340</b> <span>بائع موثوق</span></div>
+        <div class="stat-item"><b>خصم 40%</b> <span>عروض حصرية</span></div>
+        <div class="stat-item"><b>مميز</b> <span>منتجات مختارة</span></div>
+      </div>
     </div>
   </section>
 
@@ -154,16 +123,17 @@
     </div>
 
     <div class="grid3">
+      {% for ad in ads %}
       <article class="card">
         <div class="pimg">
           <span class="badge">إعلان ممول</span>
         </div>
         <div class="pad">
           <div class="muted">من متجر: TechZone</div>
-          <h3 style="margin:6px 0">سماعات Pro ANC</h3>
+          <h3 style="margin:6px 0">{{ ad.product }}</h3>
           <div class="pmeta">
-            <span class="stars">★★★★★</span>
-            <b class="price">$59</b>
+            <span class="stars">{{ ad.product.rating }}</span>
+            <b class="price">${{ ad.product.price }}</b>
           </div>
           <div class="pactions">
             <a class="paction-btn view" href="product.html" aria-label="عرض المنتج"><i class="fas fa-eye"></i></a>
@@ -174,48 +144,7 @@
           </div>
         </div>
       </article>
-
-      <article class="card">
-        <div class="pimg">
-          <span class="badge">إعلان ممول</span>
-        </div>
-        <div class="pad">
-          <div class="muted">من متجر: BeautyLab</div>
-          <h3 style="margin:6px 0">سيروم فيتامين C</h3>
-          <div class="pmeta">
-            <span class="stars">★★★★☆</span>
-            <b class="price">$22</b>
-          </div>
-          <div class="pactions">
-            <a class="paction-btn view" href="product.html" aria-label="عرض المنتج"><i class="fas fa-eye"></i></a>
-            <button class="paction-btn fav {% if '3' in favorite_product_ids %}active{% endif %}"
-              hx-post="{% url 'toggle_favorite' 3 %}" hx-target="#favorites" hx-swap="outerHTML" aria-label="حفظ"
-              hx-on::after-request="this.classList.toggle('active')"><i
-                class="fas fa-heart"></i></button>
-          </div>
-        </div>
-      </article>
-
-      <article class="card">
-        <div class="pimg">
-          <span class="badge">إعلان ممول</span>
-        </div>
-        <div class="pad">
-          <div class="muted">من متجر: HomePlus</div>
-          <h3 style="margin:6px 0">طقم أدوات مطبخ</h3>
-          <div class="pmeta">
-            <span class="stars">★★★★★</span>
-            <b class="price">$31</b>
-          </div>
-          <div class="pactions">
-            <a class="paction-btn view" href="product.html" aria-label="عرض المنتج"><i class="fas fa-eye"></i></a>
-            <button class="paction-btn primary cart {% if 4|slugify in cart_product_ids %}active{% endif %}" 
-              hx-post="{% url 'add_to_cart' 4 %}" hx-vals='{"quantity": 1}'
-              hx-target="#cart" hx-swap="outerHTML" aria-label="إضافة للسلة"
-              hx-on::after-request="this.classList.toggle('active')"><i class="fas fa-cart-plus"></i></button>
-          </div>
-        </div>
-      </article>
+      {% endfor %}
     </div>
   </section>
 
@@ -336,18 +265,18 @@
       {% for vendor in vendors %}
       <article class="card pad">
         <div class="vendor">
-          <div style="display:flex; gap:10px; align-items:center">
-            {% if vendor.avatar %}
-            <img src="{{ vendor.avatar.url }}" class="avatar" alt="{{ vendor.store_name }}">
-            {% else %}
-            <div class="avatar" aria-hidden="true"></div>
-            {% endif %}
-            <div>
+          <div class="vendor-card">
+            <div style="text-align: right; display: flex; align-items: center; gap: 10px">
+              {% if vendor.avatar %}
+              <img src="{{ vendor.avatar.url }}" class="avatar" alt="{{ vendor.store_name }}">
+              {% else %}
+              <div class="avatar" aria-hidden="true"></div>
+              {% endif %}
               <b>{{ vendor.store_name }}</b>
               <span>{{ vendor.category.name|default:"عام" }} • تقييم {{ vendor.rating|default:"0.0" }}</span>
             </div>
+            <a class="btn2 primary" href="#"><span class="arrow"><i class="fas fa-arrow-left"></i></span></a>
           </div>
-          <a class="btn2 primary" href="#">عرض المتجر</a>
         </div>
       </article>
       {% endfor %}

@@ -1,0 +1,85 @@
+{% extends 'moderator/base.html' %}
+{% load static %}
+
+{% block title %}إضافة مشرف جديد{% endblock %}
+{% block header %}إضافة مشرف{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/moderator/forms.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="card pad">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>اسم المستخدم</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}<span class="error">{{ form.username.errors.0 }}</span>{% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label>البريد الإلكتروني</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}<span class="error">{{ form.email.errors.0 }}</span>{% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label>رقم الهاتف</label>
+                    {{ form.phone }}
+                    {% if form.phone.errors %}<span class="error">{{ form.phone.errors.0 }}</span>{% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label>كلمة المرور</label>
+                    {{ form.password }}
+                    {% if form.password.errors %}<span class="error">{{ form.password.errors.0 }}</span>{% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label>تأكيد كلمة المرور</label>
+                    {{ form.confirm_password }}
+                </div>
+
+                <div class="form-group full">
+                    <label>الصورة الشخصية</label>
+                    <div class="avatar-upload">
+                        <div class="preview" id="avatarPreview">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <div class="upload-btn">
+                            {{ form.avatar }}
+                            <span>اختر صورة</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn accent">حفظ البيانات</button>
+                <a href="{% url 'moderator_list' %}" class="btn muted" style="text-decoration: none;">إلغاء</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const avatarInput = document.querySelector('input[type="file"]');
+    const preview = document.getElementById('avatarPreview');
+    
+    avatarInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; border-radius:inherit; object-fit:cover;">`;
+            }
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+</script>
+{% endblock %}

@@ -1,3 +1,4 @@
+@import "variables.css";
 /* Specific styles for product detail page */
 .product-grid {
   display: grid;
