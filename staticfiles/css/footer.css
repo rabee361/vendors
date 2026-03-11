@@ -1,0 +1,21 @@
+@import "variables.css";
+/* Footer */
+footer {
+  margin-top: 24px;
+  border-top: 1px solid var(--line);
+  background: rgba(11, 18, 32, .65);
+  padding: 18px 0;
+}
+
+.foot {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.9;
+}
+
+.foot b {
+  color: var(--text)
+}
