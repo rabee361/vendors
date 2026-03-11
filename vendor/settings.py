@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-h1238h5r$4be!rcgx44&r_)r6aq)dgaeh=0xmjpy=j-!^ve)3!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["honeybunny.online", "www.honeybunny.online", "127.0.0.1", "localhost"]
 
 
 # Application definition
