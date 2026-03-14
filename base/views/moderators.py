@@ -1,44 +1,40 @@
-from django.views.generic import ListView, TemplateView, CreateView, UpdateView, DeleteView
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views import View
 from django.db.models import Q, Count
-from ..models import Vendor, Product, Order, CustomUser, Buyer, StoreCategory
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.urls import reverse_lazy
-from django.shortcuts import get_object_or_404
-from django import forms
-
+from ..models import Vendor, Product, Order, CustomUser, Buyer, StoreCategory
+from ..forms import CategoryForm, ModeratorForm
 
 class ModeratorRequiredMixin(UserPassesTestMixin):
     def test_func(self):
         return self.request.user.is_authenticated and (self.request.user.is_staff or self.request.user.user_type == 'admin')
 
-class ModeratorVendorsView(ModeratorRequiredMixin, ListView):
-    model = Vendor
-    template_name = 'moderator/vendors.html'
-    context_object_name = 'vendors'
-    
-    def get_queryset(self):
-        query = self.request.GET.get('q')
+class ModeratorVendorsView(ModeratorRequiredMixin, View):
+    def get(self, request):
+        query = request.GET.get('q')
         if query:
-            return Vendor.objects.filter(
+            vendors = Vendor.objects.filter(
                 Q(store_name__icontains=query) | 
                 Q(category__name__icontains=query)
             )
-        return Vendor.objects.all().order_by('-created_at')
+        else:
+            vendors = Vendor.objects.all()
+        
+        vendors = vendors.order_by('-created_at')
+        return render(request, 'moderator/vendors.html', {'vendors': vendors})
 
-class ModeratorStatsView(ModeratorRequiredMixin, TemplateView):
-    template_name = 'moderator/stats.html'
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['total_vendors'] = Vendor.objects.count()
-        context['total_products'] = Product.objects.count()
-        context['total_orders'] = Order.objects.count()
-        context['total_buyers'] = Buyer.objects.count()
-        context['latest_vendors'] = Vendor.objects.order_by('-created_at')[:5]
+class ModeratorStatsView(ModeratorRequiredMixin, View):
+    def get(self, request):
+        total_vendors = Vendor.objects.count()
+        total_products = Product.objects.count()
+        total_orders = Order.objects.count()
+        total_buyers = Buyer.objects.count()
+        latest_vendors = Vendor.objects.order_by('-created_at')[:5]
         
         # Category distribution
         categories = StoreCategory.objects.annotate(vendor_count=Count('vendor'))
-        total_v = context['total_vendors'] or 1
+        total_v = total_vendors or 1
         category_data = []
         for cat in categories:
             percentage = round((cat.vendor_count / total_v) * 100)
@@ -47,70 +43,115 @@ class ModeratorStatsView(ModeratorRequiredMixin, TemplateView):
                 'count': cat.vendor_count,
                 'percentage': percentage
             })
-        context['category_distribution'] = sorted(category_data, key=lambda x: x['count'], reverse=True)[:5]
+        category_distribution = sorted(category_data, key=lambda x: x['count'], reverse=True)[:5]
         
-        return context
+        context = {
+            'total_vendors': total_vendors,
+            'total_products': total_products,
+            'total_orders': total_orders,
+            'total_buyers': total_buyers,
+            'latest_vendors': latest_vendors,
+            'category_distribution': category_distribution,
+        }
+        return render(request, 'moderator/stats.html', context)
 
-class ModeratorListView(ModeratorRequiredMixin, ListView):
-    model = CustomUser
-    template_name = 'moderator/moderators.html'
-    context_object_name = 'moderators'
-    
-    def get_queryset(self):
-        query = self.request.GET.get('q')
+class ModeratorListView(ModeratorRequiredMixin, View):
+    def get(self, request):
+        query = request.GET.get('q')
         qs = CustomUser.objects.filter(user_type='admin')
         if query:
             qs = qs.filter(
                 Q(username__icontains=query) | 
                 Q(email__icontains=query)
             )
-        return qs.order_by('-date_joined')
+        moderators = qs.order_by('-date_joined')
+        return render(request, 'moderator/moderators.html', {'moderators': moderators})
 
-class ModeratorForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput(), required=False)
-    confirm_password = forms.CharField(widget=forms.PasswordInput(), required=False)
-
-    class Meta:
-        model = CustomUser
-        fields = ['username', 'email', 'phone', 'avatar']
-
-    def clean(self):
-        cleaned_data = super().clean()
-        password = cleaned_data.get("password")
-        confirm_password = cleaned_data.get("confirm_password")
-
-        if password and password != confirm_password:
-            raise forms.ValidationError("كلمات المرور غير متطابقة.")
-        return cleaned_data
-
-class ModeratorAddView(ModeratorRequiredMixin, CreateView):
-    model = CustomUser
-    form_class = ModeratorForm
+class ModeratorAddView(ModeratorRequiredMixin, View):
     template_name = 'moderator/add_moderator.html'
-    success_url = reverse_lazy('moderator_list')
+    
+    def get(self, request):
+        form = ModeratorForm()
+        return render(request, self.template_name, {'form': form})
 
-    def form_valid(self, form):
-        user = form.save(commit=False)
-        user.user_type = 'admin'
-        if form.cleaned_data.get('password'):
-            user.set_password(form.cleaned_data.get('password'))
-        user.save()
-        return super().form_valid(form)
+    def post(self, request):
+        form = ModeratorForm(request.POST, request.FILES)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.user_type = 'admin'
+            if form.cleaned_data.get('password'):
+                user.set_password(form.cleaned_data.get('password'))
+            user.save()
+            return redirect('moderator_list')
+        return render(request, self.template_name, {'form': form})
 
-class ModeratorUpdateView(ModeratorRequiredMixin, UpdateView):
-    model = CustomUser
-    form_class = ModeratorForm
+class ModeratorUpdateView(ModeratorRequiredMixin, View):
     template_name = 'moderator/update_moderator.html'
-    success_url = reverse_lazy('moderator_list')
 
-    def form_valid(self, form):
-        user = form.save(commit=False)
-        if form.cleaned_data.get('password'):
-            user.set_password(form.cleaned_data.get('password'))
-        user.save()
-        return super().form_valid(form)
+    def get(self, request, pk):
+        instance = get_object_or_404(CustomUser, pk=pk, user_type='admin')
+        form = ModeratorForm(instance=instance)
+        return render(request, self.template_name, {'form': form, 'object': instance})
 
-class ModeratorDeleteView(ModeratorRequiredMixin, DeleteView):
-    model = CustomUser
-    success_url = reverse_lazy('moderator_list')
-    # Usually handled via HTMX or simple POST
+    def post(self, request, pk):
+        instance = get_object_or_404(CustomUser, pk=pk, user_type='admin')
+        form = ModeratorForm(request.POST, request.FILES, instance=instance)
+        if form.is_valid():
+            user = form.save(commit=False)
+            if form.cleaned_data.get('password'):
+                user.set_password(form.cleaned_data.get('password'))
+            user.save()
+            return redirect('moderator_list')
+        return render(request, self.template_name, {'form': form, 'object': instance})
+
+class ModeratorDeleteView(ModeratorRequiredMixin, View):
+    def get(self, request, pk):
+        instance = get_object_or_404(CustomUser, pk=pk, user_type='admin')
+        instance.delete()
+        return redirect('moderator_list')
+
+class ModeratorCategoriesView(ModeratorRequiredMixin, View):
+    def get(self, request):
+        query = request.GET.get('q')
+        if query:
+            categories = StoreCategory.objects.filter(name__icontains=query)
+        else:
+            categories = StoreCategory.objects.all()
+        categories = categories.order_by('name')
+        return render(request, 'moderator/categories.html', {'categories': categories})
+
+class ModeratorCategoryAddView(ModeratorRequiredMixin, View):
+    template_name = 'moderator/add_category.html'
+
+    def get(self, request):
+        form = CategoryForm()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request):
+        form = CategoryForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('moderator_categories')
+        return render(request, self.template_name, {'form': form})
+
+class ModeratorCategoryUpdateView(ModeratorRequiredMixin, View):
+    template_name = 'moderator/update_category.html'
+
+    def get(self, request, pk):
+        instance = get_object_or_404(StoreCategory, pk=pk)
+        form = CategoryForm(instance=instance)
+        return render(request, self.template_name, {'form': form, 'object': instance})
+
+    def post(self, request, pk):
+        instance = get_object_or_404(StoreCategory, pk=pk)
+        form = CategoryForm(request.POST, request.FILES, instance=instance)
+        if form.is_valid():
+            form.save()
+            return redirect('moderator_categories')
+        return render(request, self.template_name, {'form': form, 'object': instance})
+
+class ModeratorCategoryDeleteView(ModeratorRequiredMixin, View):
+    def get(self, request, pk):
+        instance = get_object_or_404(StoreCategory, pk=pk)
+        instance.delete()
+        return redirect('moderator_categories')

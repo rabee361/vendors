@@ -7,13 +7,10 @@
 {% block content %}
 <div class="table-controls">
     <div class="search-box">
-        <i class="fas fa-search"></i>
         <form method="get" action="{% url 'moderator_vendors' %}">
-            <input type="text" name="q" value="{{ request.GET.q }}" placeholder="بحث عن بائع بالاسم..." class="card">
+            <input type="text" name="q" value="{{ request.GET.q }}" placeholder="بحث عن بائع بالاسم...">
+            <i class="fas fa-search"></i>
         </form>
-    </div>
-    <div class="filters">
-        <!-- Additional filters can go here -->
     </div>
 </div>
 

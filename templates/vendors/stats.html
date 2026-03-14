@@ -1,0 +1,57 @@
+{% extends 'vendors/base.html' %}
+
+{% block content %}
+
+      <header>
+        <div>
+          <h1>لوحة تحكم البائع</h1>
+          <div class="muted">إدارة منتجاتك، عروضك، طلباتك وإعلاناتك بسهولة.</div>
+        </div>
+        <div class="chips">
+          <a class="chip" href="{% url 'vendor_store' vendor_id %}">عرض المتجر</a>
+          <a class="chip" href="{% url 'home' %}">زيارة الموقع</a>
+        </div>
+      </header>
+
+
+      <!-- الإحصائيات -->
+      <section id="stats" class="section">
+        <div class="grid3">
+          <div class="card pad">
+            <div class="kpi"><b>+18%</b><span>نمو الزيارات</span></div>
+          </div>
+          <div class="card pad">
+            <div class="kpi"><b>4.8</b><span>متوسط التقييم</span></div>
+          </div>
+          <div class="card pad">
+            <div class="kpi"><b>2.9%</b><span>معدل التحويل</span></div>
+          </div>
+        </div>
+
+        <div class="grid2" style="margin-top:12px">
+          <article class="card pad">
+            <h2 style="margin:0 0 6px">ملخص أسبوعي</h2>
+            <ul style="margin:10px 0 0; padding:0 18px; color:var(--muted); line-height:1.9">
+              <li>أفضل منتج: سماعات Pro ANC</li>
+              <li>أكثر مصدر زيارات: الصفحة الرئيسية</li>
+              <li>أفضل حملة: إعلان ممول (قسم الإعلانات)</li>
+            </ul>
+          </article>
+
+          <article class="card pad">
+            <h2 style="margin:0 0 6px">توصيات</h2>
+            <ul style="margin:10px 0 0; padding:0 18px; color:var(--muted); line-height:1.9">
+              <li>أضف صورًا متعددة للمنتجات لزيادة الثقة.</li>
+              <li>فعّل عرضًا على المنتج الأكثر مشاهدة.</li>
+              <li>وازن الميزانية بين نوعي الإعلانات.</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="small" style="margin-top:10px">
+          * الرسوم البيانية يمكن إضافتها لاحقًا بالـ Backend أو بجافاسكربت (لكن حسب طلبك هنا بدون JS).
+        </div>
+      </section>
+
+      
+      {% endblock %}

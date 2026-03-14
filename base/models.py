@@ -51,7 +51,7 @@ class Buyer(models.Model):
         return f"Buyer: {self.user.username}"
 
 class Vendor(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='vendor_profile')
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='vendor_profile')
     store_name = models.CharField(max_length=150)
     category = models.ForeignKey('StoreCategory', on_delete=models.SET_NULL, null=True)
     rating = models.DecimalField(max_digits=2, decimal_places=1, default=0)
@@ -63,14 +63,6 @@ class Vendor(models.Model):
 
     def __str__(self):
         return self.store_name
-        
-class AdminUser(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='admin_profile')
-    managed_domain = models.CharField(max_length=255, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"Admin: {self.user.username}"
 
 class ProductCategory(models.Model):
     tenant = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='product_categories')
@@ -93,6 +85,7 @@ class ProductCategory(models.Model):
 class StoreCategory(models.Model):
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True)
+    image = models.ImageField(upload_to='categories/images/', blank=True)
     slug = models.SlugField(unique=True, allow_unicode=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -141,10 +134,15 @@ class Offer(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def discount_price(self):
+        return f"{self.original_price - (self.original_price * self.discount / 100):.2f}"
+
     def __str__(self):
         return f"{self.discount}% off {self.product.name}"
 
 class SponsoredAd(models.Model):
+    vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='ads')
     ad_type = models.CharField(max_length=20, choices=AdType.choices)
     budget = models.DecimalField(max_digits=10, decimal_places=2)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -212,11 +210,9 @@ class OrderItem(models.Model):
         return f"{self.quantity} x {self.product.name if self.product else 'Deleted Product'}"
 
 class ContactMessage(models.Model):
-    tenant = models.ForeignKey(Vendor, on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=150)
     email = models.EmailField()
     message = models.TextField()
-    is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

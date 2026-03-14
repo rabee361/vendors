@@ -1,11 +1,14 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
-from .models import StoreCategory, OTPCode
+from .models import StoreCategory, OTPCode, ContactMessage, CustomUser
 from utils.validators import SyrianPhoneValidator
 from utils.types import UserType
+from django.contrib.auth import authenticate
+from .models import Product, Offer, SponsoredAd, Order
 
 User = get_user_model()
+
 
 class BuyerLoginForm(forms.Form):
     email = forms.EmailField(widget=forms.EmailInput(attrs={
@@ -19,6 +22,20 @@ class BuyerLoginForm(forms.Form):
         'required': True
     }))
 
+    def clean(self):
+        cleaned_data = super().clean()
+        email = cleaned_data.get('email')
+        password = cleaned_data.get('password')
+
+        if email and password:
+            user = authenticate(username=email, password=password)
+            if not user:
+                raise ValidationError("خطأ في البريد الإلكتروني أو كلمة المرور.")
+            if not user.is_buyer:
+                raise ValidationError("هذا الحساب ليس حساب مشتري.")
+            cleaned_data['user'] = user
+        return cleaned_data
+
 class SellerLoginForm(forms.Form):
     email = forms.EmailField(widget=forms.EmailInput(attrs={
         'id': 'sEmail',
@@ -30,6 +47,20 @@ class SellerLoginForm(forms.Form):
         'placeholder': '••••••••',
         'required': True
     }))
+
+    def clean(self):
+        cleaned_data = super().clean()
+        email = cleaned_data.get('email')
+        password = cleaned_data.get('password')
+
+        if email and password:
+            user = authenticate(username=email, password=password)
+            if not user:
+                raise ValidationError("خطأ في البريد الإلكتروني أو كلمة المرور.")
+            if not user.is_seller:
+                raise ValidationError("هذا الحساب ليس حساب بائع.")
+            cleaned_data['user'] = user
+        return cleaned_data
 
 class VendorSignupForm(forms.Form):
     full_name = forms.CharField(max_length=150, widget=forms.TextInput(attrs={
@@ -50,8 +81,8 @@ class VendorSignupForm(forms.Form):
     store_name = forms.CharField(max_length=150, widget=forms.TextInput(attrs={
         'id': 'storeName', 'placeholder': 'مثال: متجر النخبة', 'required': True
     }))
-    store_category = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
-        'id': 'storeCategory', 'list': 'storeCats', 'placeholder': 'مثال: إلكترونيات / ملابس / عطور...', 'required': True
+    store_category = forms.CharField(max_length=100, widget=forms.Select(attrs={
+        'id': 'storeCategory', 'required': True
     }))
     phone = forms.CharField(
         max_length=20, 
@@ -157,3 +188,78 @@ class CheckoutForm(forms.Form):
     notes = forms.CharField(required=False, widget=forms.Textarea(attrs={
         'id': 'nts', 'placeholder': 'ملاحظات إضافية'
     }))
+
+
+class MessageForm(forms.ModelForm):
+    class Meta:
+        model = ContactMessage
+        fields = ['name', 'email', 'message']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'id': 'name', 'placeholder': 'الاسم الكامل', 'required': True
+            }),
+            'email': forms.EmailInput(attrs={
+                'id': 'email', 'placeholder': 'name@example.com', 'required': True
+            }),
+            'message': forms.Textarea(attrs={
+                'id': 'message', 'placeholder': 'الرسالة', 'required': True
+            })
+        }
+
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = StoreCategory
+        fields = ['name', 'slug', 'description']
+
+
+class ModeratorForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput(), required=False)
+    confirm_password = forms.CharField(widget=forms.PasswordInput(), required=False)
+
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'email', 'phone', 'avatar']
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get("password")
+        confirm_password = cleaned_data.get("confirm_password")
+
+        if password and password != confirm_password:
+            raise forms.ValidationError("كلمات المرور غير متطابقة.")
+        return cleaned_data
+
+
+
+
+class ProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ['name', 'description', 'price', 'stock', 'category', 'image']
+        widgets = {
+            'name': forms.TextInput(attrs={'placeholder': 'اسم المنتج'}),
+            'description': forms.Textarea(attrs={'placeholder': 'وصف المنتج'}),
+            'price': forms.NumberInput(attrs={'placeholder': 'السعر'}),
+            'stock': forms.NumberInput(attrs={'placeholder': 'المخزون'}),
+            'category': forms.Select(),
+        }
+
+class OfferForm(forms.ModelForm):
+    class Meta:
+        model = Offer
+        fields = ['product', 'discount', 'original_price', 'start_date', 'end_date']
+        widgets = {
+            'start_date': forms.DateInput(attrs={'type': 'date'}),
+            'end_date': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+class SponsoredAdForm(forms.ModelForm):
+    class Meta:
+        model = SponsoredAd
+        fields = ['ad_type', 'budget', 'product', 'days_count', 'status']
+
+class OrderUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Order
+        fields = ['status']

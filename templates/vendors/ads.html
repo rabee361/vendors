@@ -1,0 +1,69 @@
+{% extends 'vendors/base.html' %}
+
+{% block content %}
+
+      <header>
+        <div>
+          <h1>لوحة تحكم البائع</h1>
+          <div class="muted">إدارة منتجاتك، عروضك، طلباتك وإعلاناتك بسهولة.</div>
+        </div>
+        <div class="chips">
+          <a class="chip accent" href="{% url 'ad_add' %}" style="background:var(--accent); color:white">+ إنشاء إعلان</a>
+          <a class="chip" href="{% url 'vendor_store' vendor_id %}">عرض المتجر</a>
+          <a class="chip" href="{% url 'home' %}">زيارة الموقع</a>
+        </div>
+      </header>
+
+
+      <section id="ads" class="section">
+        <div class="card pad">
+          <h2 style="margin:0 0 6px">إعلاناتك الممولة</h2>
+          <p class="muted" style="margin:0; line-height:1.8">إدارة حملاتك الإعلانية للوصول لعملاء أكثر.</p>
+        </div>
+
+        <div class="card pad" style="margin-top:12px">
+          <h2 style="margin:0 0 6px">إعلاناتك الحالية</h2>
+          <div style="overflow:auto; margin-top:12px">
+            <table aria-label="إعلانات ممولة">
+              <thead>
+                <tr>
+                  <th>المنتج</th>
+                  <th>النوع</th>
+                  <th>الميزانية</th>
+                  <th>الحالة</th>
+                  <th>الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for ad in ads %}
+                <tr>
+                  <td>{{ ad.product.name }}</td>
+                  <td>{{ ad.get_ad_type_display }}</td>
+                  <td><b>${{ ad.budget }}</b></td>
+                  <td><span class="status {% if ad.status == 'active' %}c{% elif ad.status == 'pending' %}p{% else %}r{% endif %}">{{ ad.get_status_display }}</span></td>
+                  <td>
+                    <div style="display: flex; gap: 8px;">
+                      <a href="{% url 'ad_update' ad.id %}" style="color: var(--accent);" title="تعديل">
+                        <i class="fas fa-edit"></i>
+                      </a>
+                      <a href="{% url 'ad_delete' ad.id %}" style="color: var(--danger);" title="حذف" onclick="return confirm('هل أنت متأكد من الحذف؟')">
+                        <i class="fas fa-trash"></i>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="4" style="text-align:center">لا يوجد إعلانات حالياً.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="small" style="margin-top:10px">
+            * المراجعة/القبول/الإيقاف يتم من الـ Backend أو لوحة مشرف إن وجدت.
+          </div>
+        </div>
+      </section>
+
+      {% endblock %}

@@ -43,7 +43,7 @@
     </div>
   </section>
 
-  <!-- Deals -->
+  <!-- Offers -->
   <section id="deals" class="section">
     <div class="section-head">
       <div>
@@ -54,61 +54,26 @@
     </div>
 
     <div class="grid3">
+      {% for offer in offers %}
       <article class="card">
         <div class="pad">
-          <span class="tag good">خصم 25%</span>
-          <h3 style="margin:10px 0 6px">باقة إكسسوارات هاتف</h3>
-          <div class="muted">شاحن + كابل + جراب</div>
+          <span class="tag good">خصم {{ offer.discount }}%</span>
+          <h3 style="margin:10px 0 6px">{{ offer.product.name }}</h3>
+          <div class="muted">{{ offer.product.description }}</div>
           <div class="pmeta">
-            <b class="price">$19</b>
-            <span class="muted"><s>$25</s></span>
+            <b class="price">${{ offer.original_price }}</b>
+            <span class="muted"><s>${{ offer.discount_price }}</s></span>
           </div>
           <div class="pactions">
-            <a class="paction-btn view" href="product.html" aria-label="عرض التفاصيل"><i class="fas fa-eye"></i></a>
-            <button class="paction-btn primary cart {% if 1|slugify in cart_product_ids %}active{% endif %}" 
-              hx-post="{% url 'add_to_cart' 1 %}" hx-vals='{"quantity": 1}'
+            <a class="paction-btn view" href="{% url 'product' offer.product.id %}" aria-label="عرض التفاصيل"><i class="fas fa-eye"></i></a>
+            <button class="paction-btn primary cart {% if offer.product.id|slugify in cart_product_ids %}active{% endif %}" 
+              hx-post="{% url 'add_to_cart' offer.product.id %}" hx-vals='{"quantity": 1}'
               hx-target="#cart" hx-swap="outerHTML" aria-label="إضافة للسلة"
               hx-on::after-request="this.classList.toggle('active')"><i class="fas fa-cart-plus"></i></button>
           </div>
         </div>
       </article>
-
-      <article class="card">
-        <div class="pad">
-          <span class="tag good">خصم 15%</span>
-          <h3 style="margin:10px 0 6px">عطر شرقي فاخر</h3>
-          <div class="muted">ثبات طويل • حجم 100ml</div>
-          <div class="pmeta">
-            <b class="price">$35</b>
-            <span class="muted"><s>$41</s></span>
-          </div>
-          <div class="pactions">
-            <a class="paction-btn view" href="product.html" aria-label="عرض التفاصيل"><i class="fas fa-eye"></i></a>
-            <button class="paction-btn fav {% if '2' in favorite_product_ids %}active{% endif %}"
-              hx-post="{% url 'toggle_favorite' 2 %}" hx-target="#favorites" hx-swap="outerHTML"
-              aria-label="إضافة للمفضلة" hx-on::after-request="this.classList.toggle('active')"><i class="fas fa-heart"></i></button>
-          </div>
-        </div>
-      </article>
-
-      <article class="card">
-        <div class="pad">
-          <span class="tag good">خصم 40%</span>
-          <h3 style="margin:10px 0 6px">حقيبة سفر</h3>
-          <div class="muted">خامة ممتازة • حجم متوسط</div>
-          <div class="pmeta">
-            <b class="price">$48</b>
-            <span class="muted"><s>$80</s></span>
-          </div>
-          <div class="pactions">
-            <a class="paction-btn view" href="product.html" aria-label="عرض التفاصيل"><i class="fas fa-eye"></i></a>
-            <button class="paction-btn primary cart {% if 2|slugify in cart_product_ids %}active{% endif %}" 
-              hx-post="{% url 'add_to_cart' 2 %}" hx-vals='{"quantity": 1}'
-              hx-target="#cart" hx-swap="outerHTML" aria-label="إضافة للسلة"
-              hx-on::after-request="this.classList.toggle('active')"><i class="fas fa-cart-plus"></i></button>
-          </div>
-        </div>
-      </article>
+      {% endfor %}
     </div>
   </section>
 
@@ -127,16 +92,19 @@
       <article class="card">
         <div class="pimg">
           <span class="badge">إعلان ممول</span>
+          {% if ad.product.image %}
+          <img src="{{ ad.product.image.url }}" alt="{{ ad.product.name }}">
+          {% endif %}
         </div>
         <div class="pad">
-          <div class="muted">من متجر: TechZone</div>
+          <div class="muted">من متجر: {{ ad.vendor.store_name }}</div>
           <h3 style="margin:6px 0">{{ ad.product }}</h3>
           <div class="pmeta">
             <span class="stars">{{ ad.product.rating }}</span>
             <b class="price">${{ ad.product.price }}</b>
           </div>
           <div class="pactions">
-            <a class="paction-btn view" href="product.html" aria-label="عرض المنتج"><i class="fas fa-eye"></i></a>
+            <a class="paction-btn view" href="{% url 'product' ad.product.id %} " aria-label="عرض المنتج"><i class="fas fa-eye"></i></a>
             <button class="paction-btn primary cart {% if 3|slugify in cart_product_ids %}active{% endif %}" 
               hx-post="{% url 'add_to_cart' 3 %}" hx-vals='{"quantity": 1}'
               hx-target="#cart" hx-swap="outerHTML" aria-label="إضافة للسلة"
@@ -162,92 +130,54 @@
       <aside class="filters" aria-label="فلاتر المنتجات">
         <h3>فلترة</h3>
 
-        <form action="search-results.html" method="get">
+        <form method="get">
           <div class="fgroup">
             <label for="q">بحث</label>
-            <input id="q" name="q" type="search" placeholder="اسم المنتج..." />
+            <input hx-get="{% url 'home' %}" hx-target="#index_products_partial" hx-swap="innerHTML" hx-push-url="true"  id="q" name="q" type="search" placeholder="اسم المنتج..." />
           </div>
 
           <div class="fgroup">
-            <label for="cat">الصنف (اكتب أو اختر)</label>
-            <input id="cat" name="category" list="cats" placeholder="مثال: إلكترونيات" />
-            <datalist id="cats">
-              <option value="إلكترونيات"></option>
-              <option value="أزياء وملابس"></option>
-              <option value="عطور وتجميل"></option>
-              <option value="منزل ومطبخ"></option>
-              <option value="رياضة"></option>
-              <option value="كتب"></option>
-            </datalist>
-            <div class="small">ألوان القوائم واضحة قدر الإمكان (تختلف حسب المتصفح).</div>
+              <label for="cat">الصنف (اكتب أو اختر)</label>
+              <input id="cat" name="category" list="cats" placeholder="مثال: إلكترونيات"
+                  value="{{ category_name }}" hx-trigger="change, keyup changed delay:500ms" />
+              <datalist id="cats">
+                  {% for cat in categories %}
+                  <option value="{{ cat.name }}"></option>
+                  {% endfor %}
+              </datalist>
           </div>
 
           <div class="row2">
-            <div class="fgroup">
-              <label for="min">السعر من</label>
-              <input id="min" name="minPrice" type="number" placeholder="0" />
-            </div>
-            <div class="fgroup">
-              <label for="max">السعر إلى</label>
-              <input id="max" name="maxPrice" type="number" placeholder="999" />
-            </div>
+              <div class="fgroup">
+                  <label for="min">السعر من</label>
+                  <input id="min" name="minPrice" type="number" placeholder="0" value="{{ min_price }}" 
+                      hx-trigger="change, keyup changed delay:500ms" />
+              </div>
+              <div class="fgroup">
+                  <label for="max">السعر إلى</label>
+                  <input id="max" name="maxPrice" type="number" placeholder="999" value="{{ max_price }}" 
+                      hx-trigger="change, keyup changed delay:500ms" />
+              </div>
           </div>
 
           <div class="fgroup">
-            <label for="rate">التقييم (اكتب أو اختر)</label>
-            <input id="rate" name="rating" list="rates" placeholder="مثال: 4.5" />
-            <datalist id="rates">
-              <option value="5.0"></option>
-              <option value="4.5"></option>
-              <option value="4.0"></option>
-              <option value="3.5"></option>
-            </datalist>
+              <label for="rate">التقييم (اكتب أو اختر)</label>
+              <input id="rate" name="rating" list="rates" placeholder="مثال: 4.5" value="{{ rating }}" 
+                  hx-trigger="change, keyup changed delay:500ms" />
+              <datalist id="rates">
+                  <option value="5.0"></option>
+                  <option value="4.5"></option>
+                  <option value="4.0"></option>
+                  <option value="3.5"></option>
+              </datalist>
           </div>
 
-          <button class="btn" type="submit" style="width:100%">تطبيق الفلاتر</button>
+          <button class="btn" hx-get="{% url 'home' %}" hx-target="#index_products_partial" hx-swap="innerHTML" hx-push-url="true" hx-trigger="submit" type="submit" style="width:100%">تطبيق الفلاتر</button>
         </form>
       </aside>
 
-      <div class="products" aria-label="قائمة المنتجات">
-        {% for product in products %}
-        <article class="card">
-          <div class="pimg">
-            {% if product.is_sponsored_badge %}
-            <span class="badge">ممول</span>
-            {% endif %}
-            {% if product.image %}
-            <img src="{{ product.image.url }}" alt="{{ product.name }}"
-              style="width:100%; height:100%; object-fit:cover; border-radius:12px 12px 0 0;">
-            {% endif %}
-          </div>
-          <div class="pad">
-            <div class="muted">{{ product.category.name|default:"عام" }} • من متجر {{ product.tenant.store_name }}</div>
-            <h3 style="margin:6px 0">{{ product.name }}</h3>
-            <div class="pmeta">
-              <span class="stars">
-                {% if product.rating >= 1 %}★{% else %}☆{% endif %}
-                {% if product.rating >= 2 %}★{% else %}☆{% endif %}
-                {% if product.rating >= 3 %}★{% else %}☆{% endif %}
-                {% if product.rating >= 4 %}★{% else %}☆{% endif %}
-                {% if product.rating >= 5 %}★{% else %}☆{% endif %}
-              </span>
-              <b class="price">${{ product.price }}</b>
-            </div>
-            <div class="pactions">
-              <a class="paction-btn view" href="{% url 'product' product.id %}" aria-label="عرض التفاصيل"><i
-                  class="fas fa-eye"></i></a>
-              <button class="paction-btn primary cart {% if product.id|slugify in cart_product_ids %}active{% endif %}" 
-                hx-post="{% url 'add_to_cart' product.id %}"
-                hx-vals='{"quantity": 1}' hx-target="#cart" hx-swap="outerHTML" aria-label="إضافة للسلة"
-                hx-on::after-request="this.classList.toggle('active')"><i
-                  class="fas fa-cart-plus"></i></button>
-              <button class="paction-btn fav {% if product.id|slugify in favorite_product_ids %}active{% endif %}"
-                hx-post="{% url 'toggle_favorite' product.id %}" hx-target="#favorites" hx-swap="outerHTML"
-                aria-label="مفضلة" hx-on::after-request="this.classList.toggle('active')"><i class="fas fa-heart"></i></button>
-            </div>
-          </div>
-        </article>
-        {% endfor %}
+      <div id="index_products_partial" class="products" aria-label="قائمة المنتجات">
+        {% include 'base/partials/index_products_partial.html' %}
       </div>
   </section>
 
@@ -275,7 +205,7 @@
               <b>{{ vendor.store_name }}</b>
               <span>{{ vendor.category.name|default:"عام" }} • تقييم {{ vendor.rating|default:"0.0" }}</span>
             </div>
-            <a class="btn2 primary" href="#"><span class="arrow"><i class="fas fa-arrow-left"></i></span></a>
+            <a class="btn2 primary" href="{% url 'vendor' vendor.id %} " aria-label="عرض المتجر"><span class="arrow"><i class="fas fa-arrow-left"></i></span></a>
           </div>
         </div>
       </article>
@@ -300,22 +230,7 @@
 
     <article id="contact" class="card pad">
       <h2 style="margin:0 0 6px">تواصل معنا</h2>
-      <form action="#" method="post" style="display:grid; gap:10px; margin-top:10px">
-        <div style="display:grid; gap:8px">
-          <label for="name">الاسم</label>
-          <input id="name" name="name" type="text" placeholder="اسمك الكامل" required />
-        </div>
-        <div style="display:grid; gap:8px">
-          <label for="email2">الإيميل</label>
-          <input id="email2" name="email" type="email" placeholder="name@example.com" required />
-        </div>
-        <div style="display:grid; gap:8px">
-          <label for="msg">الرسالة</label>
-          <textarea id="msg" name="message" placeholder="كيف يمكننا مساعدتك؟" required></textarea>
-        </div>
-        <button class="btn" type="submit">إرسال</button>
-        <div class="small">* الإرسال هنا واجهة فقط — اربطه بالـ Backend.</div>
-      </form>
+      {% include 'base/partials/contact_form.html' %}
     </article>
   </section>
 

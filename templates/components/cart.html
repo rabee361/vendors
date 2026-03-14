@@ -39,7 +39,7 @@
                         <div class="sum" style="margin-bottom: 20px;">
                             <div style="display:flex; justify-content:space-between"><span>مجموع المتجر</span><b>${{ data.subtotal }}</b></div>
                             <div class="checkout" style="margin-top: 10px;">
-                                <a class="btn2 primary" href="{% url 'checkout' %}" style="width: 100%;">إتمام الشراء من {{ vendor.store_name }}</a>
+                                <a class="btn2 primary" href="{% url 'checkout' vendor.id %}" style="width: 100%;">إتمام الشراء من {{ vendor.store_name }}</a>
                             </div>
                         </div>
                     </div>

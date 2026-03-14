@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import (
-    CustomUser, Buyer, AdminUser,
+    CustomUser, Buyer,
     ProductCategory, Vendor, Product, Offer, SponsoredAd, 
     Cart, CartItem, Favorite, Order, OrderItem, 
     ContactMessage, VendorStats, StoreCategory, OTPCode
@@ -15,11 +15,6 @@ class VendorInline(admin.StackedInline):
     model = Vendor
     can_delete = False
 
-class AdminUserInline(admin.StackedInline):
-    model = AdminUser
-    can_delete = False
-
-
 @admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin):
     list_display = ('username', 'email', 'user_type', 'is_staff', 'is_superuser')
@@ -30,12 +25,7 @@ class CustomUserAdmin(UserAdmin):
     add_fieldsets = UserAdmin.add_fieldsets + (
         (None, {'fields': ('user_type',)}),
     )
-    inlines = [BuyerInline, VendorInline, AdminUserInline]
-
-@admin.register(AdminUser)
-class AdminUserAdmin(admin.ModelAdmin):
-    list_display = ('user', 'managed_domain', 'created_at')
-    search_fields = ('user__username', 'managed_domain')
+    inlines = [BuyerInline, VendorInline]
 
 @admin.register(ProductCategory)
 class ProductCategoryAdmin(admin.ModelAdmin):
@@ -97,8 +87,7 @@ class OrderItemAdmin(admin.ModelAdmin):
 
 @admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):
-    list_display = ('name', 'email', 'tenant', 'is_read', 'created_at')
-    list_filter = ('is_read', 'tenant')
+    list_display = ('name', 'email', 'created_at')
 
 @admin.register(VendorStats)
 class VendorStatsAdmin(admin.ModelAdmin):

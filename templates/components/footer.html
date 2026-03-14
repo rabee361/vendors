@@ -3,21 +3,17 @@
         <div class="foot"> 
             <div>
                 <b>Marketplace</b>
-                <div>واجهة داكنة بسيطة، أداء أفضل، وتنظيم واضح للأقسام.</div>
                 <div style="margin-top:10px" class="small">© جميع الحقوق محفوظة</div>
-            </div>
+        </div>
             <div class="links">
                 <b>روابط</b>
-                <a href="#categories">التصنيفات</a>
-                <a href="#products">المنتجات</a>
-                <a href="#vendors">البائعون</a>
-                <a href="cart-checkout.html">الدفع</a>
+                <a href="{% url 'category_list' %}">التصنيفات</a>
+                <a href="{% url 'product_list' %}">المنتجات</a>
+                <a href="{% url 'vendors' %}">البائعون</a>
             </div>
             <div class="links">
                 <b>الحساب</b>
-                <a href="login.html">تسجيل دخول مشتري</a>
-                <a href="seller-register-login.html">بوابة البائع</a>
-                <a href="seller-dashboard.html">لوحة البائع (للبائع فقط)</a>
+                <a href="{% url 'login' %}">تسجيل دخول مشتري</a>
             </div>
         </div>
     </div>

@@ -1,28 +1,83 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import FormView, View
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout, authenticate ,get_user_model
 from django.contrib import messages
 from django.urls import reverse_lazy, reverse
-from django.contrib.auth import get_user_model
-from ..forms import BuyerSignupForm, VendorSignupForm, BuyerLoginForm, SellerLoginForm, OTPForm, VerifyOTPForm
-from ..models import Vendor, Product, ProductCategory, StoreCategory, Buyer, OTPCode, Favorite, SponsoredAd
+from ..forms import *
 from utils.types import UserType, CodeTypes
 from utils.email import send_otp_email
 from urllib.parse import quote
 from ..cart import CartService
 from ..favorite import FavoriteService
-from ..forms import AccountUpdateForm
+from ..models import *
+import uuid
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 User = get_user_model()
 
+
 class HomeView(View):
     def get(self, request):
-        vendors = Vendor.objects.select_related('category').filter(is_active=True)[:4]
+        if request.htmx:
+            template_name = 'base/partials/products_partial.html'
+        else:
+            template_name = 'base/index.html'
+
+        message_form = MessageForm
+
+        query = request.GET.get('q', '')
+        category_name = request.GET.get('category', '')
+        min_price = request.GET.get('minPrice')
+        max_price = request.GET.get('maxPrice')
+        rating = request.GET.get('rating')
+
+        products = Product.objects.select_related('tenant', 'category', 'tenant__category').filter(is_active=True)
+
+        if query:
+            products = products.filter(name__icontains=query)
+        if category_name:
+            products = products.filter(category__name__icontains=category_name)
+        if min_price:
+            products = products.filter(price__gte=min_price)
+        if max_price:
+            products = products.filter(price__lte=max_price)
+        if rating:
+            products = products.filter(rating__gte=rating)
+
+        vendors = Vendor.objects.select_related('category').filter(is_active=True)[:3]
+        offers = Offer.objects.all()[:3]
         ads = SponsoredAd.objects.all()[:3]
         categories = ProductCategory.objects.all()[:4]
-        products = Product.objects.select_related('tenant', 'category', 'tenant__category').filter(is_active=True)[:6]
-        return render(request, 'base/index.html', {'vendors': vendors, 'categories': categories, 'products': products, 'ads': ads})
+        context = { 
+            'vendors': vendors,
+            'categories': categories,
+            'products': products[:6],
+            'ads': ads,
+            'offers': offers,
+            'query': query,
+            'category_name': category_name,
+            'min_price': min_price,
+            'max_price': max_price,
+            'rating': rating,
+            'message_form': message_form,
+        }
+        return render(request, template_name, context)
+    
+    def post(self, request):
+        message_form = MessageForm(request.POST)
+        if message_form.is_valid():
+            message_form.save()
+            if request.htmx:
+                response = render(request, 'base/partials/contact_form.html', {'message_form': MessageForm()})
+                response['X-Toast-Message'] = quote("تم إرسال رسالتك بنجاح! شكراً لتواصلك معنا.")
+                response['X-Toast-Title'] = quote("تم الإرسال")
+                response['X-Toast-Type'] = "success"
+                return response
+            return redirect('home')
+        
+        if request.htmx:
+            return render(request, 'base/partials/contact_form.html', {'message_form': message_form})
+        return render(request, 'base/index.html', {'message_form': message_form})
 
 
 class BuyerSignupView(FormView):
@@ -43,34 +98,7 @@ class BuyerSignupView(FormView):
         login(self.request, user)
         CartService(self.request).sync_to_db(user)
         FavoriteService(self.request).sync_to_db(user)
-        messages.success(self.request, "تم إنشاء الحساب بنجاح!")
         return super().form_valid(form)
-
-
-class VendorSignupView(FormView):
-    template_name = 'auth/seller-signup.html'
-    form_class = VendorSignupForm
-    success_url = reverse_lazy('vendor_dashboard')
-
-    def form_valid(self, form):
-        data = form.cleaned_data
-        user = User.objects.create_user(
-            username=data['email'],
-            email=data['email'],
-            password=data['password'],
-            first_name=data['full_name'],
-            user_type=UserType.SELLER
-        )
-        
-        # Create OTP for Seller Signup
-        otp_code = user.create_otp(code_type=CodeTypes.SIGNUP)
-        self.request.session['signup_email'] = user.email
-        
-        # Send OTP Email
-        send_otp_email(otp_code, user.email)
-        messages.info(self.request, "تم إرسال رمز التحقق إلى بريدك الإلكتروني.")
-        return redirect('verify_otp')
-
 
 class LoginView(View):
     template_name = 'auth/login.html'
@@ -84,23 +112,33 @@ class LoginView(View):
         })
 
     def post(self, request):
-        # Determine which form was submitted based on the button name or a hidden field
-        if 'email' in request.POST and 'password' in request.POST:
-            email = request.POST.get('email')
-            password = request.POST.get('password')
-            user = authenticate(request, username=email, password=password)
-            
-            if user:
+        login_type = request.POST.get('login_type')
+        buyer_form = BuyerLoginForm()
+        seller_form = SellerLoginForm()
+
+        if login_type == 'buyer':
+            form = BuyerLoginForm(request.POST)
+            buyer_form = form
+            if form.is_valid():
+                user = form.cleaned_data['user']
                 login(request, user)
                 CartService(request).sync_to_db(user)
                 FavoriteService(request).sync_to_db(user)
-                if user.is_seller:
-                    return redirect('vendor_dashboard')
                 return redirect('home')
-            else:
-                messages.error(request, "خطأ في البريد الإلكتروني أو كلمة المرور.")
+        elif login_type == 'seller':
+            form = SellerLoginForm(request.POST)
+            seller_form = form
+            if form.is_valid():
+                user = form.cleaned_data['user']
+                login(request, user)
+                CartService(request).sync_to_db(user)
+                FavoriteService(request).sync_to_db(user)
+                return redirect('vendor_dashboard')
         
-        return self.get(request)
+        return render(request, self.template_name, {
+            'buyer_form': buyer_form,
+            'seller_form': seller_form
+        })
 
 
 class LogoutView(View):
@@ -124,7 +162,6 @@ class OtpCodeView(FormView):
         
         # Send OTP Email
         # send_otp_email(otp_code, email)
-        messages.success(self.request, "تم إرسال رمز التحقق إلى بريدك الإلكتروني.")
         
         return super().form_valid(form)
 
@@ -134,6 +171,14 @@ class VerifyOtpView(FormView):
     form_class = VerifyOTPForm
     
     def get_success_url(self):
+        email = self.request.session.get('signup_email')
+        if email:
+            try:
+                user = User.objects.get(email=email)
+                if user.is_seller:
+                    return reverse('vendor_dashboard')
+            except User.DoesNotExist:
+                pass
         return reverse('home')
 
     def get_context_data(self, **kwargs):
@@ -149,7 +194,6 @@ class VerifyOtpView(FormView):
         if otp and not otp.is_expired: # Assuming is_expired logic or check expiry
              otp.is_used = True
              otp.save()
-             messages.success(self.request, "تم التحقق بنجاح.")
              return super().form_valid(form)
         
         form.add_error('code', "رمز التحقق غير صحيح أو منتهي الصلاحية.")
@@ -171,6 +215,10 @@ class VendorsView(View):
         vendors = Vendor.objects.select_related('category').filter(is_active=True)
         return render(request, "base/vendors.html", {'vendors': vendors})
 
+class VendorDetailView(View):
+    def get(self, request, vendor_id):
+        vendor = Vendor.objects.get(id=vendor_id)
+        return render(request, "base/store.html", {'vendor': vendor})
 
 class CategoriesView(View):
     def get(self, request):
@@ -183,6 +231,11 @@ class CategoriesView(View):
 
 class ProductListView(View):
     def get(self, request):
+        if self.request.htmx:
+            template_name = 'base/partials/products_partial.html'
+        else:
+            template_name = 'base/products.html'
+
         query = request.GET.get('q', '')
         category_name = request.GET.get('category', '')
         min_price = request.GET.get('minPrice')
@@ -203,7 +256,8 @@ class ProductListView(View):
             products = products.filter(rating__gte=rating)
 
         categories = ProductCategory.objects.all()
-        return render(request, 'base/products.html', {
+        
+        context = {
             'products': products,
             'categories': categories,
             'query': query,
@@ -211,7 +265,10 @@ class ProductListView(View):
             'min_price': min_price,
             'max_price': max_price,
             'rating': rating,
-        })
+        }
+
+            
+        return render(request, template_name, context)
 
 
 class ProductDetailView(View):
@@ -301,22 +358,24 @@ class AccountUpdateView(LoginRequiredMixin, View):
             if form.cleaned_data['avatar']:
                 user.avatar = form.cleaned_data['avatar']
             user.save()
-            messages.success(request, "تم تحديث الحساب بنجاح!")
-        else:
-            messages.error(request, "حدث خطأ في تحديث البيانات.")
         return redirect(request.META.get('HTTP_REFERER', 'home'))
 
-from ..forms import CheckoutForm
-from ..models import Order, OrderItem
-import uuid
+
 
 class CheckoutView(LoginRequiredMixin, View):
-    def get(self, request):
+    def get(self, request, vendor_id):
+        vendor = get_object_or_404(Vendor, pk=vendor_id)
         cart = CartService(request)
         context = cart.get_context()
-        if not context['grouped_items']:
-            messages.warning(request, "سلتك فارغة، يرجى إضافة منتجات أولاً.")
+        
+        # Filter items to only show the relevant vendor
+        if vendor not in context['grouped_items']:
             return redirect('home')
+            
+        vendor_data = context['grouped_items'][vendor]
+        context['vendor'] = vendor
+        context['items'] = vendor_data['items']
+        context['total'] = vendor_data['subtotal']
         
         form = CheckoutForm(initial={
             'full_name': request.user.first_name,
@@ -325,40 +384,43 @@ class CheckoutView(LoginRequiredMixin, View):
         context['form'] = form
         return render(request, 'base/checkout.html', context)
 
-    def post(self, request):
+    def post(self, request, vendor_id):
+        vendor = get_object_or_404(Vendor, pk=vendor_id)
         cart_service = CartService(request)
         cart_data = cart_service.get_context()
         form = CheckoutForm(request.POST)
         
-        if form.is_valid() and cart_data['grouped_items']:
-            # Create an order for each vendor
-            for vendor, data in cart_data['grouped_items'].items():
-                order = Order.objects.create(
+        if form.is_valid() and vendor in cart_data['grouped_items']:
+            data = cart_data['grouped_items'][vendor]
+            
+            # Create the order for the specific vendor
+            order = Order.objects.create(
+                tenant=vendor,
+                order_number=str(uuid.uuid4()).split('-')[0].upper(),
+                total=data['subtotal'],
+                status='preparing'
+            )
+            
+            # Create OrderItems for this vendor
+            for item in data['items']:
+                OrderItem.objects.create(
                     tenant=vendor,
-                    order_number=str(uuid.uuid4()).split('-')[0].upper(),
-                    total=data['subtotal'],
-                    status='preparing'
+                    order=order,
+                    product=item['product'],
+                    quantity=item['quantity'],
+                    price_at_order=item['product'].price
                 )
-                
-                # Create OrderItems
-                for item in data['items']:
-                    OrderItem.objects.create(
-                        tenant=vendor,
-                        order=order,
-                        product=item['product'],
-                        quantity=item['quantity'],
-                        price_at_order=item['product'].price
-                    )
             
-            # Clear individual items from DB or session
-            if request.user.is_authenticated:
-                from ..models import CartItem
-                CartItem.objects.filter(cart__user=request.user).delete()
-            else:
-                request.session['cart'] = {}
+            # Clear items for THIS vendor only
+            cart_service.clear_by_vendor(vendor_id)
             
-            messages.success(request, "تم تسجيل طلبك بنجاح! شكراً لتسوقك معنا.")
+            if request.htmx:
+                response = redirect('home')
+                response['X-Toast-Message'] = quote("تم تأكيد طلبك بنجاح! شكراً لتواصلك معنا.")
+                response['X-Toast-Title'] = quote("تم الحجز")
+                response['X-Toast-Type'] = "success"
+                return response
+
             return redirect('home')
             
-        messages.error(request, "يرجى التحقق من البيانات المدخلة.")
-        return self.get(request)
+        return self.get(request, vendor_id)

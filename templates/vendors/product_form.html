@@ -1,0 +1,25 @@
+{% extends 'vendors/base.html' %}
+
+{% block content %}
+
+<article class="card pad" aria-label="{{ title|default:'إضافة منتج' }}">
+<h2 style="margin:0 0 6px">{{ title|default:"إضافة منتج" }}</h2>
+
+<form method="post" enctype="multipart/form-data" style="display:grid; gap:10px; margin-top:12px">
+    {% csrf_token %}
+    
+    {% for field in form %}
+    <div>
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+            <div style="color: var(--danger); font-size: 12px;">{{ field.errors }}</div>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <button class="btn" type="submit">{{ title|default:"حفظ" }}</button>
+</form>
+</article>
+
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends 'moderator/base.html' %}
+{% load static %}
+
+{% block title %}إدارة التصنيفات{% endblock %}
+{% block header %}التصنيفات{% endblock %}
+
+{% block content %}
+<div class="table-controls">
+    <div class="search-box">
+        <form method="get" action="{% url 'category_list' %}">
+            <input type="text" name="q" value="{{ request.GET.q }}" placeholder="بحث عن تصنيف...">
+            <i class="fas fa-search"></i>
+        </form>
+    </div>
+    <div class="filters">
+        <a href="{% url 'category_add' %}" class="btn accent" style="text-decoration: none; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-plus"></i>
+            إضافة مشرف
+        </a>
+    </div>
+</div>
+
+<div class="card" style="padding: 0; overflow: hidden;">
+    <link rel="stylesheet" href="{% static 'css/tables.css' %}">
+    <table>
+        <thead>
+            <tr>
+                <th>الاسم</th>
+                <th>الوصف</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for category in categories %}
+            <tr>    
+                <td>{{ category.name }}</td>
+                <td>{{ category.description }}</td>
+                <td>
+                    <div style="display: flex; gap: 12px; font-size: 18px;">
+                        <a href="{% url 'category_update' category.id %}" style="color: var(--accent);" title="تعديل">
+                            <i class="fas fa-pen-to-square"></i>
+                        </a>
+                        <a href="{% url 'category_delete' category.id %}" style="color: var(--danger);" title="حذف" onclick="alert('هل أنت متأكد من حذف هذا المشرف؟')">
+                            <i class="fas fa-trash-can"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 40px; color: var(--muted);">
+                    لا يوجد تصنيفات حالياً.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

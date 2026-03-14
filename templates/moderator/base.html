@@ -26,6 +26,10 @@
                     <i class="fas fa-store"></i>
                     <span>البائعين</span>
                 </a>
+                <a href="{% url 'moderator_categories' %}" class="nav-item {% if request.resolver_match.url_name == 'moderator_categories' %}active{% endif %}">
+                    <i class="fas fa-store"></i>
+                    <span>التصنيفات</span>
+                </a>
                 <a href="{% url 'moderator_list' %}" class="nav-item {% if request.resolver_match.url_name == 'moderator_list' or 'moderator_add' in request.resolver_match.url_name or 'moderator_update' in request.resolver_match.url_name %}active{% endif %}">
                     <i class="fas fa-shield-halved"></i>
                     <span>المشرفين</span>

@@ -11,7 +11,7 @@
         <!-- Shipping Info -->
         <section class="checkout-section">
             <h2><i class="fas fa-shipping-fast" style="margin-left: 10px;"></i> معلومات الشحن</h2>
-            <form action="{% url 'checkout' %}" method="post" id="checkout-form" class="checkout-form">
+            <form action="{% url 'checkout' vendor.id %}" method="post" id="checkout-form" class="checkout-form">
                 {% csrf_token %}
                 <div class="row2">
                     <div class="fgroup">
@@ -46,27 +46,25 @@
             <h2><i class="fas fa-shopping-bag" style="margin-left: 10px;"></i> ملخص الطلب</h2>
             
             <div style="max-height: 400px; overflow-y: auto; margin-bottom: 20px;">
-                {% for vendor, data in grouped_items.items %}
-                    <div class="vendor-cart-group" style="padding: 10px; margin-bottom: 12px;">
-                        <div class="vendor-head" style="margin-bottom: 8px; padding-bottom: 4px;">
-                            <b style="font-size: 13px;">{{ vendor.store_name }}</b>
-                        </div>
-                        {% for item in data.items %}
-                            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
-                                <span>{{ item.quantity }} × {{ item.product.name }}</span>
-                                <b>${{ item.total }}</b>
-                            </div>
-                        {% endfor %}
+                <div class="vendor-cart-group" style="padding: 10px; margin-bottom: 12px;">
+                    <div class="vendor-head" style="margin-bottom: 8px; padding-bottom: 4px;">
+                        <b style="font-size: 13px;">{{ vendor.store_name }}</b>
                     </div>
-                {% endfor %}
+                    {% for item in items %}
+                        <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+                            <span>{{ item.quantity }} × {{ item.product.name }}</span>
+                            <b>${{ item.total }}</b>
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
 
             <div class="sum">
-                <div style="display:flex; justify-content:space-between"><span>المجموع الفرعي</span><b>${{ cart_total }}</b></div>
+                <div style="display:flex; justify-content:space-between"><span>المجموع الفرعي</span><b>${{ total }}</b></div>
                 <div style="display:flex; justify-content:space-between"><span>تكلفة الشحن</span><b>$0</b></div>
                 <div class="checkout-total" style="display:flex; justify-content:space-between">
                     <span>الإجمالي الكلي</span>
-                    <b class="price" style="font-size: 24px; color: var(--accent2);">${{ cart_total }}</b>
+                    <b class="price" style="font-size: 24px; color: var(--accent2);">${{ total }}</b>
                 </div>
             </div>
 

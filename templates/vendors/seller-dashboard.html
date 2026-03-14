@@ -29,27 +29,6 @@
       padding: 16px;
     }
 
-    .store {
-      margin-top: 14px;
-      padding: 12px;
-      border: 1px solid var(--line);
-      border-radius: var(--r);
-      background: rgba(16, 29, 54, .55);
-      box-shadow: 0 12px 34px rgba(0, 0, 0, .22);
-    }
-
-    .store b {
-      display: block
-    }
-
-    .store span {
-      display: block;
-      color: var(--muted);
-      font-size: 12px;
-      margin-top: 4px;
-      line-height: 1.7
-    }
-
     .nav {
       margin-top: 12px;
       display: grid;
@@ -206,32 +185,19 @@
   <div class="shell">
 
     <aside class="side">
-      <a class="brand" href="index.html" aria-label="العودة للموقع">
+      <a class="brand" href="{% url 'home' %}" aria-label="العودة للموقع">
         <span class="mark" aria-hidden="true"></span>
         <span>Seller Dashboard</span>
       </a>
 
-      <div class="store">
-        <b>متجر: {{ vendor.store_name }}</b>
-        <span>تصنيف: {{ vendor.category.name }} • تقييم: {{ vendor.rating }} • حالة: {% if vendor.is_active %}نشط{% else %}غير نشط{% endif %}</span>
-        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px">
-          {% if vendor.is_active %}<span class="pill g">نشط</span>{% endif %}
-          <span class="pill y">إعلانات ممولة</span>
-        </div>
-      </div>
-
       <nav class="nav" aria-label="قائمة لوحة البائع">
-        <a class="active" href="#products">المنتجات <span class="pill">{{ products.count }}</span></a>
-        <a href="#offers">العروض <span class="pill">{{ offers.count }}</span></a>
-        <a href="#orders">الطلبات <span class="pill">{{ orders.count }}</span></a>
-        <a href="#ads">الإعلانات الممولة <span class="pill y">{{ ads.count }}</span></a>
+        <a class="active" href="#products">المنتجات <span class="pill">{{ stats.product_count }}</span></a>
+        <a href="#offers">العروض <span class="pill">{{ stats.offers_count }}</span></a>
+        <a href="#orders">الطلبات <span class="pill">{{ stats.orders_count }}</span></a>
+        <a href="#ads">الإعلانات الممولة <span class="pill y">{{ stats.ads_count }}</span></a>
         <a href="#stats">الإحصائيات <span class="pill g">↗</span></a>
         <a href="{% url 'logout' %}" style="margin-top:6px" class="btn ghost">تسجيل خروج</a>
       </nav>
-
-      <p class="small" style="margin-top:12px">
-        * هذا الملف يجب أن يعرضه الـ Backend للبائع فقط.
-      </p>
     </aside>
 
     <main class="main">
@@ -241,8 +207,8 @@
           <div class="muted">إدارة منتجاتك، عروضك، طلباتك وإعلاناتك بسهولة.</div>
         </div>
         <div class="chips">
-          <a class="chip" href="store.html">عرض المتجر</a>
-          <a class="chip" href="index.html">زيارة الموقع</a>
+          <a class="chip" href="{% url 'vendor_store' %}">عرض المتجر</a>
+          <a class="chip" href="{% url 'home' %}">زيارة الموقع</a>
         </div>
       </header>
 
@@ -263,9 +229,6 @@
         <div class="grid2" style="margin-top:12px">
           <article class="card pad" aria-label="إضافة منتج">
             <h2 style="margin:0 0 6px">إضافة منتج</h2>
-            <p class="muted" style="margin:0; line-height:1.8">
-              رفع صورة المنتج يتم عبر <b>input file</b> (واجهة فقط — الرفع الحقيقي عبر Backend).
-            </p>
 
             <form action="#" method="post" enctype="multipart/form-data"
               style="display:grid; gap:10px; margin-top:12px">
@@ -312,7 +275,6 @@
               <div>
                 <label for="pImg">صورة المنتج (رفع)</label>
                 <input id="pImg" name="image" type="file" accept="image/*" required />
-                <div class="small">* المتصفح يعرض زر اختيار الملف بألوانه الافتراضية.</div>
               </div>
 
               <div>
@@ -327,7 +289,6 @@
 
           <article class="card pad" aria-label="قائمة المنتجات">
             <h2 style="margin:0 0 6px">منتجاتك</h2>
-            <p class="muted" style="margin:0; line-height:1.8">واجهة جدول جاهزة للـ Backend.</p>
 
             <div style="overflow:auto; margin-top:12px">
               <table aria-label="جدول المنتجات">
@@ -362,9 +323,6 @@
               </table>
             </div>
 
-            <div class="small" style="margin-top:10px">
-              * أزرار التعديل/الحذف يمكن إضافتها كروابط (Backend Routes) بدون JS.
-            </div>
           </article>
         </div>
       </section>

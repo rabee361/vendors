@@ -107,6 +107,25 @@ class CartService:
             'cart_product_ids': [str(pid) for pid in (self.cart.keys() if not self.request.user.is_authenticated else items.values_list('product_id', flat=True))]
         }
 
+    def clear_by_vendor(self, vendor_id):
+        if self.request.user.is_authenticated:
+            CartItem.objects.filter(
+                cart__user=self.request.user, 
+                product__tenant_id=vendor_id
+            ).delete()
+        else:
+            product_ids_to_remove = []
+            # Use Product.objects to find which products in session belong to this vendor
+            p_ids = [int(pid) for pid in self.cart.keys() if pid.isdigit()]
+            matching_products = Product.objects.filter(id__in=p_ids, tenant_id=vendor_id)
+            for p in matching_products:
+                product_ids_to_remove.append(str(p.id))
+            
+            for pid in product_ids_to_remove:
+                if pid in self.cart:
+                    del self.cart[pid]
+            self.save()
+
     def sync_to_db(self, user):
         if self.cart:
             cart_obj, created = Cart.objects.get_or_create(user=user)

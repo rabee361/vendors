@@ -7,9 +7,9 @@
 {% block content %}
 <div class="table-controls">
     <div class="search-box">
-        <i class="fas fa-search"></i>
         <form method="get" action="{% url 'moderator_list' %}">
-            <input type="text" name="q" value="{{ request.GET.q }}" placeholder="بحث عن مشرف..." class="card">
+            <input type="text" name="q" value="{{ request.GET.q }}" placeholder="بحث عن مشرف...">
+            <i class="fas fa-search"></i>
         </form>
     </div>
     <div class="filters">

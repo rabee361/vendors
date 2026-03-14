@@ -1,0 +1,38 @@
+        {% for product in products %}
+        <article class="card">
+          <div class="pimg">
+            {% if product.is_sponsored_badge %}
+            <span class="badge">ممول</span>
+            {% endif %}
+            {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+            {% endif %}
+          </div>
+          <div class="pad">
+            <div class="muted">{{ product.category.name|default:"عام" }} • من متجر {{ product.tenant.store_name }}</div>
+            <h3 style="margin:6px 0">{{ product.name }}</h3>
+            <div class="pmeta">
+              <span class="stars">
+                {% if product.rating >= 1 %}★{% else %}☆{% endif %}
+                {% if product.rating >= 2 %}★{% else %}☆{% endif %}
+                {% if product.rating >= 3 %}★{% else %}☆{% endif %}
+                {% if product.rating >= 4 %}★{% else %}☆{% endif %}
+                {% if product.rating >= 5 %}★{% else %}☆{% endif %}
+              </span>
+              <b class="price">${{ product.price }}</b>
+            </div>
+            <div class="pactions">
+              <a class="paction-btn view" href="{% url 'product' product.id %}" aria-label="عرض التفاصيل"><i
+                  class="fas fa-eye"></i></a>
+              <button class="paction-btn primary cart {% if product.id|slugify in cart_product_ids %}active{% endif %}" 
+                hx-post="{% url 'add_to_cart' product.id %}"
+                hx-vals='{"quantity": 1}' hx-target="#cart" hx-swap="outerHTML" aria-label="إضافة للسلة"
+                hx-on::after-request="this.classList.toggle('active')"><i
+                  class="fas fa-cart-plus"></i></button>
+              <button class="paction-btn fav {% if product.id|slugify in favorite_product_ids %}active{% endif %}"
+                hx-post="{% url 'toggle_favorite' product.id %}" hx-target="#favorites" hx-swap="outerHTML"
+                aria-label="مفضلة" hx-on::after-request="this.classList.toggle('active')"><i class="fas fa-heart"></i></button>
+            </div>
+          </div>
+        </article>
+        {% endfor %}

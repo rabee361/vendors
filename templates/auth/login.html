@@ -34,17 +34,41 @@
         <a id="tab-seller" href="javascript:void(0)" onclick="switchTab('seller')">بائع</a>
       </nav>
 
+      {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+        <div class="msg {{ message.tags }}">{{ message.message }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
       <form id="form-buyer" action="{% url 'login' %}" method="post" class="grid">
         {% csrf_token %}
+        <input type="hidden" name="login_type" value="buyer">
+        
+        {% if buyer_form.non_field_errors %}
+        <div class="messages">
+          {% for error in buyer_form.non_field_errors %}
+          <div class="msg error">{{ error }}</div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
         <div class="grid">
           <div>
             <label for="buyerEmail">البريد الإلكتروني</label>
-            <input id="buyerEmail" name="email" type="email" placeholder="name@example.com" required />
+            <input id="buyerEmail" name="email" type="email" placeholder="name@example.com" value="{{ buyer_form.email.value|default:'' }}" required />
+            {% if buyer_form.email.errors %}
+              <div class="msg error">{{ buyer_form.email.errors.0 }}</div>
+            {% endif %}
           </div>
 
           <div>
             <label for="buyerPass">كلمة المرور</label>
             <input id="buyerPass" name="password" type="password" placeholder="••••••••" required />
+            {% if buyer_form.password.errors %}
+              <div class="msg error">{{ buyer_form.password.errors.0 }}</div>
+            {% endif %}
           </div>
 
           <div class="actions">
@@ -56,14 +80,30 @@
 
       <form id="form-seller" action="{% url 'login' %}" method="post" class="grid" style="display:none;">
         {% csrf_token %}
+        <input type="hidden" name="login_type" value="seller">
+
+        {% if seller_form.non_field_errors %}
+        <div class="messages">
+          {% for error in seller_form.non_field_errors %}
+          <div class="msg error">{{ error }}</div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
         <div>
           <label for="sEmail">البريد الإلكتروني</label>
-          <input id="sEmail" name="email" type="email" placeholder="seller@store.com" required />
+          <input id="sEmail" name="email" type="email" placeholder="seller@store.com" value="{{ seller_form.email.value|default:'' }}" required />
+          {% if seller_form.email.errors %}
+            <div class="msg error">{{ seller_form.email.errors.0 }}</div>
+          {% endif %}
         </div>
 
         <div>
           <label for="sPass">كلمة المرور</label>
           <input id="sPass" name="password" type="password" placeholder="••••••••" required />
+          {% if seller_form.password.errors %}
+            <div class="msg error">{{ seller_form.password.errors.0 }}</div>
+          {% endif %}
         </div>
 
         <div class="actions">
