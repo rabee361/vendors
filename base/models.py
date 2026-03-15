@@ -143,7 +143,7 @@ class Offer(models.Model):
         return f"{self.discount}% off {self.product.name}"
 
 class SponsoredAd(models.Model):
-    vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='ads')
+    tenant = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='ads')
     ad_type = models.CharField(max_length=20, choices=AdType.choices)
     budget = models.DecimalField(max_digits=10, decimal_places=2)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)

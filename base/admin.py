@@ -29,31 +29,31 @@ class CustomUserAdmin(UserAdmin):
 
 @admin.register(ProductCategory)
 class ProductCategoryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'tenant', 'slug', 'created_at')
+    list_display = ('id','name', 'tenant', 'slug', 'created_at')
     list_filter = ('tenant',)
     prepopulated_fields = {'slug': ('name',)}
 
 @admin.register(StoreCategory)
 class StoreCategoryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug', 'created_at')
+    list_display = ('id','name', 'slug', 'created_at')
     prepopulated_fields = {'slug': ('name',)}
 
 @admin.register(Vendor)
 class VendorAdmin(admin.ModelAdmin):
-    list_display = ('store_name', 'user', 'category', 'rating', 'is_active')
+    list_display = ('id','store_name', 'user', 'category', 'rating', 'is_active')
     list_filter = ('category', 'is_active')
     search_fields = ('store_name', 'user__username')
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'tenant', 'price', 'stock', 'category', 'is_active', 'is_sponsored_badge')
+    list_display = ('id','name', 'tenant', 'price', 'stock', 'category', 'is_active', 'is_sponsored_badge')
     list_filter = ('category', 'is_active', 'is_sponsored_badge', 'tenant')
     search_fields = ('name', 'tenant__store_name')
     prepopulated_fields = {'slug': ('name',)}
 
 @admin.register(Offer)
 class OfferAdmin(admin.ModelAdmin):
-    list_display = ('product', 'discount', 'start_date', 'end_date', 'is_active')
+    list_display = ('id','product', 'discount', 'start_date', 'end_date', 'is_active')
     list_filter = ('is_active',)
 
 class CartItemInline(admin.TabularInline):
@@ -67,7 +67,7 @@ class CartAdmin(admin.ModelAdmin):
 
 @admin.register(Favorite)
 class FavoriteAdmin(admin.ModelAdmin):
-    list_display = ('user', 'product', 'added_at')
+    list_display = ('id','user', 'product', 'added_at')
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
@@ -75,27 +75,27 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('order_number', 'tenant', 'total', 'status', 'created_at')
+    list_display = ('id','order_number', 'tenant', 'total', 'status', 'created_at')
     list_filter = ('status', 'tenant')
     search_fields = ('order_number', 'items__product__name')
     inlines = [OrderItemInline]
 
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ('order', 'product', 'quantity', 'price_at_order', 'tenant')
+    list_display = ('id','order', 'product', 'quantity', 'price_at_order', 'tenant')
     list_filter = ('tenant',)
 
 @admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):
-    list_display = ('name', 'email', 'created_at')
+    list_display = ('id','name', 'email', 'created_at')
 
 @admin.register(VendorStats)
 class VendorStatsAdmin(admin.ModelAdmin):
-    list_display = ('tenant', 'week_start', 'views', 'sales_total')
+    list_display = ('id','tenant', 'week_start', 'views', 'sales_total')
     list_filter = ('tenant',)
 
 @admin.register(OTPCode)
 class OTPCodeAdmin(admin.ModelAdmin):
-    list_display = ('email', 'code', 'code_type', 'is_used', 'created_at', 'expires_at')
+    list_display = ('id','email', 'code', 'code_type', 'is_used', 'created_at', 'expires_at')
     list_filter = ('code_type', 'is_used')
     search_fields = ('email', 'code')

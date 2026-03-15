@@ -16,3 +16,4 @@ node_modules/
 media/
 static_root/
 /tmp/
+.vscode/

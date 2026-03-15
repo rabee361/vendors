@@ -40,3 +40,44 @@
     {% empty %}
         <p class="muted" style="grid-column: 1 / -1; text-align: center; padding: 20px;">لا توجد منتجات تطابق البحث.
     {% endfor %}
+
+    {% if products.has_other_pages %}
+    <nav class="pagination" aria-label="التنقل بين الصفحات">
+        {% if products.has_previous %}
+            <a class="page-link" 
+               hx-get="{% url 'product_list' %}?page={{ products.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if category_name %}&category={{ category_name }}{% endif %}{% if min_price %}&minPrice={{ min_price }}{% endif %}{% if max_price %}&maxPrice={{ max_price }}{% endif %}{% if rating %}&rating={{ rating }}{% endif %}"
+               hx-target="#products_partial"
+               hx-push-url="true"
+               aria-label="السابق">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+        {% else %}
+            <span class="page-link disabled"><i class="fas fa-chevron-left"></i></span>
+        {% endif %}
+
+        {% for i in products.paginator.page_range %}
+            {% if products.number == i %}
+                <span class="page-link active">{{ i }}</span>
+            {% elif i > products.number|add:'-3' and i < products.number|add:'3' %}
+                <a class="page-link" 
+                   hx-get="{% url 'product_list' %}?page={{ i }}{% if query %}&q={{ query }}{% endif %}{% if category_name %}&category={{ category_name }}{% endif %}{% if min_price %}&minPrice={{ min_price }}{% endif %}{% if max_price %}&maxPrice={{ max_price }}{% endif %}{% if rating %}&rating={{ rating }}{% endif %}"
+                   hx-target="#products_partial"
+                   hx-push-url="true">
+                    {{ i }}
+                </a>
+            {% endif %}
+        {% endfor %}
+
+        {% if products.has_next %}
+            <a class="page-link" 
+               hx-get="{% url 'product_list' %}?page={{ products.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if category_name %}&category={{ category_name }}{% endif %}{% if min_price %}&minPrice={{ min_price }}{% endif %}{% if max_price %}&maxPrice={{ max_price }}{% endif %}{% if rating %}&rating={{ rating }}{% endif %}"
+               hx-target="#products_partial"
+               hx-push-url="true"
+               aria-label="التالي">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        {% else %}
+            <span class="page-link disabled"><i class="fas fa-chevron-right"></i></span>
+        {% endif %}
+    </nav>
+    {% endif %}

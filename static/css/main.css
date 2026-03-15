@@ -206,7 +206,6 @@ textarea {
     padding: 12px 12px;
     border-radius: 14px;
     border: 1px solid var(--line);
-    background: rgba(11, 18, 32, .55);
     color: var(--text);
     outline: none;
 }
@@ -227,7 +226,7 @@ textarea::placeholder {
 .card {
     border: 1px solid var(--line);
     border-radius: var(--r);
-    background: var(--ffffff);
+    background: var(--card);
     box-shadow: 0 12px 34px rgba(0, 0, 0, .22);
     overflow: hidden;
 }
@@ -412,7 +411,6 @@ textarea::placeholder {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(11, 18, 32, .72);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--line);
 }
@@ -468,24 +466,6 @@ textarea::placeholder {
   display: flex;
   gap: 10px;
   align-items: center
-}
-
-.iconbtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 9px 12px;
-  border-radius: 14px;
-  border: 1px solid var(--line);
-  background: rgba(16, 29, 54, .55);
-  color: var(--text);
-  font-weight: 700;
-  font-size: 13px;
-}
-
-.iconbtn:hover {
-  border-color: rgba(110, 168, 255, .35)
 }
 
 .search {
@@ -587,9 +567,9 @@ textarea::placeholder {
 }
 
 .tag.good {
-  color: #c7ffe6;
+  color: var(--accent);
   background: rgba(57, 217, 138, .12);
-  border-color: rgba(57, 217, 138, .35);
+  border-color: var(--accent);
 }
 
 /* Category cards */
@@ -601,7 +581,7 @@ textarea::placeholder {
   padding: 14px;
   background:
     radial-gradient(120px 80px at 20% 30%, rgba(110, 168, 255, .18), transparent 70%),
-    rgba(16, 29, 54, .55);
+    var(--card);
 }
 
 .cat b {
@@ -632,7 +612,6 @@ textarea::placeholder {
   top: 78px;
   border: 1px solid var(--line);
   border-radius: var(--r);
-  background: rgba(16, 29, 54, .55);
   box-shadow: 0 12px 34px rgba(0, 0, 0, .22);
   padding: 14px;
 }
@@ -646,17 +625,6 @@ textarea::placeholder {
   display: grid;
   gap: 8px;
   margin-bottom: 10px
-}
-
-input,
-select {
-  width: 100%;
-  padding: 11px 12px;
-  border-radius: 14px;
-  border: 1px solid var(--line);
-  background: rgba(11, 18, 32, .55);
-  color: var(--text);
-  outline: none;
 }
 
 datalist option {
@@ -927,9 +895,6 @@ textarea {
     grid-template-columns: 1fr
   }
 
-  .foot {
-    grid-template-columns: 1fr
-  }
 }
 
 @media (max-width: 560px) {
@@ -1024,4 +989,35 @@ textarea {
     .checkout-grid {
         grid-template-columns: 1fr;
     }
+}
+
+/* Sidebar Enhancements */
+.side-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.nav-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.nav-label i {
+    width: 20px;
+    text-align: center;
+    font-size: 16px;
+    opacity: 0.8;
+}
+
+.nav-item:hover .nav-label i {
+    opacity: 1;
+    color: var(--accent);
+}
+
+.nav-item.active .nav-label i {
+    opacity: 1;
+    color: var(--accent);
 }

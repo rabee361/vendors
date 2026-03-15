@@ -8,8 +8,8 @@
     background:
         linear-gradient(180deg, rgba(255, 255, 255, .03), transparent),
         radial-gradient(900px 420px at 18% 20%, rgba(110, 168, 255, .28), transparent 62%),
-        radial-gradient(700px 380px at 85% 30%, rgba(57, 217, 138, .18), transparent 60%),
-        rgba(16, 29, 54, .55);
+        radial-gradient(700px 380px at 85% 30%, var(--card), transparent 60%),
+        var(--bg);
     box-shadow: var(--shadow);
 }
 

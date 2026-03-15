@@ -13,5 +13,8 @@ def favorites_context(request):
 
 def vendor_context(request):
     if request.user.is_authenticated and request.user.user_type == UserType.SELLER:
-        return {'vendor_id': request.user.vendor_profile.id}
+        return {
+            'vendor_id': request.user.vendor_profile.id,
+            'user_vendor_profile': request.user.vendor_profile
+        }
     return {'vendor_id': 0}

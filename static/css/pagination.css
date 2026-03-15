@@ -1,0 +1,65 @@
+/* Pagination Styling */
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 40px;
+    padding: 20px 0;
+    grid-column: 1 / -1;
+}
+
+.page-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 45px;
+    height: 45px;
+    padding: 0 15px;
+    border-radius: 12px;
+    background: var(--panel);
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 1px solid var(--line);
+    cursor: pointer;
+}
+
+.page-link:hover {
+    background: var(--grad-accent);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(110, 168, 255, 0.3);
+    border-color: transparent;
+}
+
+.page-link.active {
+    background: var(--grad-accent);
+    color: white;
+    border-color: transparent;
+    cursor: default;
+}
+
+.page-link.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.page-info {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin: 0 15px;
+}
+
+/* RTL Specific Adjustments */
+[dir="rtl"] .page-link i {
+    transform: rotate(180deg);
+}
+
+[data-theme="light"] .page-link {
+    background: var(--card);
+    box-shadow: var(--shadow);
+}

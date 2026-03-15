@@ -187,17 +187,33 @@
 
     <aside class="side">
       <a class="brand" href="{% url 'home' %}" aria-label="العودة للموقع">
-        <span class="mark" aria-hidden="true"></span>
-        <span>{{ user.vendor_profile.store_name }}</span>
+        {% if user_vendor_profile.avatar %}
+          <img src="{{ user_vendor_profile.avatar.url }}" alt="{{ user_vendor_profile.store_name }}" class="side-logo">
+        {% else %}
+          <span class="mark" aria-hidden="true"></span>
+        {% endif %}
+        <span>{{ user_vendor_profile.store_name }}</span>
       </a>
 
       <nav class="nav" aria-label="قائمة لوحة البائع">
-        <a href="{% url 'vendor_stats' %}">الإحصائيات </a>
-        <a class="active" href="{% url 'vendor_products' %}">المنتجات </a>
-        <a href="{% url 'vendor_offers' %}">العروض </a>
-        <a href="{% url 'vendor_orders' %}">الطلبات </a>
-        <a href="{% url 'vendor_ads' %}">الإعلانات الممولة </a>
-        <a href="{% url 'logout' %}" style="margin-top:6px" class="btn ghost">تسجيل خروج</a>
+        <a class="nav-item {% if request.resolver_match.url_name == 'vendor_stats' %}active{% endif %}" href="{% url 'vendor_stats' %}">
+          <span class="nav-label"><i class="fa-solid fa-chart-pie"></i> الإحصائيات</span>
+        </a>
+        <a class="nav-item {% if request.resolver_match.url_name == 'vendor_products' %}active{% endif %}" href="{% url 'vendor_products' %}">
+          <span class="nav-label"><i class="fa-solid fa-box-open"></i> المنتجات</span>
+        </a>
+        <a class="nav-item {% if request.resolver_match.url_name == 'vendor_offers' %}active{% endif %}" href="{% url 'vendor_offers' %}">
+          <span class="nav-label"><i class="fa-solid fa-tags"></i> العروض</span>
+        </a>
+        <a class="nav-item {% if request.resolver_match.url_name == 'vendor_orders' %}active{% endif %}" href="{% url 'vendor_orders' %}">
+          <span class="nav-label"><i class="fa-solid fa-cart-shopping"></i> الطلبات</span>
+        </a>
+        <a class="nav-item {% if request.resolver_match.url_name == 'vendor_ads' %}active{% endif %}" href="{% url 'vendor_ads' %}">
+          <span class="nav-label"><i class="fa-solid fa-rectangle-ad"></i> الإعلانات الممولة</span>
+        </a>
+        <a class="nav-item {% if request.resolver_match.url_name == 'logout' %}active{% endif %}" href="{% url 'logout' %}" style="margin-top:6px">
+          <span class="nav-label"><i class="fa-solid fa-right-from-bracket"></i> تسجيل خروج</span>
+        </a>
       </nav>
     </aside>
 

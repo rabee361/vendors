@@ -21,7 +21,7 @@
               <b>{{ vendor.store_name }}</b>
               <span>{{ vendor.category.name|default:"عام" }} • تقييم {{ vendor.rating|default:"0.0" }}</span>
             </div>
-            <a class="btn2 primary" href="#"><span class="arrow"><i class="fas fa-arrow-left"></i></span></a>
+            <a class="btn2 primary" href="{% url 'vendor_store' vendor.id %}"><span class="arrow"><i class="fas fa-arrow-left"></i></span></a>
           </div>
       </div>
     </article>

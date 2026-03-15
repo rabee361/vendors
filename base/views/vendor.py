@@ -50,7 +50,15 @@ class VendorStoreView(View):
     def get(self, request, pk):
         vendor = get_object_or_404(Vendor, pk=pk)
         products = Product.objects.filter(tenant=vendor).order_by('-created_at')
-        return render(request, 'vendors/store.html', {'vendor': vendor, 'products': products})
+        ads = SponsoredAd.objects.filter(product__tenant=vendor).order_by('-created_at')
+        offers = Offer.objects.filter(tenant=vendor).order_by('-created_at')
+        context = {
+            'vendor': vendor,
+            'products': products,
+            'ads': ads,
+            'offers': offers,
+        }
+        return render(request, 'vendors/store.html', context)
 
 
 class VendorSignupView(FormView):
@@ -233,7 +241,9 @@ class AdAddView(SellerRequiredMixin, View):
         vendor = get_object_or_404(Vendor, user=request.user)
         form = SponsoredAdForm(request.POST)
         if form.is_valid():
-            form.save()
+            ad = form.save(commit=False)
+            ad.tenant = vendor
+            ad.save()
             return redirect('vendor_ads')
         return render(request, self.template_name, {'form': form})
 
@@ -250,7 +260,9 @@ class AdUpdateView(SellerRequiredMixin, View):
         ad = get_object_or_404(SponsoredAd, pk=pk, product__tenant=vendor)
         form = SponsoredAdForm(request.POST, instance=ad)
         if form.is_valid():
-            form.save()
+            ad = form.save(commit=False)
+            ad.tenant = vendor
+            ad.save()
             return redirect('vendor_ads')
         return render(request, self.template_name, {'form': form, 'object': ad})
 

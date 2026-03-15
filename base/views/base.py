@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import FormView, View
+from django.core.paginator import Paginator
+
 from django.contrib.auth import login, logout, authenticate ,get_user_model
 from django.contrib import messages
 from django.urls import reverse_lazy, reverse
@@ -167,38 +169,44 @@ class OtpCodeView(VerificationRequiredMixin,FormView):
         return super().form_valid(form)
 
 
-class VerifyOtpView(VerificationRequiredMixin,FormView):
+class VerifyOtpView(VerificationRequiredMixin, View):
     template_name = 'auth/verify.html'
-    form_class = VerifyOTPForm
     
-    def get_success_url(self):
-        email = self.request.session.get('signup_email')
-        if email:
-            try:
-                user = User.objects.get(email=email)
-                if user.is_seller:
-                    return reverse('vendor_dashboard')
-            except User.DoesNotExist:
-                pass
-        return reverse('home')
+    def get(self, request):
+        form = VerifyOTPForm()
+        email = request.session.get('signup_email')
+        return render(request, self.template_name, {
+            'form': form, 
+            'email': email
+        })
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['email'] = self.request.session.get('signup_email')
-        return context
-
-    def form_valid(self, form):
-        email = self.request.session.get('signup_email')
-        code = form.cleaned_data['code']
-        otp = OTPCode.objects.filter(email=email, code=code, is_used=False).first()
+    def post(self, request):
+        form = VerifyOTPForm(request.POST)
+        email = request.session.get('signup_email')
         
-        if otp and not otp.is_expired: # Assuming is_expired logic or check expiry
-             otp.is_used = True
-             otp.save()
-             return super().form_valid(form)
+        if form.is_valid():
+            code = form.cleaned_data['code']
+            otp = OTPCode.objects.filter(email=email, code=code, is_used=False).first()
+            
+            if otp and not otp.is_expired:
+                otp.is_used = True
+                otp.save()
+                
+                if email:
+                    try:
+                        user = User.objects.get(email=email)
+                        if user.user_type == UserType.SELLER:
+                            return redirect('vendor_dashboard')
+                    except User.DoesNotExist:
+                        pass
+                return redirect('home')
+            
+            form.add_error('code', "رمز التحقق غير صحيح أو منتهي الصلاحية.")
         
-        form.add_error('code', "رمز التحقق غير صحيح أو منتهي الصلاحية.")
-        return self.form_invalid(form)
+        return render(request, self.template_name, {
+            'form': form, 
+            'email': email
+        })
 
 
 class EmailChangePasswordView(View):
@@ -231,6 +239,8 @@ class CategoriesView(View):
 
 
 class ProductListView(View):
+    paginate_by = 12
+
     def get(self, request):
         if self.request.htmx:
             template_name = 'base/partials/products_partial.html'
@@ -243,18 +253,22 @@ class ProductListView(View):
         max_price = request.GET.get('maxPrice')
         rating = request.GET.get('rating')
 
-        products = Product.objects.select_related('tenant', 'category', 'tenant__category').filter(is_active=True)
+        products_list = Product.objects.select_related('tenant', 'category', 'tenant__category').filter(is_active=True)
 
         if query:
-            products = products.filter(name__icontains=query)
+            products_list = products_list.filter(name__icontains=query)
         if category_name:
-            products = products.filter(category__name__icontains=category_name)
+            products_list = products_list.filter(category__name__icontains=category_name)
         if min_price:
-            products = products.filter(price__gte=min_price)
+            products_list = products_list.filter(price__gte=min_price)
         if max_price:
-            products = products.filter(price__lte=max_price)
+            products_list = products_list.filter(price__lte=max_price)
         if rating:
-            products = products.filter(rating__gte=rating)
+            products_list = products_list.filter(rating__gte=rating)
+
+        paginator = Paginator(products_list, self.paginate_by)
+        page_number = request.GET.get('page')
+        products = paginator.get_page(page_number)
 
         categories = ProductCategory.objects.all()
         
