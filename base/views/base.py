@@ -12,6 +12,7 @@ from ..favorite import FavoriteService
 from ..models import *
 import uuid
 from django.contrib.auth.mixins import LoginRequiredMixin
+from utils.mixins import VerificationRequiredMixin
 
 User = get_user_model()
 
@@ -147,7 +148,7 @@ class LogoutView(View):
         return redirect('home')
 
 
-class OtpCodeView(FormView):
+class OtpCodeView(VerificationRequiredMixin,FormView):
     template_name = 'auth/otp.html'
     form_class = OTPForm
     success_url = reverse_lazy('verify_otp')
@@ -166,7 +167,7 @@ class OtpCodeView(FormView):
         return super().form_valid(form)
 
 
-class VerifyOtpView(FormView):
+class VerifyOtpView(VerificationRequiredMixin,FormView):
     template_name = 'auth/verify.html'
     form_class = VerifyOTPForm
     

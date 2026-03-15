@@ -1,14 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.db.models import Q, Count
-from django.contrib.auth.mixins import UserPassesTestMixin
 from django.urls import reverse_lazy
 from ..models import Vendor, Product, Order, CustomUser, Buyer, StoreCategory
 from ..forms import CategoryForm, ModeratorForm
+from utils.mixins import ModeratorRequiredMixin
 
-class ModeratorRequiredMixin(UserPassesTestMixin):
-    def test_func(self):
-        return self.request.user.is_authenticated and (self.request.user.is_staff or self.request.user.user_type == 'admin')
 
 class ModeratorVendorsView(ModeratorRequiredMixin, View):
     def get(self, request):

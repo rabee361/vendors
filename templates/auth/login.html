@@ -11,10 +11,6 @@
       </div>
 
       <h1>تجربة شراء وبيع احترافية — متعددة البائعين مع إعلانات ممولة</h1>
-      <p>
-        واجهة داكنة نظيفة، سهلة الاستخدام، منظمة، جاهزة لتوصيلها مباشرة مع الـ Backend.
-        كل القوائم تدعم <b>الكتابة اليدوية أو الاختيار</b> باستخدام <code>datalist</code>.
-      </p>
 
       <div class="bullets">
         <div class="pill"><span class="dot"></span><span>حساب مشتري: ينتقل للصفحة الرئيسية</span></div>
@@ -22,10 +18,6 @@
         <div class="pill"><span class="dot y"></span><span>إعلانات ممولة: قسم مستقل + وسم “ممول” على المنتج</span></div>
       </div>
 
-      <div class="note">
-        <b>ملاحظة:</b> منع عرض لوحة البائع لغير البائع يتم من الـ Backend (صلاحيات/Routes).
-        هنا فصلتها كملف مستقل لتسهيل التحكم.
-      </div>
     </section>
 
     <section class="panel" aria-label="لوحة تسجيل الدخول">
@@ -75,6 +67,7 @@
             <button class="btn" type="submit">تسجيل الدخول كمشتري</button>
             <a class="btn ghost" href="{% url 'home' %}">متابعة كزائر</a>
           </div>
+          <div class="hint">ليس لديك حساب؟ <a href="{% url 'buyer_signup' %}">إنشاء حساب مشتري</a></div>
         </div>
       </form>
 
@@ -110,6 +103,7 @@
           <button class="btn" type="submit">دخول لوحة البائع</button>
           <a class="btn ghost" href="javascript:void(0)" onclick="switchTab('buyer')">العودة للمشتري</a>
         </div>
+        <div class="hint">ليس لديك حساب بائع؟ <a href="{% url 'vendor_signup' %}">انضم كبائع</a></div>
       </form>
 
     </section>

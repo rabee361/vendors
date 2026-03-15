@@ -12,6 +12,7 @@ class CustomUser(AbstractUser):
     user_type = models.CharField(max_length=10, choices=UserType.choices, default=UserType.BUYER)
     avatar = models.ImageField(upload_to='users/avatars/', blank=True, null=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
+    is_verified = models.BooleanField(default=False)
 
     @property
     def is_buyer(self):

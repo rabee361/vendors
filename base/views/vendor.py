@@ -5,19 +5,13 @@ from ..models import Product, Offer, Order, SponsoredAd, Vendor, StoreCategory
 from django.views.generic import FormView
 from ..forms import VendorSignupForm, ProductForm, OfferForm, SponsoredAdForm, OrderUpdateForm
 from utils.types import UserType, CodeTypes
+from utils.mixins import SellerRequiredMixin
 from utils.email import send_otp_email
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 
 User = get_user_model()
-
-
-class SellerRequiredMixin(LoginRequiredMixin):
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated or not request.user.is_seller:
-            return redirect('login')
-        return super().dispatch(request, *args, **kwargs)
 
 
 class VendorDashboardView(SellerRequiredMixin, View):
@@ -77,7 +71,6 @@ class VendorSignupView(FormView):
             password=data['password'],
             first_name=data['full_name'],
             user_type=UserType.SELLER,
-            is_seller=True
         )
 
         # Get the StoreCategory object by name
