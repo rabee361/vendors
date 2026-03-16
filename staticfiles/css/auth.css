@@ -308,10 +308,19 @@ textarea:focus {
 .msg.success { background: rgba(57, 217, 138, .1); color: var(--accent2); border-color: rgba(57, 217, 138, .2); }
 
 .hint {
-    font-size: 12px;
+    font-size: 13px;
     color: var(--muted);
     text-align: center;
-    margin-top: 10px;
+    margin-top: 15px;
+}
+
+.hint a {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.hint a:hover {
+    text-decoration: underline;
 }
 
 @media (max-width: 980px) {
