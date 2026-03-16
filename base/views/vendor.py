@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import TemplateView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
-from ..models import Product, Offer, Order, SponsoredAd, Vendor, StoreCategory
+from ..models import Product, Offer, Order, SponsoredAd, Vendor, StoreCategory, ProductCategory
 from django.views.generic import FormView
-from ..forms import VendorSignupForm, ProductForm, OfferForm, SponsoredAdForm, OrderUpdateForm
+from ..forms import VendorSignupForm, ProductForm, OfferForm, SponsoredAdForm, OrderUpdateForm, ProductCategoryForm
 from utils.types import UserType, CodeTypes
 from utils.mixins import SellerRequiredMixin
 from utils.email import send_otp_email
@@ -285,7 +285,7 @@ class OrderUpdateView(SellerRequiredMixin, View):
 class AdDeleteView(SellerRequiredMixin, View):
     def get(self, request, pk):
         vendor = get_object_or_404(Vendor, user=request.user)
-        ad = get_object_or_404(SponsoredAd, pk=pk, product__tenant=vendor)
+        ad = get_object_or_404(SponsoredAd, pk=pk, tenant=vendor)
         ad.delete()
         return redirect('vendor_ads')
 
@@ -293,3 +293,61 @@ class StatsListView(SellerRequiredMixin, View):
     def get(self, request):
         vendor = get_object_or_404(Vendor, user=request.user)
         return render(request, 'vendors/stats.html', {'vendor': vendor})
+
+class CategoriesListView(SellerRequiredMixin, View):
+    def get(self, request):
+        vendor = get_object_or_404(Vendor, user=request.user)
+        categories = ProductCategory.objects.all().order_by('name')
+        return render(request, 'vendors/categories.html', {'categories': categories})
+
+class CategoryAddView(SellerRequiredMixin, View):
+    template_name = 'vendors/category_form.html'
+    def get(self, request):
+        form = ProductCategoryForm()
+        return render(request, self.template_name, {'form': form, 'title': 'إضافة صنف'})
+    def post(self, request):
+        vendor = get_object_or_404(Vendor, user=request.user)
+        form = ProductCategoryForm(request.POST)
+        if form.is_valid():
+            category = form.save(commit=False)
+            category.tenant = vendor
+            category.save()
+            return redirect('vendor_categories')
+        return render(request, self.template_name, {'form': form})
+
+
+class CategoryDeleteView(SellerRequiredMixin, View):
+    def get(self, request, pk):
+        vendor = get_object_or_404(Vendor, user=request.user)
+        category = get_object_or_404(ProductCategory, pk=pk, tenant=vendor)
+        category.delete()
+        return redirect('vendor_categories')
+
+
+class CategoryUpdateView(SellerRequiredMixin, View):
+    template_name = 'vendors/category_form.html'
+    def get(self, request, pk):
+        vendor = get_object_or_404(Vendor, user=request.user)
+        category = get_object_or_404(ProductCategory, pk=pk, tenant=vendor)
+        form = ProductCategoryForm(instance=category)
+        return render(request, self.template_name, {'form': form, 'title': 'تحديث الصنف', 'object': category})
+    def post(self, request, pk):
+        vendor = get_object_or_404(Vendor, user=request.user)
+        category = get_object_or_404(ProductCategory, pk=pk, tenant=vendor)
+        form = ProductCategoryForm(request.POST, instance=category)
+        if form.is_valid():
+            category = form.save(commit=False)
+            category.tenant = vendor
+            category.save()
+            return redirect('vendor_categories')
+        return render(request, self.template_name, {'form': form, 'title': 'تحديث الصنف', 'object': category})
+    def post(self, request, pk):
+        vendor = get_object_or_404(Vendor, user=request.user)
+        category = get_object_or_404(ProductCategory, pk=pk, product__tenant=vendor)
+        form = ProductCategoryForm(request.POST, instance=category)
+        if form.is_valid():
+            category = form.save(commit=False)
+            category.tenant = vendor
+            category.save()
+            return redirect('vendor_categorys')
+        return render(request, self.template_name, {'form': form, 'object': category})

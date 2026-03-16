@@ -89,7 +89,7 @@ class ModeratorLoginView(View):
         if form.is_valid():
             user = form.cleaned_data['user']
             login(request, user)
-            return redirect('moderator_dashboard')
+            return redirect('moderator_stats')
         
         return render(request, 'moderator/login.html', {
             'form': form

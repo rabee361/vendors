@@ -105,8 +105,7 @@
       <div class="product-details-row">
         <div style="display:flex; gap:10px; flex-wrap:wrap">
           <button class="paction-btn primary cart {% if product.id|slugify in cart_product_ids %}active{% endif %}" hx-post="{% url 'add_to_cart' product.id %}"
-            hx-vals='{"quantity": 1}' hx-target="#cart" hx-swap="outerHTML" aria-label="إضافة للسلة"
-            hx-on::after-request="this.classList.toggle('active')"><i
+            hx-vals='{"quantity": 1}' hx-target="#cart" hx-swap="outerHTML" aria-label="إضافة للسلة"><i
               class="fas fa-cart-plus"></i></button>
           <button class="paction-btn fav {% if product.id|slugify in favorite_product_ids %}active{% endif %}"
             hx-post="{% url 'toggle_favorite' product.id %}" hx-target="#favorites" hx-swap="outerHTML"

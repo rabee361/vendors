@@ -24,6 +24,9 @@ basePatterns = [
     path('account/update/', base.AccountUpdateView.as_view(), name='account_update'),
     path('change-password/', base.ChangePasswordView.as_view(), name='change_password'),
     path('checkout/<int:vendor_id>/', base.CheckoutView.as_view(), name='checkout'),
+    path('checkout/success' , base.CheckoutSuccess.as_view() , name="checkout_success"),
+    path('404/' , base.handler404.as_view() , name="404"),
+    path('500/' , base.handler500.as_view() , name="500"),
 ]
 
 moderatorPatterns = [
@@ -53,6 +56,10 @@ vendorPatterns = [
     path('ads/add/', vendor.AdAddView.as_view(), name='ad_add'),
     path('ads/update/<int:pk>/', vendor.AdUpdateView.as_view(), name='ad_update'),
     path('ads/delete/<int:pk>/', vendor.AdDeleteView.as_view(), name='ad_delete'),
+    path('categories/', vendor.CategoriesListView.as_view(), name='vendor_categories'),
+    path('categories/add/', vendor.CategoryAddView.as_view(), name='category_add'),
+    path('categories/update/<int:pk>/', vendor.CategoryUpdateView.as_view(), name='category_update'),
+    path('categories/delete/<int:pk>/', vendor.CategoryDeleteView.as_view(), name='category_delete'),
     path('products/', vendor.ProductsListView.as_view(), name='vendor_products'),
     path('products/add/', vendor.ProductAddView.as_view(), name='product_add'),
     path('products/update/<int:pk>/', vendor.ProductUpdateView.as_view(), name='product_update'),

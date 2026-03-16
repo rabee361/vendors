@@ -6,6 +6,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from utils.helper import generate_code, get_expiration_time
 from utils.types import UserType, AdType, AdStatus, OrderStatus, CodeTypes
 from django.utils import timezone
+from utils.managers import CustomUserManager
 from django.core.exceptions import ValidationError
 
 
@@ -13,6 +14,7 @@ class CustomUser(AbstractUser):
     user_type = models.CharField(max_length=10, choices=UserType.choices, default=UserType.BUYER)
     avatar = models.ImageField(upload_to='users/avatars/', blank=True, null=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
+    email = models.EmailField(max_length=140,unique=True)
     is_verified = models.BooleanField(default=False)
 
     @property
@@ -33,6 +35,11 @@ class CustomUser(AbstractUser):
 
         if self.avatar and not self.avatar.name.endswith(('.jpg', '.jpeg', '.png','webp', 'jfif')):
             raise ValidationError('يجب أن يكون الصورة بصيغة jpg أو jpeg أو png أو webp')
+
+    objects = CustomUserManager()
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
 
     def create_otp(self, code_type=CodeTypes.SIGNUP):
         # Delete old unused codes of the same type for this email

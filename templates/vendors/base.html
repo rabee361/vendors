@@ -211,6 +211,9 @@
         <a class="nav-item {% if request.resolver_match.url_name == 'vendor_ads' %}active{% endif %}" href="{% url 'vendor_ads' %}">
           <span class="nav-label"><i class="fa-solid fa-rectangle-ad"></i> الإعلانات الممولة</span>
         </a>
+        <a class="nav-item {% if request.resolver_match.url_name == 'vendor_categories' %}active{% endif %}" href="{% url 'vendor_categories' %}">
+          <span class="nav-label"><i class="fa-solid fa-list"></i> الأصناف</span>
+        </a>
         <a class="nav-item {% if request.resolver_match.url_name == 'logout' %}active{% endif %}" href="{% url 'logout' %}" style="margin-top:6px">
           <span class="nav-label"><i class="fa-solid fa-right-from-bracket"></i> تسجيل خروج</span>
         </a>

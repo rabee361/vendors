@@ -27,7 +27,7 @@
               <button class="paction-btn primary cart {% if product.id|slugify in cart_product_ids %}active{% endif %}" 
                 hx-post="{% url 'add_to_cart' product.id %}"
                 hx-vals='{"quantity": 1}' hx-target="#cart" hx-swap="outerHTML" aria-label="إضافة للسلة"
-                hx-on::after-request="this.classList.toggle('active')"><i
+                ><i
                   class="fas fa-cart-plus"></i></button>
               <button class="paction-btn fav {% if product.id|slugify in favorite_product_ids %}active{% endif %}"
                 hx-post="{% url 'toggle_favorite' product.id %}" hx-target="#favorites" hx-swap="outerHTML"

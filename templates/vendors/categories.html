@@ -1,0 +1,60 @@
+{% extends 'vendors/base.html' %}
+
+{% block content %}
+
+      <header>
+        <div>
+          <h1>لوحة تحكم البائع</h1>
+          <div class="muted">إدارة منتجاتك، عروضك، طلباتك وإعلاناتك بسهولة.</div>
+        </div>
+        <div class="chips">
+          <a class="chip accent" href="{% url 'category_add' %}" style="background:var(--accent); color:white">+ إضافة صنف</a>
+          <a class="chip" href="{% url 'vendor_store' vendor_id %}">عرض المتجر</a>
+          <a class="chip" href="{% url 'home' %}">زيارة الموقع</a>
+        </div>
+      </header>
+
+      <!-- الأصناف -->
+      <section id="categories" class="section">
+        <div class="card pad">
+          <h2 style="margin:0 0 6px">العروض الحالية</h2>
+          
+          <div style="overflow:auto; margin-top:12px">
+            <table aria-label="جدول العروض">
+              <thead>
+                <tr>
+                  <th>الاسم</th>
+                  <th>اسم مختصر</th>
+                  <th>الوصف</th>
+                  <th>الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for category in categories %}
+                <tr>
+                  <td>{{ category.name }}</td>
+                  <td>{{ category.slug }}</td>
+                  <td>{{ category.description }}</td>
+                  <td>
+                    <div style="display: flex; gap: 8px;">
+                      <a href="{% url 'category_update' category.id %}" style="color: var(--accent);" title="تعديل">
+                        <i class="fas fa-edit"></i>
+                      </a>
+                      <a href="{% url 'category_delete' category.id %}" style="color: var(--danger);" title="حذف" onclick="return confirm('هل أنت متأكد من الحذف؟')">
+                        <i class="fas fa-trash"></i>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="4" style="text-align:center">لا يوجد أصناف حالياً.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+{% endblock %}

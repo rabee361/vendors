@@ -102,7 +102,7 @@
                   <button class="paction-btn primary cart {% if product.id|slugify in cart_product_ids %}active{% endif %}" 
               hx-post="{% url 'add_to_cart' product.id %}"
               hx-vals='{"quantity": 1}' hx-target="#cart" hx-swap="outerHTML" aria-label="إضافة للسلة"
-              hx-on::after-request="this.classList.toggle('active')"><i
+              ><i
               class="fas fa-cart-plus"></i></button>
                   <button class="paction-btn fav {% if product.id|slugify in favorite_product_ids %}active{% endif %}"
               hx-post="{% url 'toggle_favorite' product.id %}" hx-target="#favorites" hx-swap="outerHTML"
@@ -138,8 +138,7 @@
               <a class="paction-btn view" href="{% url 'product' offer.product.id %}" aria-label="عرض التفاصيل"><i class="fas fa-eye"></i></a>
               <button class="paction-btn primary cart {% if offer.product.id|slugify in cart_product_ids %}active{% endif %}" 
                 hx-post="{% url 'add_to_cart' offer.product.id %}" hx-vals='{"quantity": 1}'
-                hx-target="#cart" hx-swap="outerHTML" aria-label="إضافة للسلة"
-                hx-on::after-request="this.classList.toggle('active')"><i class="fas fa-cart-plus"></i></button>
+                hx-target="#cart" hx-swap="outerHTML" aria-label="إضافة للسلة"><i class="fas fa-cart-plus"></i></button>
             </div>
           </div>
         </article>
@@ -179,7 +178,7 @@
               <button class="paction-btn primary cart {% if 3|slugify in cart_product_ids %}active{% endif %}" 
                 hx-post="{% url 'add_to_cart' 3 %}" hx-vals='{"quantity": 1}'
                 hx-target="#cart" hx-swap="outerHTML" aria-label="إضافة للسلة"
-                hx-on::after-request="this.classList.toggle('active')"><i class="fas fa-cart-plus"></i></button>
+               ><i class="fas fa-cart-plus"></i></button>
             </div>
           </div>
         </article>

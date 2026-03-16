@@ -8,55 +8,64 @@
         <span id="cart-count" hx-swap-oob="true" class="badge">{{ cart_count }}</span>
         <div class="content" style="overflow-y: auto; height: calc(100vh - 60px);">
             {% if grouped_items %}
-                {% for vendor, data in grouped_items.items %}
-                    <div class="vendor-cart-group">
-                        <div class="vendor-head">
-                            <img src="{% if vendor.avatar %}{{ vendor.avatar.url }}{% else %}/static/images/default-avatar.png{% endif %}" alt="{{ vendor.store_name }}">
-                            <b>مشتريات من: {{ vendor.store_name }}</b>
-                        </div>
-                        
-                        {% for item in data.items %}
-                            <div class="item">
-                                <div>
-                                    <b>{{ item.product.name }}</b>
-                                    <div class="muted">الكمية: </div>
-                                    <div class="quantity-control">
-                                        <button class="qty-btn" type="button" hx-post="{% url 'update_cart' item.product.id %}" hx-vals='{"quantity": {{ item.quantity|add:"-1" }} }' hx-target="#cart .drawer" hx-select=".drawer" hx-swap="outerHTML"><i class="fas fa-minus"></i></button>
-                                        <span class="qty-display">{{ item.quantity }}</span>
-                                        <button class="qty-btn" type="button" hx-post="{% url 'update_cart' item.product.id %}" hx-vals='{"quantity": {{ item.quantity|add:"1" }} }' hx-target="#cart .drawer" hx-select=".drawer" hx-swap="outerHTML"><i class="fas fa-plus"></i></button>
-                                    </div>
-                                </div>
-                                <div style="text-align: left;">
-                                    <b class="price">${{ item.total }}</b>
-                                    <br>
-                                    <button class="remove-btn" type="button" hx-post="{% url 'remove_from_cart' item.product.id %}" hx-target="#cart .drawer" hx-select=".drawer" hx-swap="outerHTML" aria-label="إزالة المعدة">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        {% endfor %}
-                        
-                        <div class="sum" style="margin-bottom: 20px;">
-                            <div style="display:flex; justify-content:space-between"><span>مجموع المتجر</span><b>${{ data.subtotal }}</b></div>
-                            <div class="checkout" style="margin-top: 10px;">
-                                <a class="btn2 primary" href="{% url 'checkout' vendor.id %}" style="width: 100%;">إتمام الشراء من {{ vendor.store_name }}</a>
-                            </div>
+            {% for vendor, data in grouped_items.items %}
+            <div class="vendor-cart-group">
+                <div class="vendor-head">
+                    <img src="{% if vendor.avatar %}{{ vendor.avatar.url }}{% else %}/static/images/default-avatar.png{% endif %}"
+                        alt="{{ vendor.store_name }}">
+                    <b>مشتريات من: {{ vendor.store_name }}</b>
+                </div>
+
+                {% for item in data.items %}
+                <div class="item">
+                    <div>
+                        <b>{{ item.product.name }}</b>
+                        <div class="muted">الكمية: </div>
+                        <div class="quantity-control">
+                            <button class="qty-btn" type="button" hx-post="{% url 'update_cart' item.product.id %}"
+                                hx-vals='{"quantity": {{ item.quantity|add:"-1" }} }' hx-target="#cart .drawer"
+                                hx-select=".drawer" hx-swap="outerHTML"><i class="fas fa-minus"></i></button>
+                            <span class="qty-display">{{ item.quantity }}</span>
+                            <button class="qty-btn" type="button" hx-post="{% url 'update_cart' item.product.id %}"
+                                hx-vals='{"quantity": {{ item.quantity|add:"1" }} }' hx-target="#cart .drawer"
+                                hx-select=".drawer" hx-swap="outerHTML"><i class="fas fa-plus"></i></button>
                         </div>
                     </div>
+                    <div style="text-align: left;">
+                        <b class="price">${{ item.total }}</b>
+                        <br>
+                        <button class="remove-btn" type="button" hx-post="{% url 'remove_from_cart' item.product.id %}"
+                            hx-target="#cart .drawer" hx-select=".drawer" hx-swap="outerHTML" aria-label="إزالة المعدة">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>
                 {% endfor %}
-                
-                <div class="global-summary" style="margin-top: 20px; padding-top: 20px; border-top: 2px solid var(--line);">
-                    <div style="display:flex; justify-content:space-between; font-size: 16px;"><span>الإجمالي الكلي</span><b>${{ cart_total }}</b></div>
+
+                <div class="sum" style="margin-bottom: 20px;">
+                    <div style="display:flex; justify-content:space-between"><span>مجموع المتجر</span><b>${{
+                            data.subtotal }}</b></div>
+                    <div class="checkout" style="margin-top: 10px;">
+                        <a class="btn2 primary" href="{% url 'checkout' vendor.id %}" style="width: 100%;">إتمام الشراء
+                            من {{ vendor.store_name }}</a>
+                    </div>
                 </div>
-                
+            </div>
+            {% endfor %}
+
+            <div class="global-summary" style="margin-top: 20px; padding-top: 20px; border-top: 2px solid var(--line);">
+                <div style="display:flex; justify-content:space-between; font-size: 16px;"><span>الإجمالي
+                        الكلي</span><b>${{ cart_total }}</b></div>
+            </div>
+
             {% else %}
-                <div style="text-align: center; padding: 40px 20px;">
-                    <i class="fas fa-shopping-cart" style="font-size: 48px; color: var(--muted); margin-bottom: 20px;"></i>
-                    <p class="muted">السلة فارغة حالياً.</p>
-                    <a class="btn primary" href="{% url 'product_list' %}" style="margin-top: 15px;">تسوق الآن</a>
-                </div>
+            <div style="text-align: center; padding: 40px 20px;">
+                <i class="fas fa-shopping-cart" style="font-size: 48px; color: var(--muted); margin-bottom: 20px;"></i>
+                <p class="muted">السلة فارغة حالياً.</p>
+                <a class="btn primary" href="{% url 'product_list' %}" style="margin-top: 15px;">تسوق الآن</a>
+            </div>
             {% endif %}
-            
+
         </div>
     </aside>
 </section>

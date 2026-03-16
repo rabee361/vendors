@@ -8,13 +8,13 @@ from django.urls import reverse_lazy, reverse
 from ..forms import *
 from utils.types import UserType, CodeTypes
 from utils.email import send_otp_email
+from utils.mixins import UserAlreadyLoggedInMixin
 from urllib.parse import quote
 from ..cart import CartService
 from ..favorite import FavoriteService
 from ..models import *
 import uuid
 from django.contrib.auth.mixins import LoginRequiredMixin
-from utils.mixins import VerificationRequiredMixin
 
 User = get_user_model()
 
@@ -30,9 +30,9 @@ class HomeView(View):
 
         query = request.GET.get('q', '')
         category_name = request.GET.get('category', '')
-        min_price = request.GET.get('minPrice')
-        max_price = request.GET.get('maxPrice')
-        rating = request.GET.get('rating')
+        min_price = request.GET.get('minPrice', '0')
+        max_price = request.GET.get('maxPrice','99999')
+        rating = request.GET.get('rating','')
 
         products = Product.objects.select_related('tenant', 'category', 'tenant__category').filter(is_active=True)
 
@@ -83,7 +83,7 @@ class HomeView(View):
         return render(request, 'base/index.html', {'message_form': message_form})
 
 
-class BuyerSignupView(FormView):
+class BuyerSignupView(UserAlreadyLoggedInMixin, FormView):
     template_name = 'auth/buyer-signup.html'
     form_class = BuyerSignupForm
     success_url = reverse_lazy('home')
@@ -103,7 +103,7 @@ class BuyerSignupView(FormView):
         FavoriteService(self.request).sync_to_db(user)
         return super().form_valid(form)
 
-class LoginView(View):
+class LoginView(UserAlreadyLoggedInMixin, View):
     template_name = 'auth/login.html'
 
     def get(self, request):
@@ -148,7 +148,7 @@ class LogoutView(View):
         logout(request)
         return redirect('home')
 
-class OtpCodeView(VerificationRequiredMixin,FormView):
+class OtpCodeView(FormView):
     template_name = 'auth/otp.html'
     form_class = OTPForm
     success_url = reverse_lazy('verify_otp')
@@ -167,7 +167,7 @@ class OtpCodeView(VerificationRequiredMixin,FormView):
         return super().form_valid(form)
 
 
-class VerifyOtpView(VerificationRequiredMixin, View):
+class VerifyOtpView(View):
     template_name = 'auth/verify.html'
     
     def get(self, request):
@@ -193,8 +193,18 @@ class VerifyOtpView(VerificationRequiredMixin, View):
                 if email:
                     try:
                         user = User.objects.get(email=email)
-                        if user.user_type == UserType.SELLER:
-                            return redirect('vendor_dashboard')
+                        if user:
+                            print("User found, verifying...")
+                            print(f"User before verification: {user.is_verified}")
+                            print(f"OTP code: {otp.code}, is_used: {otp.is_used}, is_expired: {otp.is_expired}")
+                            user.is_verified = True
+                            user.save()
+                            print(f"User after verification: {user.is_verified}")
+                            print("Verification successful, logging in user...")
+                            authenticate(request, username=user.email, password=None)
+                            login(request, user)
+                            if user.user_type == UserType.SELLER:
+                                return redirect('vendor_dashboard')
                     except User.DoesNotExist:
                         pass
                 return redirect('home')
@@ -309,7 +319,6 @@ class RemoveFromCartView(View):
         cart.remove(product_id)
         response = render(request, 'components/cart.html', cart.get_context())
         response['X-Toast-Message'] = "تمت إزالة المنتج من السلة"
-        # response['X-Toast-Message'] = quote("تمت إزالة المنتج من السلة")
         response['X-Toast-Type'] = "info"
         return response
 
@@ -392,7 +401,8 @@ class CheckoutView(LoginRequiredMixin, View):
         
         form = CheckoutForm(initial={
             'full_name': request.user.first_name,
-            'phone': request.user.phone
+            'phone': request.user.phone,
+            'email': request.user.email
         })
         context['form'] = form
         return render(request, 'base/checkout.html', context)
@@ -427,13 +437,30 @@ class CheckoutView(LoginRequiredMixin, View):
             # Clear items for THIS vendor only
             cart_service.clear_by_vendor(vendor_id)
             
-            if request.htmx:
-                response = redirect('home')
-                response['X-Toast-Message'] = quote("تم تأكيد طلبك بنجاح! شكراً لتواصلك معنا.")
-                response['X-Toast-Title'] = quote("تم الحجز")
-                response['X-Toast-Type'] = "success"
-                return response
-
-            return redirect('home')
+            return redirect('checkout_success')
             
-        return self.get(request, vendor_id)
+        if vendor not in cart_data['grouped_items']:
+            return redirect('home')
+
+        # If we reach here, form is not valid! We re-render template to show errors
+        context = cart_service.get_context()
+        vendor_data = context['grouped_items'][vendor]
+        context['vendor'] = vendor
+        context['items'] = vendor_data['items']
+        context['total'] = vendor_data['subtotal']
+        context['form'] = form
+        return render(request, 'base/checkout.html', context)
+
+
+class CheckoutSuccess(View):
+    def get(self, request):
+        return render(request, 'components/checkout_success.html')
+
+class handler404(View):
+    def get(self, request):
+        return render(request, 'components/404.html')
+
+class handler500(View):
+    def get(self, request):
+        return render(request, 'components/500.html')
+

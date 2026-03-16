@@ -5,7 +5,7 @@ from .models import StoreCategory, OTPCode, ContactMessage, CustomUser
 from utils.validators import SyrianPhoneValidator
 from utils.types import UserType
 from django.contrib.auth import authenticate
-from .models import Product, Offer, SponsoredAd, Order, Vendor
+from .models import Product, Offer, SponsoredAd, Order, Vendor, ProductCategory
 
 User = get_user_model()
 
@@ -55,6 +55,7 @@ class SellerLoginForm(forms.Form):
 
         if email and password:
             user = authenticate(username=email, password=password)
+            print(user)
             if not user:
                 raise ValidationError("خطأ في البريد الإلكتروني أو كلمة المرور.")
             if not user.is_seller:
@@ -81,6 +82,8 @@ class ModeratorLoginForm(forms.Form):
 
         if email and password:
             user = authenticate(username=email, password=password)
+            print("GGGGGGGGGGGG")
+            print(user)
             if not user:
                 raise ValidationError("خطأ في البريد الإلكتروني أو كلمة المرور.")
             if user.user_type != 'admin':
@@ -199,19 +202,22 @@ class AccountUpdateForm(forms.Form):
     }))
 
 class CheckoutForm(forms.Form):
-    full_name = forms.CharField(max_length=150, widget=forms.TextInput(attrs={
+    email = forms.EmailField(label='البريد الإلكتروني', widget=forms.EmailInput(attrs={
+        'id': 'email', 'placeholder': 'البريد الإلكتروني', 'required': True
+    }))
+    full_name = forms.CharField(label='الاسم الكامل', max_length=150, widget=forms.TextInput(attrs={
         'id': 'fn', 'placeholder': 'الاسم الكامل', 'required': True
     }))
-    phone = forms.CharField(max_length=20, widget=forms.TextInput(attrs={
+    phone = forms.CharField(label='رقم الهاتف', max_length=20,validators=[SyrianPhoneValidator()], widget=forms.TextInput(attrs={
         'id': 'ph', 'placeholder': '+963 9xx xxx xxx', 'required': True
     }))
-    city = forms.CharField(max_length=100, widget=forms.TextInput(attrs={
+    city = forms.CharField(label='المدينة', max_length=100, widget=forms.TextInput(attrs={
         'id': 'ct', 'placeholder': 'المدينة', 'required': True
     }))
-    address = forms.CharField(widget=forms.Textarea(attrs={
+    address = forms.CharField(label='العنوان التفصيلي', widget=forms.Textarea(attrs={
         'id': 'adr', 'placeholder': 'العنوان التفصيلي', 'required': True
     }))
-    notes = forms.CharField(required=False, widget=forms.Textarea(attrs={
+    notes = forms.CharField(label='ملاحظات إضافية (اختياري)', required=False, widget=forms.Textarea(attrs={
         'id': 'nts', 'placeholder': 'ملاحظات إضافية'
     }))
 
@@ -295,3 +301,8 @@ class OrderUpdateForm(forms.ModelForm):
     class Meta:
         model = Order
         fields = ['status']
+
+class ProductCategoryForm(forms.ModelForm):
+    class Meta:
+        model = ProductCategory
+        fields = ['name','description','slug']

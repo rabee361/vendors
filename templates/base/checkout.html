@@ -11,33 +11,21 @@
         <!-- Shipping Info -->
         <section class="checkout-section">
             <h2><i class="fas fa-shipping-fast" style="margin-left: 10px;"></i> معلومات الشحن</h2>
-            <form action="{% url 'checkout' vendor.id %}" method="post" id="checkout-form" class="checkout-form">
+            <form method="post" id="checkout-form" class="checkout-form">
                 {% csrf_token %}
-                <div class="row2">
-                    <div class="fgroup">
-                        <label for="full-name">الاسم الكامل</label>
-                        <input type="text" name="full_name" id="full-name" value="{{ user.first_name|default:'' }}" placeholder="مثال: أحمد خالد" required>
+                {% for field in form %}
+                <div class="fgroup">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                    <div style="color: #dc3545; font-size: 13px; margin-top: 4px;">
+                        {% for error in field.errors %}
+                            <div><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+                        {% endfor %}
                     </div>
-                    <div class="fgroup">
-                        <label for="phone">رقم الهاتف</label>
-                        <input type="text" name="phone" id="phone" value="{{ user.phone|default:'' }}" placeholder="+963 9xx xxx xxx" required>
-                    </div>
+                    {% endif %}
                 </div>
-                
-                <div class="fgroup">
-                    <label for="city">المدينة</label>
-                    <input type="text" name="city" id="city" placeholder="مثال: دمشق، حلب..." required>
-                </div>
-                
-                <div class="fgroup">
-                    <label for="address">العنوان التفصيلي</label>
-                    <textarea name="address" id="address" placeholder="المنطقة - الشارع - البناء - رقم الشقة" required></textarea>
-                </div>
-                
-                <div class="fgroup">
-                    <label for="notes">ملاحظات إضافية (اختياري)</label>
-                    <textarea name="notes" id="notes" placeholder="أي معلومات إضافية للتوصيل..." style="min-height: 80px;"></textarea>
-                </div>
+                {% endfor %}
             </form>
         </section>
 

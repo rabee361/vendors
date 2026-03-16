@@ -143,3 +143,7 @@ AUTH_USER_MODEL = "base.CustomUser"
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
+
+
+handler404 = 'base.views.base.handler404'
+handler500 = 'base.views.base.handler500'

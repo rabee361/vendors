@@ -1,0 +1,115 @@
+{% extends "base/base.html" %}
+
+{% block extra_head %}
+<style>
+    .success-container {
+        min-height: 60vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        background: var(--bg);
+    }
+
+    .success-card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: var(--r);
+        padding: 3rem;
+        max-width: 500px;
+        width: 100%;
+        text-align: center;
+        box-shadow: var(--shadow);
+        animation: slideUp 0.6s ease-out;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .success-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--grad-accent);
+    }
+
+    .icon-wrapper {
+        width: 80px;
+        height: 80px;
+        background: var(--grad-btn);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        color: var(--accent2);
+        font-size: 2.5rem;
+        animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.3s both;
+    }
+
+    .success-title {
+        color: var(--text);
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .success-text {
+        color: var(--muted);
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+    }
+
+    .btn-continue {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--grad-accent);
+        color: #fff;
+        padding: 1rem 2rem;
+        border-radius: calc(var(--r) / 2);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-continue:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(110, 168, 255, 0.2);
+        opacity: 0.9;
+    }
+
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes scaleIn {
+        from { opacity: 0; transform: scale(0.5); }
+        to { opacity: 1; transform: scale(1); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="success-container">
+    <div class="success-card">
+        <div class="icon-wrapper">
+            <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <h1 class="success-title">تمت العملية بنجاح!</h1>
+        <p class="success-text">
+            شكراً لشرائك. لقد تم تأكيد طلبك بنجاح وسنقوم بمعالجته في أقرب وقت ممكن.
+        </p>
+        <a href="/" class="btn-continue">
+            <span>متابعة التسوق</span>
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+    </div>
+</main>
+{% endblock %}
