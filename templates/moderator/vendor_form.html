@@ -1,0 +1,93 @@
+{% extends 'moderator/base.html' %}
+{% load static %}
+
+{% block title %}{% if object %}تعديل بيانات البائع{% else %}إضافة بائع جديد{% endif %}{% endblock %}
+{% block header %}{% if object %}تعديل البائع{% else %}إضافة بائع{% endif %}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/moderator/forms.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="card pad">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>اسم المتجر</label>
+                    {{ form.store_name }}
+                    {% if form.store_name.errors %}<span class="error">{{ form.store_name.errors.0 }}</span>{% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label>التصنيف</label>
+                    {{ form.category }}
+                    {% if form.category.errors %}<span class="error">{{ form.category.errors.0 }}</span>{% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label>العنوان</label>
+                    {{ form.address }}
+                    {% if form.address.errors %}<span class="error">{{ form.address.errors.0 }}</span>{% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label>رقم الهاتف</label>
+                    {{ form.phone }}
+                    {% if form.phone.errors %}<span class="error">{{ form.phone.errors.0 }}</span>{% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label>الحالة (نشط/غير نشط)</label>
+                    <div style="display: flex; align-items: center; gap: 10px; height: 100%;">
+                        {{ form.is_active }}
+                        <span style="color: var(--muted); font-size: 14px;">تفعيل الحساب</span>
+                    </div>
+                    {% if form.is_active.errors %}<span class="error">{{ form.is_active.errors.0 }}</span>{% endif %}
+                </div>
+
+                <div class="form-group full">
+                    <label>شعار المتجر</label>
+                    <div class="avatar-upload">
+                        <div class="preview" id="avatarPreview">
+                            {% if object and object.avatar %}
+                                <img src="{{ object.avatar.url }}" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;">
+                            {% else %}
+                                <i class="fas fa-store"></i>
+                            {% endif %}
+                        </div>
+                        <div class="upload-btn">
+                            {{ form.avatar }}
+                            <span>اختر صورة</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn accent">{% if object %}تحديث البيانات{% else %}حفظ البيانات{% endif %}</button>
+                <a href="{% url 'moderator_vendors' %}" class="btn muted" style="text-decoration: none;">إلغاء</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const avatarInput = document.querySelector('input[type="file"]');
+    const preview = document.getElementById('avatarPreview');
+    
+    avatarInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; border-radius:inherit; object-fit:cover;">`;
+            }
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+</script>
+{% endblock %}

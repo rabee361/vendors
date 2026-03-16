@@ -3,8 +3,9 @@ from django.views import View
 from django.db.models import Q, Count
 from django.urls import reverse_lazy
 from ..models import Vendor, Product, Order, CustomUser, Buyer, StoreCategory
-from ..forms import CategoryForm, ModeratorForm
+from ..forms import CategoryForm, ModeratorForm, ModeratorLoginForm, ModeratorVendorForm
 from utils.mixins import ModeratorRequiredMixin
+from django.contrib.auth import login, logout
 
 
 class ModeratorVendorsView(ModeratorRequiredMixin, View):
@@ -20,6 +21,30 @@ class ModeratorVendorsView(ModeratorRequiredMixin, View):
         
         vendors = vendors.order_by('-created_at')
         return render(request, 'moderator/vendors.html', {'vendors': vendors})
+
+class ModeratorVendorUpdateView(ModeratorRequiredMixin, View):
+    template_name = 'moderator/vendor_form.html'
+
+    def get(self, request, pk):
+        instance = get_object_or_404(Vendor, pk=pk)
+        form = ModeratorVendorForm(instance=instance)
+        return render(request, self.template_name, {'form': form, 'object': instance})
+
+    def post(self, request, pk):
+        instance = get_object_or_404(Vendor, pk=pk)
+        form = ModeratorVendorForm(request.POST, request.FILES, instance=instance)
+        if form.is_valid():
+            form.save()
+            return redirect('moderator_vendors')
+        return render(request, self.template_name, {'form': form, 'object': instance})
+
+class ModeratorVendorDeleteView(ModeratorRequiredMixin, View):
+    def get(self, request, pk):
+        instance = get_object_or_404(Vendor, pk=pk)
+        user = instance.user
+        instance.delete()
+        user.delete()
+        return redirect('moderator_vendors')
 
 class ModeratorStatsView(ModeratorRequiredMixin, View):
     def get(self, request):
@@ -52,6 +77,29 @@ class ModeratorStatsView(ModeratorRequiredMixin, View):
         }
         return render(request, 'moderator/stats.html', context)
 
+class ModeratorLoginView(View):
+    def get(self, request):
+        form = ModeratorLoginForm()
+        return render(request, 'moderator/login.html', {
+            'form': form
+        })
+
+    def post(self, request):
+        form = ModeratorLoginForm(request.POST)
+        if form.is_valid():
+            user = form.cleaned_data['user']
+            login(request, user)
+            return redirect('moderator_dashboard')
+        
+        return render(request, 'moderator/login.html', {
+            'form': form
+        })
+
+class ModeratorLogoutView(View):
+    def get(self, request):
+        logout(request)
+        return redirect('moderator_login')
+
 class ModeratorListView(ModeratorRequiredMixin, View):
     def get(self, request):
         query = request.GET.get('q')
@@ -65,7 +113,7 @@ class ModeratorListView(ModeratorRequiredMixin, View):
         return render(request, 'moderator/moderators.html', {'moderators': moderators})
 
 class ModeratorAddView(ModeratorRequiredMixin, View):
-    template_name = 'moderator/add_moderator.html'
+    template_name = 'moderator/moderator_form.html'
     
     def get(self, request):
         form = ModeratorForm()
@@ -83,7 +131,7 @@ class ModeratorAddView(ModeratorRequiredMixin, View):
         return render(request, self.template_name, {'form': form})
 
 class ModeratorUpdateView(ModeratorRequiredMixin, View):
-    template_name = 'moderator/update_moderator.html'
+    template_name = 'moderator/moderator_form.html'
 
     def get(self, request, pk):
         instance = get_object_or_404(CustomUser, pk=pk, user_type='admin')
@@ -118,7 +166,7 @@ class ModeratorCategoriesView(ModeratorRequiredMixin, View):
         return render(request, 'moderator/categories.html', {'categories': categories})
 
 class ModeratorCategoryAddView(ModeratorRequiredMixin, View):
-    template_name = 'moderator/add_category.html'
+    template_name = 'moderator/category_form.html'
 
     def get(self, request):
         form = CategoryForm()
@@ -132,7 +180,7 @@ class ModeratorCategoryAddView(ModeratorRequiredMixin, View):
         return render(request, self.template_name, {'form': form})
 
 class ModeratorCategoryUpdateView(ModeratorRequiredMixin, View):
-    template_name = 'moderator/update_category.html'
+    template_name = 'moderator/category_form.html'
 
     def get(self, request, pk):
         instance = get_object_or_404(StoreCategory, pk=pk)

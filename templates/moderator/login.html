@@ -1,0 +1,81 @@
+{% load static %}
+<!doctype html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>تأكيد رمز التحقق | Marketplace</title>
+    <link rel="stylesheet" href="{% static 'css/moderator/moderator.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+</head>
+
+<body>
+
+    <title>تسجيل الدخول</title>
+    <main class="wrap" style="width: min(500px, 100%);">
+        <section class="panel">
+            <div class="head">
+                <b>تسجيل الدخول</b>
+            </div>
+
+            <form action="{% url 'moderator_login' %}" method="post" class="grid">
+                {% csrf_token %}
+
+                {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                    <div class="msg {{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if form.errors %}
+                <div class="messages">
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                        <div class="msg error">{{ error }}</div>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <p style="text-align: center; color: var(--muted); font-size: 13px;">
+                    يرجى إدخال بيانات الدخول الخاصة بالمسؤول.
+                </p>
+
+                <div>
+                    <label for="adminEmail">البريد الإلكتروني</label>
+                    <div class="input-box">
+                        <input id="adminEmail" name="email" type="email" placeholder="admin@example.com" required autofocus />
+                    </div>
+                </div>
+
+                <div>
+                    <label for="adminPass">كلمة المرور</label>
+                    <div class="input-box">
+                        <input id="adminPass" name="password" type="password" placeholder="••••••••" required />
+                        <button type="button" class="toggle-pass" onclick="togglePassword('adminPass')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn" type="submit">تسجيل الدخول</button>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <script>
+        function togglePassword(id) {
+            const input = document.getElementById(id);
+            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+            input.setAttribute('type', type);
+        }
+    </script>
+</body>
+</html>
+

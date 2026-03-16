@@ -143,12 +143,10 @@ class LoginView(View):
             'seller_form': seller_form
         })
 
-
 class LogoutView(View):
     def get(self, request):
         logout(request)
         return redirect('home')
-
 
 class OtpCodeView(VerificationRequiredMixin,FormView):
     template_name = 'auth/otp.html'

@@ -6,6 +6,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from utils.helper import generate_code, get_expiration_time
 from utils.types import UserType, AdType, AdStatus, OrderStatus, CodeTypes
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 
 
 class CustomUser(AbstractUser):
@@ -30,7 +31,7 @@ class CustomUser(AbstractUser):
         if self.avatar and self.avatar.size > 2 * 1024 * 1024:  # 2MB in bytes
             raise ValidationError('حجم الصورة يجب أن لا يتجاوز 2 ميجابايت')
 
-        if self.avatar and not self.avatar.name.endswith(('.jpg', '.jpeg', '.png','webp')):
+        if self.avatar and not self.avatar.name.endswith(('.jpg', '.jpeg', '.png','webp', 'jfif')):
             raise ValidationError('يجب أن يكون الصورة بصيغة jpg أو jpeg أو png أو webp')
 
     def create_otp(self, code_type=CodeTypes.SIGNUP):

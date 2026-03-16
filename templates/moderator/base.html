@@ -10,8 +10,11 @@
     {% block extra_head %}{% endblock %}
 </head>
 <body>
+    <!-- Overlay for mobile sidebar -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
     <div class="mod-wrap">
-        <aside class="sidebar">
+        <aside class="sidebar" id="modSidebar">
             <div class="nav-brand">
                 <i class="fas fa-shield-alt"></i>
                 <span>لوحة التحكم</span>
@@ -45,7 +48,7 @@
             <div class="mod-topbar">
                 <div class="row">
                     <div class="topbar-actions">
-                        <button class="hamburger-btn" id="sidebarToggle">
+                        <button class="hamburger-btn" id="sidebarToggle" onclick="toggleSidebar('modSidebar')" type="button">
                             <i class="fas fa-bars"></i>
                         </button>
                         <button class="theme-toggle" id="theme-toggler">
@@ -74,16 +77,7 @@
 
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <script src="{% static 'js/theme-toggle.js' %}"></script>
-    <script>
-        // Sidebar Toggle
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        const sidebar = document.querySelector('.sidebar');
-        if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', () => {
-                sidebar.classList.toggle('active');
-            });
-        }
-    </script>
+    <script src="{% static 'js/moderator.js' %}"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

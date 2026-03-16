@@ -5,7 +5,7 @@ from .models import StoreCategory, OTPCode, ContactMessage, CustomUser
 from utils.validators import SyrianPhoneValidator
 from utils.types import UserType
 from django.contrib.auth import authenticate
-from .models import Product, Offer, SponsoredAd, Order
+from .models import Product, Offer, SponsoredAd, Order, Vendor
 
 User = get_user_model()
 
@@ -59,6 +59,32 @@ class SellerLoginForm(forms.Form):
                 raise ValidationError("خطأ في البريد الإلكتروني أو كلمة المرور.")
             if not user.is_seller:
                 raise ValidationError("هذا الحساب ليس حساب بائع.")
+            cleaned_data['user'] = user
+        return cleaned_data
+
+class ModeratorLoginForm(forms.Form):
+    email = forms.EmailField(widget=forms.EmailInput(attrs={
+        'id': 'adminEmail',
+        'placeholder': 'admin@example.com',
+        'required': True
+    }))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={
+        'id': 'adminPass',
+        'placeholder': '••••••••',
+        'required': True
+    }))
+
+    def clean(self):
+        cleaned_data = super().clean()
+        email = cleaned_data.get('email')
+        password = cleaned_data.get('password')
+
+        if email and password:
+            user = authenticate(username=email, password=password)
+            if not user:
+                raise ValidationError("خطأ في البريد الإلكتروني أو كلمة المرور.")
+            if user.user_type != 'admin':
+                raise ValidationError("هذا الحساب ليس حساب مسؤول.")
             cleaned_data['user'] = user
         return cleaned_data
 
@@ -231,6 +257,12 @@ class ModeratorForm(forms.ModelForm):
         return cleaned_data
 
 
+
+
+class ModeratorVendorForm(forms.ModelForm):
+    class Meta:
+        model = Vendor
+        fields = ['store_name', 'category', 'address', 'phone', 'is_active', 'avatar']
 
 
 class ProductForm(forms.ModelForm):

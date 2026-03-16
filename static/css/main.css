@@ -204,6 +204,7 @@ select,
 textarea {
     width: 100%;
     padding: 12px 12px;
+    background-color: var(--card);
     border-radius: 14px;
     border: 1px solid var(--line);
     color: var(--text);

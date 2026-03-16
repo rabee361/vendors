@@ -15,7 +15,7 @@
     <div class="filters">
         <a href="{% url 'category_add' %}" class="btn accent" style="text-decoration: none; display: flex; align-items: center; gap: 8px;">
             <i class="fas fa-plus"></i>
-            إضافة مشرف
+            إضافة تصنيف
         </a>
     </div>
 </div>
@@ -40,7 +40,7 @@
                         <a href="{% url 'category_update' category.id %}" style="color: var(--accent);" title="تعديل">
                             <i class="fas fa-pen-to-square"></i>
                         </a>
-                        <a href="{% url 'category_delete' category.id %}" style="color: var(--danger);" title="حذف" onclick="alert('هل أنت متأكد من حذف هذا المشرف؟')">
+                        <a href="{% url 'category_delete' category.id %}" style="color: var(--danger);" title="حذف" onclick="return confirm('هل أنت متأكد من حذف هذا التصنيف؟')">
                             <i class="fas fa-trash-can"></i>
                         </a>
                     </div>

@@ -1,8 +1,8 @@
 {% extends 'moderator/base.html' %}
 {% load static %}
 
-{% block title %}تعديل بيانات المشرف{% endblock %}
-{% block header %}تعديل مشرف: {{ object.username }}{% endblock %}
+{% block title %}{% if object %}تعديل بيانات المشرف{% else %}إضافة مشرف جديد{% endif %}{% endblock %}
+{% block header %}{% if object %}تعديل المشرف{% else %}إضافة مشرف{% endif %}{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/moderator/forms.css' %}">
@@ -34,7 +34,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label>تغيير كلمة المرور (اختياري)</label>
+                    <label>كلمة المرور</label>
                     {{ form.password }}
                     {% if form.password.errors %}<span class="error">{{ form.password.errors.0 }}</span>{% endif %}
                 </div>
@@ -48,22 +48,22 @@
                     <label>الصورة الشخصية</label>
                     <div class="avatar-upload">
                         <div class="preview" id="avatarPreview">
-                            {% if object.avatar %}
-                                <img src="{{ object.avatar.url }}" style="width:100%; height:100%; border-radius:inherit; object-fit:cover;">
+                            {% if object and object.avatar %}
+                                <img src="{{ object.avatar.url }}" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;">
                             {% else %}
                                 <i class="fas fa-cloud-upload-alt"></i>
                             {% endif %}
                         </div>
                         <div class="upload-btn">
                             {{ form.avatar }}
-                            <span>تغيير الصورة</span>
+                            <span>اختر صورة</span>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn accent">تحديث البيانات</button>
+                <button type="submit" class="btn accent">{% if object %}تحديث البيانات{% else %}حفظ البيانات{% endif %}</button>
                 <a href="{% url 'moderator_list' %}" class="btn muted" style="text-decoration: none;">إلغاء</a>
             </div>
         </form>

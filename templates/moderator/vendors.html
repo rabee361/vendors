@@ -54,10 +54,10 @@
                 </td>
                 <td>
                     <div style="display: flex; gap: 12px; font-size: 18px;">
-                        <a href="#" style="color: var(--accent);" title="تعديل">
+                        <a href="{% url 'moderator_vendor_update' vendor.id %}" style="color: var(--accent);" title="تعديل">
                             <i class="fas fa-pen-to-square"></i>
                         </a>
-                        <a href="#" style="color: var(--danger);" title="حذف">
+                        <a href="{% url 'moderator_vendor_delete' vendor.id %}" style="color: var(--danger);" title="حذف" onclick="return confirm('هل أنت متأكد من حذف هذا البائع؟')">
                             <i class="fas fa-trash-can"></i>
                         </a>
                     </div>

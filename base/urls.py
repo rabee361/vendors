@@ -28,7 +28,11 @@ basePatterns = [
 
 moderatorPatterns = [
     path('', moderators.ModeratorStatsView.as_view(), name='moderator_stats'),
+    path('login/', moderators.ModeratorLoginView.as_view(), name='moderator_login'),
+    path('logout/', moderators.ModeratorLogoutView.as_view(), name='moderator_logout'),
     path('vendors/', moderators.ModeratorVendorsView.as_view(), name='moderator_vendors'),
+    path('vendors/update/<int:pk>/', moderators.ModeratorVendorUpdateView.as_view(), name='moderator_vendor_update'),
+    path('vendors/delete/<int:pk>/', moderators.ModeratorVendorDeleteView.as_view(), name='moderator_vendor_delete'),
     path('list/', moderators.ModeratorListView.as_view(), name='moderator_list'),
     path('update/<int:pk>/', moderators.ModeratorUpdateView.as_view(), name='moderator_update'),
     path('categories/', moderators.ModeratorCategoriesView.as_view(), name='moderator_categories'),
