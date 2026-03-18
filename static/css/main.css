@@ -684,6 +684,14 @@ datalist option {
   color: #ffe9b7;
 }
 
+.pimg .badge.left {
+  right: auto;
+  left: 12px;
+  background: rgba(110, 168, 255, 0.9);
+  border-color: rgba(110, 168, 255, 0.35);
+  color: #fff;
+}
+
 .pmeta {
   display: flex;
   align-items: center;

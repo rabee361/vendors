@@ -4,6 +4,9 @@
             {% if product.is_sponsored_badge %}
             <span class="badge">ممول</span>
             {% endif %}
+            {% if product.is_ad_badge %}
+            <span class="badge left">اعلان</span>
+            {% endif %}
             {% if product.image %}
             <img src="{{ product.image.url }}" alt="{{ product.name }}">
             {% else %}

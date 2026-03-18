@@ -154,7 +154,7 @@ class SponsoredAd(models.Model):
     tenant = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='ads')
     ad_type = models.CharField(max_length=20, choices=AdType.choices)
     budget = models.DecimalField(max_digits=10, decimal_places=2)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_ads')
     days_count = models.PositiveIntegerField()
     status = models.CharField(max_length=20, choices=AdStatus.choices, default=AdStatus.PENDING)
     start_date = models.DateField(auto_now_add=True)

@@ -38,12 +38,13 @@ moderatorPatterns = [
     path('vendors/delete/<int:pk>/', moderators.ModeratorVendorDeleteView.as_view(), name='moderator_vendor_delete'),
     path('list/', moderators.ModeratorListView.as_view(), name='moderator_list'),
     path('update/<int:pk>/', moderators.ModeratorUpdateView.as_view(), name='moderator_update'),
-    path('categories/', moderators.ModeratorCategoriesView.as_view(), name='moderator_categories'),
     path('add/', moderators.ModeratorAddView.as_view(), name='moderator_add'),
     path('delete/<int:pk>/', moderators.ModeratorDeleteView.as_view(), name='moderator_delete'),
+    path('categories/', moderators.ModeratorCategoriesView.as_view(), name='moderator_categories'),
     path('categories/add/', moderators.ModeratorCategoryAddView.as_view(), name='category_add'),
     path('categories/update/<int:pk>/', moderators.ModeratorCategoryUpdateView.as_view(), name='category_update'),
     path('categories/delete/<int:pk>/', moderators.ModeratorCategoryDeleteView.as_view(), name='category_delete'),
+    path('messages/', moderators.ModeratorMessagesView.as_view(), name='moderator_messages'),
 ]
 
 vendorPatterns = [

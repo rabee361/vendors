@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import FormView, View
 from django.core.paginator import Paginator
+from django.db.models import Exists, OuterRef
 
 from django.contrib.auth import login, logout, authenticate ,get_user_model
 from django.contrib import messages
@@ -47,9 +48,19 @@ class HomeView(View):
         if rating:
             products = products.filter(rating__gte=rating)
 
+        products = products.annotate(
+            is_ad_badge=Exists(
+                SponsoredAd.objects.filter(
+                    product=OuterRef('pk'), 
+                    ad_type=AdType.BADGE, 
+                    status=AdStatus.ACTIVE
+                )
+            )
+        )
+
         vendors = Vendor.objects.select_related('category').filter(is_active=True)[:3]
         offers = Offer.objects.all()[:3]
-        ads = SponsoredAd.objects.all()[:3]
+        ads = SponsoredAd.objects.filter(ad_type=AdType.SECTION)[:3]
         categories = ProductCategory.objects.all()[:4]
         context = { 
             'vendors': vendors,
@@ -162,7 +173,7 @@ class OtpCodeView(FormView):
         self.request.session['signup_email'] = email
         
         # Send OTP Email
-        # send_otp_email(otp_code, email)
+        send_otp_email(otp_code, email)
         
         return super().form_valid(form)
 
@@ -194,13 +205,8 @@ class VerifyOtpView(View):
                     try:
                         user = User.objects.get(email=email)
                         if user:
-                            print("User found, verifying...")
-                            print(f"User before verification: {user.is_verified}")
-                            print(f"OTP code: {otp.code}, is_used: {otp.is_used}, is_expired: {otp.is_expired}")
                             user.is_verified = True
                             user.save()
-                            print(f"User after verification: {user.is_verified}")
-                            print("Verification successful, logging in user...")
                             authenticate(request, username=user.email, password=None)
                             login(request, user)
                             if user.user_type == UserType.SELLER:
@@ -273,6 +279,16 @@ class ProductListView(View):
             products_list = products_list.filter(price__lte=max_price)
         if rating:
             products_list = products_list.filter(rating__gte=rating)
+
+        products_list = products_list.annotate(
+            is_ad_badge=Exists(
+                SponsoredAd.objects.filter(
+                    product=OuterRef('pk'), 
+                    ad_type=AdType.BADGE, 
+                    status=AdStatus.ACTIVE
+                )
+            )
+        )
 
         paginator = Paginator(products_list, self.paginate_by)
         page_number = request.GET.get('page')

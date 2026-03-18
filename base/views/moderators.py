@@ -200,3 +200,13 @@ class ModeratorCategoryDeleteView(ModeratorRequiredMixin, View):
         instance = get_object_or_404(StoreCategory, pk=pk)
         instance.delete()
         return redirect('moderator_categories')
+
+class ModeratorMessagesView(ModeratorRequiredMixin, View):
+    def get(self, request):
+        query = request.GET.get('q')
+        if query:
+            messages = Message.objects.filter(name__icontains=query)
+        else:
+            messages = Message.objects.all()
+        messages = messages.order_by('name')
+        return render(request, 'moderator/messages.html', {'messages': messages})

@@ -56,6 +56,13 @@
     <div class="grid3">
       {% for offer in offers %}
       <article class="card">
+        <div class="pimg">
+          {% if offer.product.image %}
+          <img src="{{ offer.product.image.url }}" alt="{{ offer.product.name }}">
+          {% else %}
+          <div class="placeholder"><i class="fas fa-image"></i></div>
+          {% endif %}
+        </div>
         <div class="pad">
           <span class="tag good">خصم {{ offer.discount }}%</span>
           <h3 style="margin:10px 0 6px">{{ offer.product.name }}</h3>

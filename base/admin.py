@@ -94,6 +94,10 @@ class VendorStatsAdmin(admin.ModelAdmin):
     list_display = ('id','tenant', 'week_start', 'views', 'sales_total')
     list_filter = ('tenant',)
 
+@admin.register(SponsoredAd)
+class SponsoredAdAdmin(admin.ModelAdmin):
+    list_display = ('id', 'product', 'ad_type', 'budget', 'days_count')
+
 @admin.register(OTPCode)
 class OTPCodeAdmin(admin.ModelAdmin):
     list_display = ('id','email', 'code', 'code_type', 'is_used', 'created_at', 'expires_at')

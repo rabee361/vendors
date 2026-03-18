@@ -1,21 +1,24 @@
-from django.core.mail import send_mail
+import requests
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from django.conf import settings
 
 def send_otp_email(otp_code, email):
+    webhook_url = "https://rabeehasan.online/n8n/webhook/30657344-665f-4bb8-a7ad-a8fa5f87c38f"
+    
     subject = 'رمز التحقق من بريدك الإلكتروني'
     html_message = render_to_string('emails/email_code.html', {
         'otp_code': otp_code
     })
-    plain_message = strip_tags(html_message)
-    from_email = 'example@gmail.com'
-    recipient_list = [email]
-
-    send_mail(
-        subject=subject,
-        message=plain_message,
-        from_email=from_email,
-        recipient_list=recipient_list,
-        html_message=html_message,
-        fail_silently=False
-    )
+    
+    payload = {
+        "email": email,
+        "subject": subject,
+        "body": html_message
+    }
+    
+    try:
+        response = requests.post(webhook_url, json=payload)
+        response.raise_for_status()
+    except Exception as e:
+        print(f"Error sending email via n8n: {e}")

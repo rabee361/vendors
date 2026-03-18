@@ -100,7 +100,7 @@ class VendorSignupView(FormView):
         self.request.session['signup_email'] = user.email
         
         # Send OTP Email
-        # send_otp_email(otp_code, user.email)
+        send_otp_email(otp_code, user.email)
         return redirect('verify_otp')
 
 
