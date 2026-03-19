@@ -20,14 +20,25 @@
         <thead>
             <tr>
                 <th>الاسم</th>
-                <th>الوصف</th>
+                <th>الايميل</th>
+                <th>الاجراءات</th>
             </tr>
         </thead>
         <tbody>
             {% for message in messages %}
             <tr>    
                 <td>{{ message.name }}</td>
-                <td>{{ message.description }}</td>
+                <td>{{ message.email }}</td>
+                <td>
+                    <div style="display: flex; gap: 12px; font-size: 18px;">
+                        <a href="{% url 'message_update' message.id %}" style="color: var(--accent);" title="تعديل">
+                            <i class="fas fa-pen-to-square"></i>
+                        </a>
+                        <a href="{% url 'message_delete' message.id %}" style="color: var(--danger);" title="حذف" onclick="return confirm('هل أنت متأكد من حذف هذا التصنيف؟')">
+                            <i class="fas fa-trash-can"></i>
+                        </a>
+                    </div>
+                </td>
             </tr>
             {% empty %}
             <tr>

@@ -244,6 +244,11 @@ class CategoryForm(forms.ModelForm):
         model = StoreCategory
         fields = ['name', 'slug', 'description']
 
+class MessageForm(forms.ModelForm):
+    class Meta:
+        model = ContactMessage
+        fields = ['name', 'message', 'email']
+
 
 class ModeratorForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput(), required=False)

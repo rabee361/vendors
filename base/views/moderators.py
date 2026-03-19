@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.db.models import Q, Count
 from django.urls import reverse_lazy
-from ..models import Vendor, Product, Order, CustomUser, Buyer, StoreCategory
-from ..forms import CategoryForm, ModeratorForm, ModeratorLoginForm, ModeratorVendorForm
+from ..models import Vendor, Product, Order, CustomUser, Buyer, StoreCategory, ContactMessage
+from ..forms import CategoryForm, ModeratorForm, ModeratorLoginForm, ModeratorVendorForm, MessageForm
 from utils.mixins import ModeratorRequiredMixin
 from django.contrib.auth import login, logout
 
@@ -205,8 +205,28 @@ class ModeratorMessagesView(ModeratorRequiredMixin, View):
     def get(self, request):
         query = request.GET.get('q')
         if query:
-            messages = Message.objects.filter(name__icontains=query)
+            messages = ContactMessage.objects.filter(name__icontains=query)
         else:
-            messages = Message.objects.all()
+            messages = ContactMessage.objects.all()
         messages = messages.order_by('name')
         return render(request, 'moderator/messages.html', {'messages': messages})
+
+class ModeratorMessageUpdateView(ModeratorRequiredMixin, View):
+    template_name = 'moderator/message_form.html'
+    def get(self, request, pk):
+        instance = get_object_or_404(ContactMessage, pk=pk)
+        form = MessageForm(instance=instance)
+        return render(request, self.template_name, {'form': form, 'object': instance})
+    def post(self, request, pk):
+        instance = get_object_or_404(ContactMessage, pk=pk)
+        form = MessageForm(request.POST, request.FILES, instance=instance)
+        if form.is_valid():
+            form.save()
+            return redirect('message_list')
+        return render(request, self.template_name, {'form': form, 'object': instance})
+
+class ModeratorMessageDeleteView(ModeratorRequiredMixin, View):
+    def get(self, request, pk):
+        instance = get_object_or_404(ContactMessage, pk=pk)
+        instance.delete()
+        return redirect('message_list')

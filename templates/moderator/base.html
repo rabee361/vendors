@@ -37,6 +37,10 @@
                     <i class="fas fa-shield-halved"></i>
                     <span>المشرفين</span>
                 </a>
+                <a href="{% url 'message_list' %}" class="nav-item {% if request.resolver_match.url_name == 'message_list' %}active{% endif %}">
+                    <i class="fas fa-message"></i>
+                    <span>الرسائل</span>
+                </a>
                 <a href="{% url 'moderator_logout' %}" class="nav-item" style="margin-top: auto;">
                     <i class="fas fa-arrow-right-from-bracket"></i>
                     <span>تسجيل خروج</span>

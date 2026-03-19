@@ -54,9 +54,22 @@ class Command(BaseCommand):
         self.stdout.write("Generating Users...")
         
         # Admin
+        self.stdout.write("Generating Admins...")
+        
+        # Default Super User
+        admin_email = 'admin@admin.admin'
+        if not User.objects.filter(email=admin_email).exists():
+            User.objects.create_superuser(
+                username='admin',
+                email=admin_email,
+                password='admin'
+            )
+            self.stdout.write(self.style.SUCCESS(f"Created default superuser: {admin_email}"))
+
+        # Other Admins
         for i in range(2):
             email = f"admin_{i}@honeybunny.online"
-            if not User.objects.filter(username=email).exists():
+            if not User.objects.filter(email=email).exists():
                 User.objects.create_user(
                     username=email,
                     email=email,
@@ -138,20 +151,22 @@ class Command(BaseCommand):
                 available_products = PRODUCT_NAMES.get(store_cat_name, ["General Product"])
                 
                 for i in range(random.randint(3, 6)):
-                    prod_name = f"{random.choice(available_products)} {random.randint(1, 100)}"
-                    product = Product.objects.create(
+                    prod_name = f"{vendor.store_name} {random.choice(available_products)} {random.randint(1, 1000)}"
+                    product, created = Product.objects.get_or_create(
                         tenant=vendor,
                         name=prod_name,
-                        description=random.choice(DESCRIPTIONS),
-                        price=random.uniform(15.0, 450.0),
-                        stock=random.randint(10, 200),
-                        category=p_cat,
-                        rating=random.uniform(3.8, 5.0),
-                        rating_count=random.randint(5, 150),
-                        is_active=True
+                        defaults={
+                            'description': random.choice(DESCRIPTIONS),
+                            'price': random.uniform(15.0, 450.0),
+                            'stock': random.randint(10, 200),
+                            'category': p_cat,
+                            'rating': random.uniform(3.8, 5.0),
+                            'rating_count': random.randint(5, 150),
+                            'is_active': True
+                        }
                     )
                     
-                    if os.path.exists(placeholder_path):
+                    if created and os.path.exists(placeholder_path):
                         with open(placeholder_path, 'rb') as f:
                             product.image.save('placeholder.jfif', File(f), save=True)
                     
@@ -180,11 +195,13 @@ class Command(BaseCommand):
         self.stdout.write("Generating Ads...")
         if all_products:
             for _ in range(5):
+                 product = random.choice(all_products)
                  SponsoredAd.objects.create(
+                    tenant=product.tenant,
                     ad_type=random.choice(AdType.values),
                     budget=random.uniform(100, 300),
                     days_count=random.randint(7, 14),
-                    product=random.choice(all_products),
+                    product=product,
                     status=AdStatus.ACTIVE
                 )
 
@@ -256,11 +273,9 @@ class Command(BaseCommand):
             
             # Messages
             ContactMessage.objects.create(
-                tenant=vendor,
                 name=f"Customer {random.randint(1, 100)}",
                 email=f"customer{random.randint(1, 100)}@example.com",
                 message="I have a question about my recent order. Can you please help?",
-                is_read=random.choice([True, False])
             )
 
         # 11. OTP Codes
