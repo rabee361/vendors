@@ -184,7 +184,6 @@ class Command(BaseCommand):
                         defaults={
                             'tenant': vendor,
                             'discount': random.randint(10, 40),
-                            'original_price': prod.price,
                             'start_date': date.today(),
                             'end_date': date.today() + timedelta(days=random.randint(7, 30)),
                             'is_active': True
@@ -233,6 +232,12 @@ class Command(BaseCommand):
                 tenant=vendor,
                 order_number=order_num,
                 total=0,
+                full_name=f"Customer {i}",
+                email=f"customer_{i}@example.com",
+                phone=f"+9639{random.randint(30000000, 99999999)}",
+                city=random.choice(CITIES),
+                address=f"Street {random.randint(1, 50)}, House {random.randint(1, 100)}",
+                notes=random.choice(["Please call before delivery", "Leave at the door", "Fragile items", None]),
                 shipping_cost=shipping,
                 status='preparing'
             )

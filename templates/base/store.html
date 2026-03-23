@@ -56,8 +56,8 @@
     <section class="hero">
       <div class="pad">
         <div>
-          <h1 style="margin:0 0 6px; font-size:22px">TechZone</h1>
-          <div class="muted">إلكترونيات • تقييم 4.8 • شحن سريع</div>
+          <h1 style="margin:0 0 6px; font-size:22px">{{ vendor.name }}</h1>
+          <div class="muted">{{ vendor.category.name }} • تقييم {{ vendor.rating }} • شحن سريع</div>
         </div>
         <a class="btn" href="index.html#cart">عرض السلة</a>
       </div>
@@ -67,41 +67,23 @@
     <p class="muted" style="margin:0; line-height:1.8">هنا تظهر كل منتجات البائع المختار.</p>
 
     <div class="grid">
+      {% for product in vendor_products %}
       <article class="card">
-        <div class="pimg"></div>
+        <div class="pimg">
+          {% if product.image %}
+          <img src="{{ product.image.url }}" alt="{{ product.name }}">
+          {% endif %}
+        </div>
         <div class="pad">
-          <b>سماعات Pro ANC</b>
-          <div class="muted">⭐ 4.7</div>
+          <b>{{ product.name }}</b>
+          <div class="muted">⭐ {{ product.rating }}</div>
           <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px">
-            <span class="price">$59</span>
-            <a class="btn" href="product.html">تفاصيل</a>
+            <span class="price">{{ product.price }}</span>
+            <a class="btn" href="{% url 'product_detail' product.id %}">تفاصيل</a>
           </div>
         </div>
       </article>
-
-      <article class="card">
-        <div class="pimg"></div>
-        <div class="pad">
-          <b>شاحن سريع 30W</b>
-          <div class="muted">⭐ 4.9</div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px">
-            <span class="price">$19</span>
-            <a class="btn" href="product.html">تفاصيل</a>
-          </div>
-        </div>
-      </article>
-
-      <article class="card">
-        <div class="pimg"></div>
-        <div class="pad">
-          <b>ساعة ذكية S</b>
-          <div class="muted">⭐ 4.6</div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px">
-            <span class="price">$79</span>
-            <a class="btn" href="product.html">تفاصيل</a>
-          </div>
-        </div>
-      </article>
+      {% endfor %}
     </div>
   </div>
 </body>

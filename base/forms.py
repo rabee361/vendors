@@ -291,7 +291,7 @@ class ProductForm(forms.ModelForm):
 class OfferForm(forms.ModelForm):
     class Meta:
         model = Offer
-        fields = ['product', 'discount', 'original_price', 'start_date', 'end_date']
+        fields = ['product', 'discount', 'start_date', 'end_date']
         widgets = {
             'start_date': forms.DateInput(attrs={'type': 'date'}),
             'end_date': forms.DateInput(attrs={'type': 'date'}),

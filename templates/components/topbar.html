@@ -34,6 +34,10 @@
             {% else %}
             <a class="iconbtn" href="{% url 'login' %}" aria-label="الحساب"><i class="far fa-user"></i></a>
             {% endif %}
+
+            {% if user.is_seller %}
+            <a class="iconbtn" href="{% url 'vendor_dashboard' %}" title="لوحة التحكم"><i class="fa-solid fa-store"></i></a>
+            {% endif %}
             </div>
         </div>
     </div>

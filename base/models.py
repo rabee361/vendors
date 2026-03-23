@@ -1,4 +1,6 @@
+from pickle import TRUE
 from django.db import models
+from decimal import Decimal
 from django.conf import settings
 from django.utils.text import slugify
 from django.contrib.auth.models import AbstractUser
@@ -133,11 +135,22 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def current_price(self):
+        today = timezone.now().date()
+        active_offer = self.offers.filter(
+            is_active=True,
+            start_date__lte=today,
+            end_date__gte=today
+        ).first()
+        if active_offer:
+            return active_offer.get_discounted_price()
+        return self.price
+
 class Offer(models.Model):
     tenant = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='offers', null=True, blank=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='offers')
     discount = models.PositiveIntegerField()
-    original_price = models.DecimalField(max_digits=10, decimal_places=2)
     start_date = models.DateField()
     end_date = models.DateField()
     is_active = models.BooleanField(default=True)
@@ -145,7 +158,10 @@ class Offer(models.Model):
 
     @property
     def discount_price(self):
-        return f"{self.original_price - (self.original_price * self.discount / 100):.2f}"
+        return f"{self.get_discounted_price():.2f}"
+
+    def get_discounted_price(self):
+        return self.product.price - (self.product.price * Decimal(self.discount) / Decimal(100))
 
     def __str__(self):
         return f"{self.discount}% off {self.product.name}"
@@ -201,6 +217,12 @@ class Order(models.Model):
     tenant = models.ForeignKey(Vendor, on_delete=models.CASCADE, null=True)
     order_number = models.CharField(max_length=20, unique=True)
     total = models.DecimalField(max_digits=10, decimal_places=2)
+    notes = models.TextField(blank=True, null=True)
+    address = models.CharField(max_length=255)
+    city = models.CharField(max_length=100)
+    full_name = models.CharField(max_length=150)
+    phone = models.CharField(max_length=15)
+    email = models.EmailField()
     shipping_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='preparing')
     created_at = models.DateTimeField(auto_now_add=True)

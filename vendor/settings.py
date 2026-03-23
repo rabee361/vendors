@@ -140,9 +140,6 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 # Authentication
 AUTH_USER_MODEL = "base.CustomUser"
-LOGIN_URL = "/login/"
-LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "/"
 
 
 handler404 = 'base.views.base.handler404'

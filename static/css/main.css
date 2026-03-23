@@ -123,7 +123,7 @@ header {
 
 .btn2.primary {
     border-color: rgba(110, 168, 255, .35);
-    background: linear-gradient(135deg, rgba(110, 168, 255, .22), rgba(57, 217, 138, .10));
+    background: rgba(110, 168, 255, .22);
 }
 
 .iconbtn {
@@ -580,9 +580,7 @@ textarea::placeholder {
   justify-content: space-between;
   gap: 10px;
   padding: 14px;
-  background:
-    radial-gradient(120px 80px at 20% 30%, rgba(110, 168, 255, .18), transparent 70%),
-    var(--card);
+  background: var(--card);
 }
 
 .cat b {

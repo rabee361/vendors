@@ -8,17 +8,12 @@
 
   <!-- Hero -->
   <section class="hero" aria-label="بانر ترحيبي">
-      </div>
-
-      <!-- Stats now moved to bottom via CSS or layout change in next step -->
-    </div>
-    
     <div class="hero-footer">
       <div class="hero-stats">
-        <div class="stat-item"><b>+12K</b> <span>منتج متاح</span></div>
-        <div class="stat-item"><b>+340</b> <span>بائع موثوق</span></div>
-        <div class="stat-item"><b>خصم 40%</b> <span>عروض حصرية</span></div>
-        <div class="stat-item"><b>مميز</b> <span>منتجات مختارة</span></div>
+        <div class="stat-item"><b>{{ product_count }}+</b> <span>منتج متاح</span></div>
+        <div class="stat-item"><b>{{ vendor_count }}+</b> <span>بائع موثوق</span></div>
+        <div class="stat-item"><b>{{ orders_count }}+</b> <span>طلبات</span></div>
+        <div class="stat-item"><b>{{ category_count }}+</b> <span>تصنيفات</span></div>
       </div>
     </div>
   </section>
@@ -35,10 +30,11 @@
 
     <div class="grid4">
       {% for category in categories %}
-      <a class="card cat" href="{% url 'product_list' %}?category={{ category.name }}">
+      <div class="card cat" >
         <div><b>{{ category.name }}</b><span>{{ category.description|truncatewords:5 }}</span></div>
-        <span class="arrow">←</span>
-      </a>
+        <a class="btn2 primary" href="{% url 'product_list' %}?category={{ category.name }}" aria-label="عرض المتجر"><span class="arrow"><i class="fas fa-arrow-left"></i></span></a>
+      </div>
+
       {% endfor %}
     </div>
   </section>
@@ -68,8 +64,8 @@
           <h3 style="margin:10px 0 6px">{{ offer.product.name }}</h3>
           <div class="muted">{{ offer.product.description }}</div>
           <div class="pmeta">
-            <b class="price">${{ offer.original_price }}</b>
-            <span class="muted"><s>${{ offer.discount_price }}</s></span>
+            <b class="price">${{ offer.discount_price }}</b>
+            <span class="muted"><s>${{ offer.product.price }}</s></span>
           </div>
           <div class="pactions">
             <a class="paction-btn view" href="{% url 'product' offer.product.id %}" aria-label="عرض التفاصيل"><i class="fas fa-eye"></i></a>
@@ -106,7 +102,7 @@
           <div class="muted">من متجر: {{ ad.vendor.store_name }}</div>
           <h3 style="margin:6px 0">{{ ad.product }}</h3>
           <div class="pmeta">
-            <span class="stars">{{ ad.product.rating }}</span>
+            <span class="stars"> ⭐ {{ ad.product.rating }}</span>
             <b class="price">${{ ad.product.price }}</b>
           </div>
           <div class="pactions">
@@ -210,7 +206,7 @@
               <b>{{ vendor.store_name }}</b>
               <span>{{ vendor.category.name|default:"عام" }} • تقييم {{ vendor.rating|default:"0.0" }}</span>
             </div>
-            <a class="btn2 primary" href="{% url 'vendor' vendor.id %} " aria-label="عرض المتجر"><span class="arrow"><i class="fas fa-arrow-left"></i></span></a>
+            <a class="btn2 primary" href="{% url 'vendor_store' vendor.id %} " aria-label="عرض المتجر"><span class="arrow"><i class="fas fa-arrow-left"></i></span></a>
           </div>
         </div>
       </article>

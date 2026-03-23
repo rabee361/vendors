@@ -59,7 +59,7 @@ class CartService:
             if not cart_obj.session_key and self.request.session.session_key:
                 cart_obj.session_key = self.request.session.session_key
                 cart_obj.save()
-            items = cart_obj.items.select_related('product', 'product__tenant').all()
+            items = cart_obj.items.select_related('product', 'product__tenant').prefetch_related('product__offers').all()
             for item in items:
                 vendor = item.product.tenant
                 if vendor not in grouped_items:
@@ -67,10 +67,12 @@ class CartService:
                         'items': [],
                         'subtotal': 0
                     }
-                item_total = item.quantity * item.product.price
+                current_price = item.product.current_price
+                item_total = item.quantity * current_price
                 grouped_items[vendor]['items'].append({
                     'product': item.product,
                     'quantity': item.quantity,
+                    'price': current_price,
                     'total': item_total,
                     'id': item.id
                 })
@@ -80,7 +82,7 @@ class CartService:
                 
         else:
             product_ids = self.cart.keys()
-            products = Product.objects.select_related('tenant').filter(id__in=product_ids)
+            products = Product.objects.select_related('tenant').prefetch_related('offers').filter(id__in=product_ids)
             for product in products:
                 quantity = self.cart[str(product.id)]
                 vendor = product.tenant
@@ -89,10 +91,12 @@ class CartService:
                         'items': [],
                         'subtotal': 0
                     }
-                item_total = quantity * product.price
+                current_price = product.current_price
+                item_total = quantity * current_price
                 grouped_items[vendor]['items'].append({
                     'product': product,
                     'quantity': quantity,
+                    'price': current_price,
                     'total': item_total,
                     'id': f"session_{product.id}"
                 })

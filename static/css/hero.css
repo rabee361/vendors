@@ -5,11 +5,6 @@
     border: 1px solid var(--line);
     border-radius: calc(var(--r) + 6px);
     overflow: hidden;
-    background:
-        linear-gradient(180deg, rgba(255, 255, 255, .03), transparent),
-        radial-gradient(900px 420px at 18% 20%, rgba(110, 168, 255, .28), transparent 62%),
-        radial-gradient(700px 380px at 85% 30%, var(--card), transparent 60%),
-        var(--bg);
     box-shadow: var(--shadow);
 }
 
@@ -37,7 +32,7 @@
 }
 
 .hero-footer {
-    background: rgba(0, 0, 0, .2);
+    background: var(--card);
     border-top: 1px solid var(--line);
     padding: 16px 26px;
 }

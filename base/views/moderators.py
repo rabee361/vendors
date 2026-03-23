@@ -118,7 +118,7 @@ class ModeratorAddView(ModeratorRequiredMixin, View):
     def get(self, request):
         form = ModeratorForm()
         return render(request, self.template_name, {'form': form})
-
+    
     def post(self, request):
         form = ModeratorForm(request.POST, request.FILES)
         if form.is_valid():

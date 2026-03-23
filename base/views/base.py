@@ -27,7 +27,12 @@ class HomeView(View):
         else:
             template_name = 'base/index.html'
 
-        message_form = MessageForm
+        message_form = MessageForm()
+
+        orders_count = Order.objects.count()
+        vendor_count = Vendor.objects.count()
+        product_count = Product.objects.count()
+        category_count = ProductCategory.objects.count()
 
         query = request.GET.get('q', '')
         category_name = request.GET.get('category', '')
@@ -73,6 +78,10 @@ class HomeView(View):
             'min_price': min_price,
             'max_price': max_price,
             'rating': rating,
+            'orders_count': orders_count,
+            'vendor_count': vendor_count,
+            'product_count': product_count,
+            'category_count': category_count,
             'message_form': message_form,
         }
         return render(request, template_name, context)
@@ -241,7 +250,8 @@ class VendorsView(View):
 class VendorDetailView(View):
     def get(self, request, vendor_id):
         vendor = Vendor.objects.get(id=vendor_id)
-        return render(request, "base/store.html", {'vendor': vendor})
+        vendor_products = Product.objects.filter(tenant=vendor)
+        return render(request, "base/store.html", {'vendor': vendor, 'vendor_products': vendor_products})
 
 class CategoriesView(View):
     def get(self, request):
@@ -263,9 +273,9 @@ class ProductListView(View):
 
         query = request.GET.get('q', '')
         category_name = request.GET.get('category', '')
-        min_price = request.GET.get('minPrice')
-        max_price = request.GET.get('maxPrice')
-        rating = request.GET.get('rating')
+        min_price = request.GET.get('minPrice','0')
+        max_price = request.GET.get('maxPrice','999999')
+        rating = request.GET.get('rating','')
 
         products_list = Product.objects.select_related('tenant', 'category', 'tenant__category').filter(is_active=True)
 
@@ -437,6 +447,12 @@ class CheckoutView(LoginRequiredMixin, View):
                 tenant=vendor,
                 order_number=str(uuid.uuid4()).split('-')[0].upper(),
                 total=data['subtotal'],
+                full_name=form.cleaned_data['full_name'],
+                email=form.cleaned_data['email'],
+                phone=form.cleaned_data['phone'],
+                city=form.cleaned_data['city'],
+                address=form.cleaned_data['address'],
+                notes=form.cleaned_data['notes'],
                 status='preparing'
             )
             
@@ -447,7 +463,7 @@ class CheckoutView(LoginRequiredMixin, View):
                     order=order,
                     product=item['product'],
                     quantity=item['quantity'],
-                    price_at_order=item['product'].price
+                    price_at_order=item['price']
                 )
             
             # Clear items for THIS vendor only
