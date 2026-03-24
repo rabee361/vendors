@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import TemplateView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
-from ..models import Product, Offer, Order, SponsoredAd, Vendor, StoreCategory, ProductCategory
+from ..models import Product, Offer, Order, SponsoredAd, Vendor, StoreCategory, ProductCategory, Favorite, CartItem
 from django.views.generic import FormView
 from ..forms import VendorSignupForm, ProductForm, OfferForm, SponsoredAdForm, OrderUpdateForm, ProductCategoryForm
 from utils.types import UserType, CodeTypes
@@ -14,26 +14,38 @@ from django.db.models import Q
 User = get_user_model()
 
 
+from django.db.models import Sum
+
 class VendorDashboardView(SellerRequiredMixin, View):
     def get(self, request):
-        vendor = Vendor.objects.filter(user=request.user).first()
+        vendor = get_object_or_404(Vendor, user=request.user)
         
         products = Product.objects.filter(tenant=vendor).order_by('-created_at')
         offers = Offer.objects.filter(tenant=vendor).order_by('-created_at')
         ads = SponsoredAd.objects.filter(product__tenant=vendor).order_by('-created_at')
         orders = Order.objects.filter(tenant=vendor).order_by('-created_at')
         
-        # Basic Stats (Fake for now as requested)
+        # Real Stats
         stats = {
             'product_count': products.count(),
-            'offers_count': offers.count(),
-            'ads_count': ads.count(),
+            'categories_count': ProductCategory.objects.filter(tenant=vendor).count(),
             'orders_count': orders.count(),
-            'monthly_sales': 0,
-            'visitor_growth': 0,
-            'avg_rating': 0,
-            'conversion_rate': 0,
+            'favorites_count': Favorite.objects.filter(product__tenant=vendor).count(),
+            'cart_count': CartItem.objects.filter(product__tenant=vendor).count(),
         }
+
+        # Enhanced Stats
+        top_rated = products.exclude(rating=0).order_by('-rating', '-rating_count').first()
+        
+        most_ordered = Product.objects.filter(tenant=vendor).annotate(
+            total_sold=Sum('orderitem__quantity')
+        ).filter(total_sold__gt=0).order_by('-total_sold').first()
+        
+        top_category = ProductCategory.objects.filter(tenant=vendor).annotate(
+            total_sold=Sum('product__orderitem__quantity')
+        ).filter(total_sold__gt=0).order_by('-total_sold').first()
+
+        print(stats)
         
         context = {
             'vendor': vendor,
@@ -42,6 +54,12 @@ class VendorDashboardView(SellerRequiredMixin, View):
             'ads': ads,
             'orders': orders,
             'stats': stats,
+            'enhanced_stats': {
+                'top_rated': top_rated,
+                'most_ordered': most_ordered,
+                'top_category': top_category,
+            },
+            'vendor_id': vendor.id,
         }
         
         return render(request, 'vendors/stats.html', context)
@@ -112,38 +130,46 @@ class ProductsListView(SellerRequiredMixin, View):
         if query:
             products = products.filter(Q(name__icontains=query))
         products = products.order_by('-created_at')
-        return render(request, 'vendors/products.html', {'products': products, 'stats': {'product_count': products.count()}})
+        context = {
+            'weekly_views':30,
+            'monthly_sales':100,
+            'products': products,
+            'product_count': products.count(),
+            'vendor_id': vendor.id
+        }
+        return render(request, 'vendors/products.html', context)
 
 class ProductAddView(SellerRequiredMixin, View):
     template_name = 'vendors/product_form.html'
     def get(self, request):
-        form = ProductForm()
-        return render(request, self.template_name, {'form': form, 'title': 'إضافة منتج'})
+        vendor = get_object_or_404(Vendor, user=request.user)
+        form = ProductForm(vendor=vendor)
+        return render(request, self.template_name, {'form': form, 'title': 'إضافة منتج', 'vendor_id': vendor.id})
     def post(self, request):
         vendor = get_object_or_404(Vendor, user=request.user)
-        form = ProductForm(request.POST, request.FILES)
+        form = ProductForm(request.POST, request.FILES, vendor=vendor)
         if form.is_valid():
             product = form.save(commit=False)
             product.tenant = vendor
             product.save()
             return redirect('vendor_products')
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.template_name, {'form': form, 'title': 'إضافة منتج', 'vendor_id': vendor.id})
 
 class ProductUpdateView(SellerRequiredMixin, View):
     template_name = 'vendors/product_form.html'
     def get(self, request, pk):
         vendor = get_object_or_404(Vendor, user=request.user)
         product = get_object_or_404(Product, pk=pk, tenant=vendor)
-        form = ProductForm(instance=product)
-        return render(request, self.template_name, {'form': form, 'title': 'تحديث المنتج', 'object': product})
+        form = ProductForm(instance=product, vendor=vendor)
+        return render(request, self.template_name, {'form': form, 'title': 'تحديث المنتج', 'object': product, 'vendor_id': vendor.id})
     def post(self, request, pk):
         vendor = get_object_or_404(Vendor, user=request.user)
         product = get_object_or_404(Product, pk=pk, tenant=vendor)
-        form = ProductForm(request.POST, request.FILES, instance=product)
+        form = ProductForm(request.POST, request.FILES, instance=product, vendor=vendor)
         if form.is_valid():
             form.save()
             return redirect('vendor_products')
-        return render(request, self.template_name, {'form': form, 'object': product})
+        return render(request, self.template_name, {'form': form, 'object': product, 'title': 'تحديث المنتج', 'vendor_id': vendor.id})
 
 class ProductDeleteView(SellerRequiredMixin, View):
     def get(self, request, pk):
@@ -160,7 +186,7 @@ class OrdersListView(SellerRequiredMixin, View):
         if query:
             orders = orders.filter(Q(order_number__icontains=query))
         orders = orders.order_by('-created_at')
-        return render(request, 'vendors/orders.html', {'orders': orders})
+        return render(request, 'vendors/orders.html', {'orders': orders, 'vendor_id': vendor.id})
 
 class OrderDeleteView(SellerRequiredMixin, View):
     def get(self, request, pk):
@@ -177,41 +203,39 @@ class OffersListView(SellerRequiredMixin, View):
         if query:
             offers = offers.filter(Q(product__name__icontains=query))
         offers = offers.order_by('-created_at')
-        return render(request, 'vendors/offers.html', {'offers': offers})
+        return render(request, 'vendors/offers.html', {'offers': offers, 'vendor_id': vendor.id})
 
 class OfferAddView(SellerRequiredMixin, View):
     template_name = 'vendors/offer_form.html' # Corrected template name
     def get(self, request):
         vendor = get_object_or_404(Vendor, user=request.user)
-        form = OfferForm()
-        form.fields['product'].queryset = Product.objects.filter(tenant=vendor)
-        return render(request, self.template_name, {'form': form, 'title': 'إضافة عرض'})
+        form = OfferForm(vendor=vendor)
+        return render(request, self.template_name, {'form': form, 'title': 'إضافة عرض', 'vendor_id': vendor.id})
     def post(self, request):
         vendor = get_object_or_404(Vendor, user=request.user)
-        form = OfferForm(request.POST)
+        form = OfferForm(request.POST, vendor=vendor)
         if form.is_valid():
             offer = form.save(commit=False)
             offer.tenant = vendor
             offer.save()
             return redirect('vendor_offers')
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.template_name, {'form': form, 'title': 'إضافة عرض', 'vendor_id': vendor.id})
 
 class OfferUpdateView(SellerRequiredMixin, View):
     template_name = 'vendors/offer_form.html'
     def get(self, request, pk):
         vendor = get_object_or_404(Vendor, user=request.user)
         offer = get_object_or_404(Offer, pk=pk, tenant=vendor)
-        form = OfferForm(instance=offer)
-        form.fields['product'].queryset = Product.objects.filter(tenant=vendor)
-        return render(request, self.template_name, {'form': form, 'title': 'تحديث العرض', 'object': offer})
+        form = OfferForm(instance=offer, vendor=vendor)
+        return render(request, self.template_name, {'form': form, 'title': 'تحديث العرض', 'object': offer, 'vendor_id': vendor.id})
     def post(self, request, pk):
         vendor = get_object_or_404(Vendor, user=request.user)
         offer = get_object_or_404(Offer, pk=pk, tenant=vendor)
-        form = OfferForm(request.POST, instance=offer)
+        form = OfferForm(request.POST, instance=offer, vendor=vendor)
         if form.is_valid():
             form.save()
             return redirect('vendor_offers')
-        return render(request, self.template_name, {'form': form, 'object': offer})
+        return render(request, self.template_name, {'form': form, 'object': offer, 'title': 'تحديث العرض', 'vendor_id': vendor.id})
 
 class OfferDeleteView(SellerRequiredMixin, View):
     def get(self, request, pk):
@@ -228,59 +252,58 @@ class AdsListView(SellerRequiredMixin, View):
         if query:
             ads = ads.filter(Q(product__name__icontains=query))
         ads = ads.order_by('-created_at')
-        return render(request, 'vendors/ads.html', {'ads': ads})
+        return render(request, 'vendors/ads.html', {'ads': ads, 'vendor_id': vendor.id})
 
 class AdAddView(SellerRequiredMixin, View):
     template_name = 'vendors/ad_form.html'
     def get(self, request):
         vendor = get_object_or_404(Vendor, user=request.user)
-        form = SponsoredAdForm()
-        form.fields['product'].queryset = Product.objects.filter(tenant=vendor)
-        return render(request, self.template_name, {'form': form, 'title': 'إنشاء إعلان'})
+        form = SponsoredAdForm(vendor=vendor)
+        return render(request, self.template_name, {'form': form, 'title': 'إنشاء إعلان', 'vendor_id': vendor.id})
     def post(self, request):
         vendor = get_object_or_404(Vendor, user=request.user)
-        form = SponsoredAdForm(request.POST)
+        form = SponsoredAdForm(request.POST, vendor=vendor)
         if form.is_valid():
             ad = form.save(commit=False)
             ad.tenant = vendor
             ad.save()
             return redirect('vendor_ads')
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.template_name, {'form': form, 'title': 'إنشاء إعلان', 'vendor_id': vendor.id})
 
 class AdUpdateView(SellerRequiredMixin, View):
     template_name = 'vendors/ad_form.html'
     def get(self, request, pk):
         vendor = get_object_or_404(Vendor, user=request.user)
         ad = get_object_or_404(SponsoredAd, pk=pk, product__tenant=vendor)
-        form = SponsoredAdForm(instance=ad)
-        form.fields['product'].queryset = Product.objects.filter(tenant=vendor)
-        return render(request, self.template_name, {'form': form, 'title': 'تحديث الإعلان', 'object': ad})
+        form = SponsoredAdForm(instance=ad, vendor=vendor)
+        return render(request, self.template_name, {'form': form, 'title': 'تحديث الإعلان', 'object': ad, 'vendor_id': vendor.id})
     def post(self, request, pk):
         vendor = get_object_or_404(Vendor, user=request.user)
         ad = get_object_or_404(SponsoredAd, pk=pk, product__tenant=vendor)
-        form = SponsoredAdForm(request.POST, instance=ad)
+        form = SponsoredAdForm(request.POST, instance=ad, vendor=vendor)
         if form.is_valid():
             ad = form.save(commit=False)
             ad.tenant = vendor
             ad.save()
             return redirect('vendor_ads')
-        return render(request, self.template_name, {'form': form, 'object': ad})
+        return render(request, self.template_name, {'form': form, 'object': ad, 'title': 'تحديث الإعلان', 'vendor_id': vendor.id})
 
 class OrderUpdateView(SellerRequiredMixin, View):
     template_name = 'vendors/order_form.html'
     def get(self, request, pk):
         vendor = get_object_or_404(Vendor, user=request.user)
-        order = get_object_or_404(Order, pk=pk, tenant=vendor)
+        order = get_object_or_404(Order.objects.prefetch_related('items__product'), pk=pk, tenant=vendor)
         form = OrderUpdateForm(instance=order)
-        return render(request, self.template_name, {'form': form, 'title': 'تحديث حالة الطلب', 'object': order})
+        return render(request, self.template_name, {'form': form, 'title': 'تحديث حالة الطلب', 'order': order, 'vendor_id': vendor.id})
+
     def post(self, request, pk):
         vendor = get_object_or_404(Vendor, user=request.user)
-        order = get_object_or_404(Order, pk=pk, tenant=vendor)
+        order = get_object_or_404(Order.objects.prefetch_related('items__product'), pk=pk, tenant=vendor)
         form = OrderUpdateForm(request.POST, instance=order)
         if form.is_valid():
             form.save()
             return redirect('vendor_orders')
-        return render(request, self.template_name, {'form': form, 'object': order})
+        return render(request, self.template_name, {'form': form, 'order': order, 'title': 'تحديث حالة الطلب', 'vendor_id': vendor.id})
 
 class AdDeleteView(SellerRequiredMixin, View):
     def get(self, request, pk):
@@ -289,22 +312,18 @@ class AdDeleteView(SellerRequiredMixin, View):
         ad.delete()
         return redirect('vendor_ads')
 
-class StatsListView(SellerRequiredMixin, View):
-    def get(self, request):
-        vendor = get_object_or_404(Vendor, user=request.user)
-        return render(request, 'vendors/stats.html', {'vendor': vendor})
-
 class CategoriesListView(SellerRequiredMixin, View):
     def get(self, request):
         vendor = get_object_or_404(Vendor, user=request.user)
-        categories = ProductCategory.objects.all().order_by('name')
-        return render(request, 'vendors/categories.html', {'categories': categories})
+        categories = ProductCategory.objects.filter(tenant=vendor).order_by('name')
+        return render(request, 'vendors/categories.html', {'categories': categories, 'vendor_id': vendor.id})
 
 class CategoryAddView(SellerRequiredMixin, View):
     template_name = 'vendors/category_form.html'
     def get(self, request):
+        vendor = get_object_or_404(Vendor, user=request.user)
         form = ProductCategoryForm()
-        return render(request, self.template_name, {'form': form, 'title': 'إضافة صنف'})
+        return render(request, self.template_name, {'form': form, 'title': 'إضافة صنف', 'vendor_id': vendor.id})
     def post(self, request):
         vendor = get_object_or_404(Vendor, user=request.user)
         form = ProductCategoryForm(request.POST)
@@ -313,7 +332,7 @@ class CategoryAddView(SellerRequiredMixin, View):
             category.tenant = vendor
             category.save()
             return redirect('vendor_categories')
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.template_name, {'form': form, 'title': 'إضافة صنف', 'vendor_id': vendor.id})
 
 
 class CategoryDeleteView(SellerRequiredMixin, View):
@@ -330,7 +349,7 @@ class CategoryUpdateView(SellerRequiredMixin, View):
         vendor = get_object_or_404(Vendor, user=request.user)
         category = get_object_or_404(ProductCategory, pk=pk, tenant=vendor)
         form = ProductCategoryForm(instance=category)
-        return render(request, self.template_name, {'form': form, 'title': 'تحديث الصنف', 'object': category})
+        return render(request, self.template_name, {'form': form, 'title': 'تحديث الصنف', 'object': category, 'vendor_id': vendor.id})
     def post(self, request, pk):
         vendor = get_object_or_404(Vendor, user=request.user)
         category = get_object_or_404(ProductCategory, pk=pk, tenant=vendor)
@@ -340,14 +359,4 @@ class CategoryUpdateView(SellerRequiredMixin, View):
             category.tenant = vendor
             category.save()
             return redirect('vendor_categories')
-        return render(request, self.template_name, {'form': form, 'title': 'تحديث الصنف', 'object': category})
-    def post(self, request, pk):
-        vendor = get_object_or_404(Vendor, user=request.user)
-        category = get_object_or_404(ProductCategory, pk=pk, product__tenant=vendor)
-        form = ProductCategoryForm(request.POST, instance=category)
-        if form.is_valid():
-            category = form.save(commit=False)
-            category.tenant = vendor
-            category.save()
-            return redirect('vendor_categorys')
-        return render(request, self.template_name, {'form': form, 'object': category})
+        return render(request, self.template_name, {'form': form, 'title': 'تحديث الصنف', 'object': category, 'vendor_id': vendor.id})

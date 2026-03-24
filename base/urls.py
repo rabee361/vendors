@@ -69,7 +69,6 @@ vendorPatterns = [
     path('orders/', vendor.OrdersListView.as_view(), name='vendor_orders'),
     path('orders/update/<int:pk>/', vendor.OrderUpdateView.as_view(), name='order_update'),
     path('orders/delete/<int:pk>/', vendor.OrderDeleteView.as_view(), name='order_delete'),
-    path('stats/', vendor.StatsListView.as_view(), name='vendor_stats'),
     path('store/<int:pk>/', vendor.VendorStoreView.as_view(), name='vendor_store'),
     path('signup/', vendor.VendorSignupView.as_view(), name='vendor_signup'),
 ]

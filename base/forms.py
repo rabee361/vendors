@@ -277,6 +277,12 @@ class ModeratorVendorForm(forms.ModelForm):
 
 
 class ProductForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        vendor = kwargs.pop('vendor', None)
+        super().__init__(*args, **kwargs)
+        if vendor:
+            self.fields['category'].queryset = ProductCategory.objects.filter(tenant=vendor)
+
     class Meta:
         model = Product
         fields = ['name', 'description', 'price', 'stock', 'category', 'image']
@@ -289,6 +295,12 @@ class ProductForm(forms.ModelForm):
         }
 
 class OfferForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        vendor = kwargs.pop('vendor', None)
+        super().__init__(*args, **kwargs)
+        if vendor:
+            self.fields['product'].queryset = Product.objects.filter(tenant=vendor)
+
     class Meta:
         model = Offer
         fields = ['product', 'discount', 'start_date', 'end_date']
@@ -298,6 +310,12 @@ class OfferForm(forms.ModelForm):
         }
 
 class SponsoredAdForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        vendor = kwargs.pop('vendor', None)
+        super().__init__(*args, **kwargs)
+        if vendor:
+            self.fields['product'].queryset = Product.objects.filter(tenant=vendor)
+
     class Meta:
         model = SponsoredAd
         fields = ['ad_type', 'budget', 'product', 'days_count', 'status']
@@ -305,7 +323,10 @@ class SponsoredAdForm(forms.ModelForm):
 class OrderUpdateForm(forms.ModelForm):
     class Meta:
         model = Order
-        fields = ['status']
+        fields = ['status','shipping_cost']
+        widgets = {
+            'shipping_cost': forms.NumberInput(attrs={'placeholder': 'تكلفة الشحن'}),
+        }
 
 class ProductCategoryForm(forms.ModelForm):
     class Meta:

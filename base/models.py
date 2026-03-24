@@ -240,6 +240,10 @@ class OrderItem(models.Model):
     def __str__(self):
         return f"{self.quantity} x {self.product.name if self.product else 'Deleted Product'}"
 
+    @property
+    def get_total(self):
+        return self.quantity * self.price_at_order
+
 class ContactMessage(models.Model):
     name = models.CharField(max_length=150)
     email = models.EmailField()

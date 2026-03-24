@@ -7,185 +7,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>لوحة البائع | Marketplace</title>
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
-  <link rel="stylesheet" href="{% static 'css/tables.css' %}">
+  <link rel="stylesheet" href="{% static 'css/vendor/main.css' %}">
+  <link rel="stylesheet" href="{% static 'css/vendor/breadcrumbs.css' %}">
+  <link rel="stylesheet" href="{% static 'css/vendor/tables.css' %}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <style>
-    /* Specific overrides for Dashboard */
-    :root {
-      --container: 1300px;
-    }
-
-    .shell {
-      display: grid;
-      grid-template-columns: 320px 1fr;
-      min-height: 100vh
-    }
-
-    .side {
-      border-left: 1px solid var(--line);
-      background: rgba(11, 18, 32, .70);
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      padding: 16px;
-    }
-
-    .nav {
-      margin-top: 12px;
-      display: grid;
-      gap: 8px
-    }
-
-    .nav a {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 11px 12px;
-      border-radius: 14px;
-      border: 1px solid var(--line);
-      background: rgba(255, 255, 255, .02);
-      color: var(--muted);
-      font-weight: 800;
-      font-size: 13px;
-    }
-
-    .nav a:hover {
-      color: var(--text);
-      border-color: rgba(110, 168, 255, .35)
-    }
-
-    .nav a.active {
-      color: var(--text);
-      background: linear-gradient(135deg, rgba(110, 168, 255, .20), rgba(57, 217, 138, .08));
-      border-color: rgba(110, 168, 255, .35);
-    }
-
-    .pill {
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, .14);
-      background: rgba(255, 255, 255, .03);
-      font-size: 12px;
-      font-weight: 900;
-      color: var(--text);
-    }
-
-    .pill.y {
-      border-color: rgba(255, 204, 102, .35);
-      background: rgba(255, 204, 102, .14);
-      color: #ffe9b7
-    }
-
-    .pill.g {
-      border-color: rgba(57, 217, 138, .35);
-      background: rgba(57, 217, 138, .12);
-      color: #c7ffe6
-    }
-
-    .main {
-      padding: 18px
-    }
-
-    .chips {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap
-    }
-
-    .grid2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px
-    }
-
-    .grid3 {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px
-    }
-
-    .kpi {
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 12px;
-      background: rgba(11, 18, 32, .45);
-    }
-
-    .kpi b {
-      display: block;
-      font-size: 18px
-    }
-
-    .kpi span {
-      display: block;
-      color: var(--muted);
-      font-size: 12px;
-      margin-top: 2px
-    }
-
-    datalist option {
-      background: #0b1220;
-      color: var(--text)
-    }
-
-    textarea {
-      min-height: 120px;
-      resize: vertical
-    }
-
-    .btn.ghost {
-      background: transparent;
-      border-color: var(--line);
-      color: var(--muted)
-    }
-
-    /* Sections switching without JS */
-    .section {
-      display: none;
-      margin-top: 14px
-    }
-
-    .section:first-of-type {
-      display: block
-    }
-
-    .section:target {
-      display: block
-    }
-
-    /* when a target exists, hide default first section */
-    .main:has(.section:target) .section:first-of-type {
-      display: none
-    }
-
-    /* :has دعم ممتاز بمتصفحات حديثة */
-
-    @media (max-width: 1080px) {
-      .shell {
-        grid-template-columns: 1fr
-      }
-
-      .side {
-        position: relative;
-        height: auto
-      }
-
-      .grid2 {
-        grid-template-columns: 1fr
-      }
-
-      .grid3 {
-        grid-template-columns: 1fr
-      }
-    }
-  </style>
 </head>
 
 <body>
+  <!-- Mobile Top Bar -->
+  <div class="mobile-topbar">
+    <div class="topbar-brand">
+      <img src="{{ user_vendor_profile.avatar.url }}" alt="Logo">
+      <span>{{ user_vendor_profile.store_name }}</span>
+    </div>
+    <button class="hamburger-btn" id="hamburger-btn" aria-label="فتح القائمة">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+  </div>
+
+  <!-- Sidebar Backdrop -->
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
   <div class="shell">
 
-    <aside class="side">
+    <aside class="side" id="sidebar">
       <a class="brand" href="{% url 'home' %}" aria-label="العودة للموقع">
         {% if user_vendor_profile.avatar %}
           <img src="{{ user_vendor_profile.avatar.url }}" alt="{{ user_vendor_profile.store_name }}" class="side-logo">
@@ -196,7 +41,7 @@
       </a>
 
       <nav class="nav" aria-label="قائمة لوحة البائع">
-        <a class="nav-item {% if request.resolver_match.url_name == 'vendor_stats' %}active{% endif %}" href="{% url 'vendor_stats' %}">
+        <a class="nav-item {% if request.resolver_match.url_name == 'vendor_dashboard' %}active{% endif %}" href="{% url 'vendor_dashboard' %}">
           <span class="nav-label"><i class="fa-solid fa-chart-pie"></i> الإحصائيات</span>
         </a>
         <a class="nav-item {% if request.resolver_match.url_name == 'vendor_products' %}active{% endif %}" href="{% url 'vendor_products' %}">
@@ -228,6 +73,9 @@
 
     </main>
   </div>
+
+  <script src="{% static 'js/vendor/sidebar.js' %}"></script>
 </body>
 
 </html>
+

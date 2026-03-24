@@ -1,16 +1,17 @@
 {% extends 'vendors/base.html' %}
 
 {% block content %}
-      <header>
-        <div>
-          <h1>لوحة تحكم البائع</h1>
-          <div class="muted">إدارة منتجاتك، عروضك، طلباتك وإعلاناتك بسهولة.</div>
-        </div>
-        <div class="chips">
-          <a class="chip" href="{% url 'vendor_store' vendor_id %}">عرض المتجر</a>
-          <a class="chip" href="{% url 'home' %}">زيارة الموقع</a>
-        </div>
-      </header>
+<header class="page-header">
+  <ul class="breadcrumb">
+    <li><a href="{% url 'vendor_dashboard' %}"><i class="fa-solid fa-house"></i></a></li>
+    <li><span class="separator"><i class="fa-solid fa-chevron-left"></i></span></li>
+    <li><span class="current">الطلبات</span></li>
+  </ul>
+  <div class="header-actions">
+    <a class="chip" href="{% url 'vendor_store' vendor_id %}">عرض المتجر</a>
+    <a class="chip" href="{% url 'home' %}">زيارة الموقع</a>
+  </div>
+</header>
 
 
       <!-- الطلبات -->

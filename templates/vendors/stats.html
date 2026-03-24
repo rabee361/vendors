@@ -2,56 +2,95 @@
 
 {% block content %}
 
-      <header>
-        <div>
-          <h1>لوحة تحكم البائع</h1>
-          <div class="muted">إدارة منتجاتك، عروضك، طلباتك وإعلاناتك بسهولة.</div>
-        </div>
-        <div class="chips">
-          <a class="chip" href="{% url 'vendor_store' vendor_id %}">عرض المتجر</a>
-          <a class="chip" href="{% url 'home' %}">زيارة الموقع</a>
-        </div>
-      </header>
+<header class="page-header">
+  <ul class="breadcrumb">
+    <li><a href="{% url 'vendor_dashboard' %}"><i class="fa-solid fa-house"></i></a></li>
+    <li><span class="separator"><i class="fa-solid fa-chevron-left"></i></span></li>
+    <li><span class="current">الإحصائيات</span></li>
+  </ul>
+  <div class="header-actions">
+    <a class="chip" href="{% url 'vendor_store' vendor_id %}">عرض المتجر</a>
+    <a class="chip" href="{% url 'home' %}">زيارة الموقع</a>
+  </div>
+</header>
 
 
       <!-- الإحصائيات -->
       <section id="stats" class="section">
+        <div class="grid5">
+          <div class="kpi">
+            <i class="fa-solid fa-box"></i>
+            <b>{{ stats.product_count }}</b>
+            <span>المنتجات</span>
+          </div>
+          <div class="kpi">
+            <i class="fa-solid fa-list-ul"></i>
+            <b>{{ stats.categories_count }}</b>
+            <span>الأصناف</span>
+          </div>
+          <div class="kpi">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <b>{{ stats.orders_count }}</b>
+            <span>الطلبات</span>
+          </div>
+          <div class="kpi">
+            <i class="fa-solid fa-heart"></i>
+            <b>{{ stats.favorites_count }}</b>
+            <span>في المفضلة</span>
+          </div>
+          <div class="kpi">
+            <i class="fa-solid fa-basket-shopping"></i>
+            <b>{{ stats.cart_count }}</b>
+            <span>في السلة</span>
+          </div>
+        </div>
+
+        <h2 style="margin:32px 0 16px; font-size: 1.5rem; color: var(--text); padding-right: 12px;">أبرز الإنجازات</h2>
+        
         <div class="grid3">
-          <div class="card pad">
-            <div class="kpi"><b>+18%</b><span>نمو الزيارات</span></div>
-          </div>
-          <div class="card pad">
-            <div class="kpi"><b>4.8</b><span>متوسط التقييم</span></div>
-          </div>
-          <div class="card pad">
-            <div class="kpi"><b>2.9%</b><span>معدل التحويل</span></div>
-          </div>
-        </div>
-
-        <div class="grid2" style="margin-top:12px">
-          <article class="card pad">
-            <h2 style="margin:0 0 6px">ملخص أسبوعي</h2>
-            <ul style="margin:10px 0 0; padding:0 18px; color:var(--muted); line-height:1.9">
-              <li>أفضل منتج: سماعات Pro ANC</li>
-              <li>أكثر مصدر زيارات: الصفحة الرئيسية</li>
-              <li>أفضل حملة: إعلان ممول (قسم الإعلانات)</li>
-            </ul>
+          <article class="kpi pad" style="align-items: flex-start; text-align: right;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                <i class="fa-solid fa-star" style="color: #ffcc66; margin-bottom: 0;"></i>
+                <span style="letter-spacing: normal; text-transform: none;">الأعلى تقييماً</span>
+            </div>
+            {% if enhanced_stats.top_rated %}
+                <b style="font-size: 24px;">{{ enhanced_stats.top_rated.name }}</b>
+                <span style="color: var(--accent);">{{ enhanced_stats.top_rated.rating }} ★ ({{ enhanced_stats.top_rated.rating_count }} تقييم)</span>
+            {% else %}
+                <b style="font-size: 24px;">لا يوجد تقييمات</b>
+                <span>ابدأ ببيع منتجاتك للحصول عليها</span>
+            {% endif %}
           </article>
 
-          <article class="card pad">
-            <h2 style="margin:0 0 6px">توصيات</h2>
-            <ul style="margin:10px 0 0; padding:0 18px; color:var(--muted); line-height:1.9">
-              <li>أضف صورًا متعددة للمنتجات لزيادة الثقة.</li>
-              <li>فعّل عرضًا على المنتج الأكثر مشاهدة.</li>
-              <li>وازن الميزانية بين نوعي الإعلانات.</li>
-            </ul>
+          <article class="kpi pad" style="align-items: flex-start; text-align: right;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                <i class="fa-solid fa-fire" style="color: #ff6b6b; margin-bottom: 0;"></i>
+                <span style="letter-spacing: normal; text-transform: none;">الأكثر مبيعاً</span>
+            </div>
+            {% if enhanced_stats.most_ordered %}
+                <b style="font-size: 24px;">{{ enhanced_stats.most_ordered.name }}</b>
+                <span style="color: var(--accent);">تم بيع {{ enhanced_stats.most_ordered.total_sold }} قطعة</span>
+            {% else %}
+                <b style="font-size: 24px;">لا توجد مبيعات</b>
+                <span>بانتظار طلبك الأول</span>
+            {% endif %}
+          </article>
+
+          <article class="kpi pad" style="align-items: flex-start; text-align: right;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                <i class="fa-solid fa-trophy" style="color: var(--accent); margin-bottom: 0;"></i>
+                <span style="letter-spacing: normal; text-transform: none;">القسم الأفضل</span>
+            </div>
+            {% if enhanced_stats.top_category %}
+                <b style="font-size: 24px;">{{ enhanced_stats.top_category.name }}</b>
+                <span style="color: var(--accent);">{{ enhanced_stats.top_category.total_sold }} طلب إجمالي</span>
+            {% else %}
+                <b style="font-size: 24px;">لا توجد بيانات</b>
+                <span>الأقسام الأكثر طلباً ستظهر هنا</span>
+            {% endif %}
           </article>
         </div>
 
-        <div class="small" style="margin-top:10px">
-          * الرسوم البيانية يمكن إضافتها لاحقًا بالـ Backend أو بجافاسكربت (لكن حسب طلبك هنا بدون JS).
-        </div>
       </section>
 
-      
-      {% endblock %}
+{% endblock %}

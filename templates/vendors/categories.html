@@ -2,25 +2,26 @@
 
 {% block content %}
 
-      <header>
-        <div>
-          <h1>لوحة تحكم البائع</h1>
-          <div class="muted">إدارة منتجاتك، عروضك، طلباتك وإعلاناتك بسهولة.</div>
-        </div>
-        <div class="chips">
-          <a class="chip accent" href="{% url 'category_add' %}" style="background:var(--accent); color:white">+ إضافة صنف</a>
-          <a class="chip" href="{% url 'vendor_store' vendor_id %}">عرض المتجر</a>
-          <a class="chip" href="{% url 'home' %}">زيارة الموقع</a>
-        </div>
-      </header>
+<header class="page-header">
+  <ul class="breadcrumb">
+    <li><a href="{% url 'vendor_dashboard' %}"><i class="fa-solid fa-house"></i></a></li>
+    <li><span class="separator"><i class="fa-solid fa-chevron-left"></i></span></li>
+    <li><span class="current">الأصناف</span></li>
+  </ul>
+  <div class="header-actions">
+    <a class="chip accent" href="{% url 'category_add' %}">+ إضافة صنف</a>
+    <a class="chip" href="{% url 'vendor_store' vendor_id %}">عرض المتجر</a>
+    <a class="chip" href="{% url 'home' %}">زيارة الموقع</a>
+  </div>
+</header>
 
       <!-- الأصناف -->
       <section id="categories" class="section">
         <div class="card pad">
-          <h2 style="margin:0 0 6px">العروض الحالية</h2>
+          <h2 style="margin:0 0 6px">الأصناف الحالية</h2>
           
           <div style="overflow:auto; margin-top:12px">
-            <table aria-label="جدول العروض">
+            <table aria-label="جدول الأصناف">
               <thead>
                 <tr>
                   <th>الاسم</th>

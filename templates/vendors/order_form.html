@@ -2,24 +2,88 @@
 
 {% block content %}
 
-<article class="card pad" aria-label="{{ title|default:'تحديث حالة الطلب' }}">
-<h2 style="margin:0 0 6px">{{ title|default:"تحديث حالة الطلب" }}</h2>
+<header class="page-header">
+  <ul class="breadcrumb">
+    <li><a href="{% url 'vendor_dashboard' %}"><i class="fa-solid fa-house"></i></a></li>
+    <li><span class="separator"><i class="fa-solid fa-chevron-left"></i></span></li>
+    <li><a href="{% url 'vendor_orders' %}">الطلبات</a></li>
+    <li><span class="separator"><i class="fa-solid fa-chevron-left"></i></span></li>
+    <li><span class="current">{{ title }}</span></li>
+  </ul>
+  <div class="header-actions">
+    <a class="chip" href="{% url 'vendor_store' vendor_id %}">عرض المتجر</a>
+    <a class="chip" href="{% url 'vendor_dashboard' %}">الرئيسية</a>
+  </div>
+</header>
 
-<form method="post" style="display:grid; gap:10px; margin-top:12px">
-    {% csrf_token %}
-    
-    {% for field in form %}
-    <div>
-        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-        {{ field }}
-        {% if field.errors %}
-            <div style="color: var(--danger); font-size: 12px;">{{ field.errors }}</div>
-        {% endif %}
-    </div>
-    {% endfor %}
+<div style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; align-items: start;">
+    <!-- Items Table Container -->
+    <article class="card pad" aria-label="تفاصيل منتجات الطلب">
+        <h2 style="margin:0 0 12px">منتجات الطلب #{{ order.order_number }}</h2>
+        
+        <div style="overflow:auto">
+            <table aria-label="جدول الطلب">
+                <thead>
+                    <tr>
+                        <th>المنتج</th>
+                        <th>الكمية</th>
+                        <th>سعر الوحدة</th>
+                        <th>الإجمالي</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.items.all %}
+                    <tr>
+                        <td style="display: flex; align-items: center; gap: 10px;">
+                            {% if item.product and item.product.image %}
+                                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">
+                            {% else %}
+                                <div style="width: 40px; height: 40px; border-radius: 8px; background: var(--panel); display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-box small"></i>
+                                </div>
+                            {% endif %}
+                            <span>{{ item.product.name|default:"منتج محذوف" }}</span>
+                        </td>
+                        <td>{{ item.quantity }}</td>
+                        <td>${{ item.price_at_order }}</td>
+                        <td><b>${{ item.get_total }}</b></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
-    <button class="btn" type="submit">{{ title|default:"تحديث" }}</button>
-</form>
-</article>
+        <div style="margin-top: 20px; padding-top: 10px; border-top: 1px solid var(--line); display: grid; gap: 8px; justify-content: end; text-align: end;">
+            <div class="muted">إجمالي المنتجات: ${{ order.total }}</div>
+            <div class="muted">تكلفة الشحن: ${{ order.shipping_cost }}</div>
+            <div style="font-size: 1.2rem; font-weight: 900;">الإجمالي الكلي: ${{ order.total|add:order.shipping_cost }}</div>
+        </div>
+    </article>
+
+    <!-- Side Panel for Status Update -->
+    <article class="card pad" aria-label="{{ title|default:'تحديث حالة الطلب' }}">
+        <h2 style="margin:0 0 6px">{{ title|default:"تحديث حالة الطلب" }}</h2>
+        <p class="muted small">قم بتحديث حالة الطلب الحالية هنا.</p>
+
+        <form method="post" style="display:grid; gap:12px; margin-top:16px">
+            {% csrf_token %}
+            
+            {% for field in form %}
+            <div style="display: grid; gap: 6px;">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <div style="color: var(--danger); font-size: 12px;">{{ field.errors }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <button type="submit" class="btn primary" style="width: 100%; margin-top: 8px;">
+                حفظ التغييرات
+            </button>
+            <a href="{% url 'vendor_orders' %}" class="btn2" style="text-align: center;">إلغاء</a>
+        </form>
+    </article>
+</div>
 
 {% endblock %}

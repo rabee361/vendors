@@ -2,8 +2,21 @@
 
 {% block content %}
 
+<header class="page-header">
+  <ul class="breadcrumb">
+    <li><a href="{% url 'vendor_dashboard' %}"><i class="fa-solid fa-house"></i></a></li>
+    <li><span class="separator"><i class="fa-solid fa-chevron-left"></i></span></li>
+    <li><a href="{% url 'vendor_categories' %}">الأصناف</a></li>
+    <li><span class="separator"><i class="fa-solid fa-chevron-left"></i></span></li>
+    <li><span class="current">{{ title }}</span></li>
+  </ul>
+  <div class="header-actions">
+    <a class="chip" href="{% url 'vendor_store' vendor_id %}">عرض المتجر</a>
+    <a class="chip" href="{% url 'home' %}">زيارة الموقع</a>
+  </div>
+</header>
+
 <article class="card pad" aria-label="{{ title|default:'إضافة صنف' }}">
-<h2 style="margin:0 0 6px">{{ title|default:"إضافة صنف" }}</h2>
 
 <form method="post" style="display:grid; gap:10px; margin-top:12px">
     {% csrf_token %}

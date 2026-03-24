@@ -2,30 +2,31 @@
 
 {% block content %}    
     
-    
-    <header>
-        <div>
-          <h1>لوحة تحكم البائع</h1>
-          <div class="muted">إدارة منتجاتك، عروضك، طلباتك وإعلاناتك بسهولة.</div>
-        </div>
-        <div class="chips">
-          <a class="chip accent" href="{% url 'product_add' %}" style="background:var(--accent); color:white">+ إضافة منتج</a>
-          <a class="chip" href="{% url 'vendor_store' vendor_id %}">عرض المتجر</a>
-          <a class="chip" href="{% url 'home' %}">زيارة الموقع</a>
-        </div>
-      </header>
 
+<header class="page-header">
+  <ul class="breadcrumb">
+    <li><a href="{% url 'vendor_dashboard' %}"><i class="fa-solid fa-house"></i></a></li>
+    <li><span class="separator"><i class="fa-solid fa-chevron-left"></i></span></li>
+    <li><span class="current">المنتجات</span></li>
+  </ul>
+  <div class="header-actions">
+    <a class="chip accent" href="{% url 'product_add' %}">+ إضافة منتج</a>
+    <a class="chip" href="{% url 'vendor_store' vendor_id %}">عرض المتجر</a>
+    <a class="chip" href="{% url 'home' %}">زيارة الموقع</a>
+  </div>
+</header>
+    
       <!-- المنتجات (افتراضي) -->
       <section id="products" class="section">
         <div class="grid3">
           <div class="card pad">
-            <div class="kpi"><b>{{ stats.product_count }}</b><span>عدد المنتجات</span></div>
+            <div class="kpi"><b>{{ product_count }}</b><span>عدد المنتجات</span></div>
           </div>
           <div class="card pad">
-            <div class="kpi"><b>{{ stats.weekly_views }}</b><span>مشاهدات هذا الأسبوع</span></div>
+            <div class="kpi"><b>{{ weekly_views }}</b><span>مشاهدات هذا الأسبوع</span></div>
           </div>
           <div class="card pad">
-            <div class="kpi"><b>{{ stats.monthly_sales }}</b><span>مبيعات الشهر</span></div>
+            <div class="kpi"><b>{{ monthly_sales }}</b><span>مبيعات الشهر</span></div>
           </div>
         </div>
 
