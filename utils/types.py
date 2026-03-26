@@ -11,9 +11,7 @@ class AdType(models.TextChoices):
 
 class AdStatus(models.TextChoices):
     ACTIVE = 'active', 'نشط'
-    PENDING = 'pending', 'قيد المراجعة'
-    EXPIRED = 'expired', 'منتهي'
-    REJECTED = 'rejected', 'مرفوض'
+    INACTIVE = 'inactive', 'غير نشط'
 
 class OrderStatus(models.TextChoices):
     PREPARING = 'preparing', 'قيد التجهيز'

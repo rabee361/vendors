@@ -40,8 +40,8 @@ class StoreCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Vendor)
 class VendorAdmin(admin.ModelAdmin):
-    list_display = ('id','store_name', 'user', 'category', 'rating', 'is_active')
-    list_filter = ('category', 'is_active')
+    list_display = ('id','store_name', 'user', 'category', 'rating')
+    list_filter = ('category',)
     search_fields = ('store_name', 'user__username')
 
 @admin.register(Product)
@@ -96,7 +96,7 @@ class VendorStatsAdmin(admin.ModelAdmin):
 
 @admin.register(SponsoredAd)
 class SponsoredAdAdmin(admin.ModelAdmin):
-    list_display = ('id', 'product', 'ad_type', 'budget', 'days_count')
+    list_display = ('id', 'product', 'ad_type')
 
 @admin.register(OTPCode)
 class OTPCodeAdmin(admin.ModelAdmin):

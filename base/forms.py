@@ -33,6 +33,8 @@ class BuyerLoginForm(forms.Form):
                 raise ValidationError("خطأ في البريد الإلكتروني أو كلمة المرور.")
             if not user.is_buyer:
                 raise ValidationError("هذا الحساب ليس حساب مشتري.")
+            if not user.is_active:
+                raise ValidationError("هذا الحساب غير مفعل.")
             cleaned_data['user'] = user
         return cleaned_data
 
@@ -60,6 +62,8 @@ class SellerLoginForm(forms.Form):
                 raise ValidationError("خطأ في البريد الإلكتروني أو كلمة المرور.")
             if not user.is_seller:
                 raise ValidationError("هذا الحساب ليس حساب بائع.")
+            if not user.is_active:
+                raise ValidationError("هذا الحساب غير مفعل.")
             cleaned_data['user'] = user
         return cleaned_data
 
@@ -82,8 +86,6 @@ class ModeratorLoginForm(forms.Form):
 
         if email and password:
             user = authenticate(username=email, password=password)
-            print("GGGGGGGGGGGG")
-            print(user)
             if not user:
                 raise ValidationError("خطأ في البريد الإلكتروني أو كلمة المرور.")
             if user.user_type != 'admin':
@@ -268,13 +270,19 @@ class ModeratorForm(forms.ModelForm):
         return cleaned_data
 
 
-
-
 class ModeratorVendorForm(forms.ModelForm):
+    is_active = forms.BooleanField(required=False)
     class Meta:
         model = Vendor
-        fields = ['store_name', 'category', 'address', 'phone', 'is_active', 'avatar']
+        fields = ['store_name', 'category', 'address', 'phone', 'logo','is_active']
 
+    def save(self, commit=True):
+        vendor = super().save(commit=False)
+        vendor.user.is_active = self.cleaned_data['is_active']
+        if commit:
+            vendor.save()
+            vendor.user.save()
+        return vendor
 
 class ProductForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -318,7 +326,7 @@ class SponsoredAdForm(forms.ModelForm):
 
     class Meta:
         model = SponsoredAd
-        fields = ['ad_type', 'budget', 'product', 'days_count', 'status']
+        fields = ['ad_type', 'product', 'status']
 
 class OrderUpdateForm(forms.ModelForm):
     class Meta:
@@ -332,3 +340,37 @@ class ProductCategoryForm(forms.ModelForm):
     class Meta:
         model = ProductCategory
         fields = ['name','description','slug']
+
+class ChangePasswordForm(forms.Form):
+    old_password = forms.CharField(label="كلمة المرور القديمة", widget=forms.PasswordInput(attrs={'placeholder': '••••••••'}), required=True)
+    new_password = forms.CharField(label="كلمة المرور الجديدة", widget=forms.PasswordInput(attrs={'placeholder': '••••••••'}), required=True)
+    confirm_password = forms.CharField(label="تأكيد كلمة المرور الجديدة", widget=forms.PasswordInput(attrs={'placeholder': '••••••••'}), required=True)
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        old_password = cleaned_data.get("old_password")
+        new_password = cleaned_data.get("new_password")
+        confirm_password = cleaned_data.get("confirm_password")
+
+        if self.user and old_password:
+            if not self.user.check_password(old_password):
+                raise forms.ValidationError("كلمة المرور القديمة غير صحيحة.")
+
+        if new_password and confirm_password:
+            if new_password != confirm_password:
+                raise forms.ValidationError("كلمات المرور الجديدة غير متطابقة.")
+            
+        if old_password and new_password and old_password == new_password:
+            raise forms.ValidationError("كلمة المرور الجديدة يجب أن تكون مختلفة عن القديمة.")
+            
+        return cleaned_data
+
+    def save(self):
+        new_password = self.cleaned_data.get("new_password")
+        self.user.set_password(new_password)
+        self.user.save()
+        return self.user

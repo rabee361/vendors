@@ -30,7 +30,6 @@
                 <tr>
                   <th>المنتج</th>
                   <th>النوع</th>
-                  <th>الميزانية</th>
                   <th>الحالة</th>
                   <th>الإجراءات</th>
                 </tr>
@@ -40,7 +39,6 @@
                 <tr>
                   <td>{{ ad.product.name }}</td>
                   <td>{{ ad.get_ad_type_display }}</td>
-                  <td><b>${{ ad.budget }}</b></td>
                   <td><span class="status {% if ad.status == 'active' %}c{% elif ad.status == 'pending' %}p{% else %}r{% endif %}">{{ ad.get_status_display }}</span></td>
                   <td>
                     <div style="display: flex; gap: 8px;">
@@ -55,7 +53,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                  <td colspan="4" style="text-align:center">لا يوجد إعلانات حالياً.</td>
+                  <td colspan="3" style="text-align:center">لا يوجد إعلانات حالياً.</td>
                 </tr>
                 {% endfor %}
               </tbody>

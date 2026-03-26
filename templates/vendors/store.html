@@ -26,7 +26,8 @@
       <div class="container">
           <div class="row">
               <a class="brand" href="{% url 'home' %}" aria-label="العودة للصفحة الرئيسية">
-              <img class="logo-img" src="{{ vendor.logo.url }}" alt="Marketplace Logo">
+                <img class="logo-img" src="{{ vendor.logo.url }}" style="width: 50px; height: 50px;" alt="Marketplace Logo">
+                <h1 style="margin:0 0 6px; font-size:18px; margin-left: 10px;">{{ vendor.store_name }}</h1>
               </a>
 
               <nav class="quick" aria-label="وصول سريع">
@@ -59,14 +60,6 @@
   <div class="container">
 
 
-    <section class="hero">
-      <div class="pad">
-        <div>
-          <h1 style="margin:0 0 6px; font-size:22px">{{ vendor.store_name }}</h1>
-          <div class="muted">{{ vendor.category.name }} • تقييم 4.8 • شحن سريع</div>
-        </div>
-      </div>
-    </section>
 
     <h2 style="margin:16px 0 6px">منتجات المتجر</h2>
 
@@ -126,17 +119,24 @@
       <div class="grid3">
         {% for offer in offers %}
         <article class="card">
+          <div class="pimg">
+            {% if offer.product.image %}
+            <img src="{{ offer.product.image.url }}" alt="{{ offer.product.name }}">
+            {% else %}
+            <div class="placeholder"><i class="fas fa-image"></i></div>
+            {% endif %}
+          </div>
           <div class="pad">
             <span class="tag good">خصم {{ offer.discount }}%</span>
             <h3 style="margin:10px 0 6px">{{ offer.product.name }}</h3>
-            <div class="muted">{{ offer.product.description }}</div>
+            <div class="muted">{{ offer.product.category.name }}</div>
             <div class="pmeta">
-              <b class="price">${{ offer.product.price }}</b>
-              <span class="muted"><s>${{ offer.discount_price }}</s></span>
+              <b class="price">${{ offer.discount_price }}</b>
+              <span class="muted"><s>${{ offer.product.price }}</s></span>
             </div>
             <div class="pactions">
               <a class="paction-btn view" href="{% url 'product' offer.product.id %}" aria-label="عرض التفاصيل"><i class="fas fa-eye"></i></a>
-              <button class="paction-btn primary cart {% if offer.product.id|slugify in cart_product_ids %}active{% endif %}" 
+              <button class="paction-btn primary cart {% if offer.product.id|slugify in cart_product_ids %}active{% endif %}"
                 hx-post="{% url 'add_to_cart' offer.product.id %}" hx-vals='{"quantity": 1}'
                 hx-target="#cart" hx-swap="outerHTML" aria-label="إضافة للسلة"><i class="fas fa-cart-plus"></i></button>
             </div>

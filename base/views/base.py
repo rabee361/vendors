@@ -3,7 +3,7 @@ from django.views.generic import FormView, View
 from django.core.paginator import Paginator
 from django.db.models import Exists, OuterRef
 
-from django.contrib.auth import login, logout, authenticate ,get_user_model
+from django.contrib.auth import login, logout, authenticate, get_user_model, update_session_auth_hash
 from django.contrib import messages
 from django.urls import reverse_lazy, reverse
 from ..forms import *
@@ -13,6 +13,7 @@ from utils.mixins import UserAlreadyLoggedInMixin
 from urllib.parse import quote
 from ..cart import CartService
 from ..favorite import FavoriteService
+from django.db.models import Q
 from ..models import *
 import uuid
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -30,8 +31,8 @@ class HomeView(View):
         message_form = MessageForm()
 
         orders_count = Order.objects.count()
-        vendor_count = Vendor.objects.count()
-        product_count = Product.objects.count()
+        vendor_count = Vendor.objects.filter(user__is_active=True).count()
+        product_count = Product.objects.filter(is_active=True).count()
         category_count = ProductCategory.objects.count()
 
         query = request.GET.get('q', '')
@@ -58,14 +59,16 @@ class HomeView(View):
                 SponsoredAd.objects.filter(
                     product=OuterRef('pk'), 
                     ad_type=AdType.BADGE, 
-                    status=AdStatus.ACTIVE
+                    status=AdStatus.ACTIVE,
+                    start_date__lte=timezone.now(),
+                    end_date__gte=timezone.now()
                 )
             )
         )
 
-        vendors = Vendor.objects.select_related('category').filter(is_active=True)[:3]
-        offers = Offer.objects.all()[:3]
-        ads = SponsoredAd.objects.filter(ad_type=AdType.SECTION)[:3]
+        vendors = Vendor.objects.select_related('category').filter(user__is_active=True)[:3]
+        offers = Offer.objects.filter(is_active=True, start_date__lte=timezone.now(), end_date__gte=timezone.now())[:3]
+        ads = SponsoredAd.objects.filter(Q(ad_type=AdType.SECTION) & Q(start_date__lte=timezone.now()) & Q(end_date__gte=timezone.now()))[:3]
         categories = ProductCategory.objects.all()[:4]
         context = { 
             'vendors': vendors,
@@ -232,26 +235,35 @@ class VerifyOtpView(View):
         })
 
 
-class EmailChangePasswordView(View):
+class ChangePasswordView(LoginRequiredMixin, View):
     def get(self, request):
-        return render(request, "auth/email_change_password.html")
+        form = ChangePasswordForm(user=request.user)
+        return render(request, "auth/change_password.html", {'form':form})
 
+    def post(self, request):
+        form = ChangePasswordForm(request.POST, user=request.user)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # Important to stay logged in
+            return redirect('home')
+        return render(request, "auth/change_password.html", {'form':form})
 
-class ChangePasswordView(View):
-    def get(self, request):
-        return render(request, "auth/change_password.html")
+# class ResetPasswordView(View):
+#     def get(self, request):
+#         form = ResetPasswordForm()
+#         return render(request, "auth/reset_password.html", {'form':form})
 
+#     def post(self, request):
+#         form = ResetPasswordForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('login')
+#         return render(request, "auth/reset_password.html", {'form':form})
 
 class VendorsView(View):
     def get(self, request):
-        vendors = Vendor.objects.select_related('category').filter(is_active=True)
+        vendors = Vendor.objects.select_related('category').filter(user__is_active=True)
         return render(request, "base/vendors.html", {'vendors': vendors})
-
-class VendorDetailView(View):
-    def get(self, request, vendor_id):
-        vendor = Vendor.objects.get(id=vendor_id)
-        vendor_products = Product.objects.filter(tenant=vendor)
-        return render(request, "base/store.html", {'vendor': vendor, 'vendor_products': vendor_products})
 
 class CategoriesView(View):
     def get(self, request):
@@ -295,7 +307,9 @@ class ProductListView(View):
                 SponsoredAd.objects.filter(
                     product=OuterRef('pk'), 
                     ad_type=AdType.BADGE, 
-                    status=AdStatus.ACTIVE
+                    status=AdStatus.ACTIVE,
+                    start_date__lte=timezone.now(),
+                    end_date__gte=timezone.now()
                 )
             )
         )
@@ -344,7 +358,8 @@ class RemoveFromCartView(View):
         cart = CartService(request)
         cart.remove(product_id)
         response = render(request, 'components/cart.html', cart.get_context())
-        response['X-Toast-Message'] = "تمت إزالة المنتج من السلة"
+        response['X-Toast-Message'] = quote("تمت إزالة المنتج من السلة")
+        response['X-Toast-Title'] = quote("تمت الإزالة")
         response['X-Toast-Type'] = "info"
         return response
 
@@ -381,6 +396,7 @@ class ToggleFavoriteView(View):
             
         response = render(request, 'components/favorites.html', fav.get_context())
         response['X-Toast-Message'] = quote(msg)
+        response['X-Toast-Title'] = quote("المفضلة")
         response['X-Toast-Type'] = type
         return response
 
@@ -392,6 +408,7 @@ class RemoveFavoriteView(View):
         
         response = render(request, 'components/favorites.html', fav.get_context())
         response['X-Toast-Message'] = quote("تمت إزالة المنتج من المفضلة")
+        response['X-Toast-Title'] = quote("تمت الإزالة")
         response['X-Toast-Type'] = "info"
         return response
 

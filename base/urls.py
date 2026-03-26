@@ -22,6 +22,7 @@ basePatterns = [
     path('favorites/remove/<int:product_id>/', base.RemoveFavoriteView.as_view(), name='remove_favorite'),
     path('account/update/', base.AccountUpdateView.as_view(), name='account_update'),
     path('change-password/', base.ChangePasswordView.as_view(), name='change_password'),
+    # path('reset-password/', base.ResetPasswordView.as_view(), name='reset_password'),
     path('checkout/<int:vendor_id>/', base.CheckoutView.as_view(), name='checkout'),
     path('checkout/success' , base.CheckoutSuccess.as_view() , name="checkout_success"),
     path('404/' , base.handler404.as_view() , name="404"),

@@ -46,7 +46,7 @@
                 <td>{{ vendor.created_at|date:"Y/m/d" }}</td>
                 <td><i class="fas fa-star" style="color: var(--warn);"></i> {{ vendor.rating }}</td>
                 <td>
-                    {% if vendor.is_active %}
+                    {% if vendor.user.is_active %}
                     <span class="status c" style="color: var(--accent2);">نشط</span>
                     {% else %}
                     <span class="status r" style="color: var(--danger);">غير نشط</span>

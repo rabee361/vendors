@@ -10,6 +10,8 @@ from utils.email import send_otp_email
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth import get_user_model
 from django.db.models import Q
+from django.utils import timezone
+
 
 User = get_user_model()
 
@@ -68,8 +70,8 @@ class VendorStoreView(View):
     def get(self, request, pk):
         vendor = get_object_or_404(Vendor, pk=pk)
         products = Product.objects.filter(tenant=vendor).order_by('-created_at')
-        ads = SponsoredAd.objects.filter(product__tenant=vendor).order_by('-created_at')
-        offers = Offer.objects.filter(tenant=vendor).order_by('-created_at')
+        ads = SponsoredAd.objects.filter(Q(product__tenant=vendor) & Q(start_date__lte=timezone.now()) & Q(end_date__gte=timezone.now())).order_by('-created_at')
+        offers = Offer.objects.filter(Q(tenant=vendor) & Q(start_date__lte=timezone.now()) & Q(end_date__gte=timezone.now())).order_by('-created_at')
         context = {
             'vendor': vendor,
             'products': products,

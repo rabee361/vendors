@@ -37,7 +37,7 @@
                 <tr>
                   <td>#{{ order.order_number }}</td>
                   <td>{{ order.full_name }}</td>
-                  <td><b>${{ order.total }}</b></td>
+                  <td><b>${{ order.total_cost }}</b></td>
                   <td><span class="status {% if order.status == 'preparing' %}p{% elif order.status == 'shipped' or order.status == 'delivered' %}c{% else %}r{% endif %}">{{ order.get_status_display }}</span></td>
                   <td>{{ order.created_at|date:"Y-m-d" }}</td>
                   <td>

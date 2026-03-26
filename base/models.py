@@ -68,9 +68,15 @@ class Vendor(models.Model):
     rating = models.DecimalField(max_digits=2, decimal_places=1, default=0)
     address = models.CharField(max_length=300, blank=True)
     phone = models.CharField(max_length=20, blank=True)
-    avatar = models.ImageField(upload_to='vendors/avatars/', blank=True)
-    is_active = models.BooleanField(default=True)
+    logo = models.ImageField(upload_to='vendors/avatars/', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def clean(self):
+        if self.logo and self.logo.size > 2 * 1024 * 1024:  # 2MB in bytes
+            raise ValidationError('حجم الصورة يجب أن لا يتجاوز 2 ميجابايت')
+
+        if self.logo and not self.logo.name.endswith(('.jpg', '.jpeg', '.png','webp', 'jfif')):
+            raise ValidationError('يجب أن يكون الصورة بصيغة jpg أو jpeg أو png أو webp')
 
     def __str__(self):
         return self.store_name
@@ -169,12 +175,10 @@ class Offer(models.Model):
 class SponsoredAd(models.Model):
     tenant = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='ads')
     ad_type = models.CharField(max_length=20, choices=AdType.choices)
-    budget = models.DecimalField(max_digits=10, decimal_places=2)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_ads')
-    days_count = models.PositiveIntegerField()
-    status = models.CharField(max_length=20, choices=AdStatus.choices, default=AdStatus.PENDING)
+    status = models.CharField(max_length=20, choices=AdStatus.choices, default=AdStatus.ACTIVE)
     start_date = models.DateField(auto_now_add=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    end_date = models.DateField()
 
     def __str__(self):
         return f"Ad for {self.product.name} ({self.ad_type})"
@@ -226,6 +230,12 @@ class Order(models.Model):
     shipping_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='preparing')
     created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def total_cost(self):
+        if self.total:
+            return self.total + self.shipping_cost
+        return 0
 
     def __str__(self):
         return self.order_number

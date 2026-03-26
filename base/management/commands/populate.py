@@ -102,13 +102,12 @@ class Command(BaseCommand):
                     'rating': random.uniform(3.5, 5.0),
                     'address': f"{random.choice(CITIES)}, Street {random.randint(1, 100)}",
                     'phone': f"+9647{random.randint(700000000, 799999999)}",
-                    'is_active': True
                 }
             )
             
             if created and os.path.exists(placeholder_path):
                 with open(placeholder_path, 'rb') as f:
-                    vendor.avatar.save('avatar.jfif', File(f), save=True)
+                    vendor.logo.save('avatar.jfif', File(f), save=True)
             
             vendors.append(vendor)
 
@@ -198,10 +197,9 @@ class Command(BaseCommand):
                  SponsoredAd.objects.create(
                     tenant=product.tenant,
                     ad_type=random.choice(AdType.values),
-                    budget=random.uniform(100, 300),
-                    days_count=random.randint(7, 14),
                     product=product,
-                    status=AdStatus.ACTIVE
+                    status=AdStatus.ACTIVE,
+                    end_date=date.today() + timedelta(days=random.randint(7, 30))
                 )
 
         # 8. Create Carts and Favorites
