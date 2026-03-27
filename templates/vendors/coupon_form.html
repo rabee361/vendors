@@ -6,7 +6,7 @@
   <ul class="breadcrumb">
     <li><a href="{% url 'vendor_dashboard' %}"><i class="fa-solid fa-house"></i></a></li>
     <li><span class="separator"><i class="fa-solid fa-chevron-left"></i></span></li>
-    <li><a href="{% url 'vendor_products' %}">المنتجات</a></li>
+    <li><a href="{% url 'vendor_coupons' %}">الكوبونات</a></li>
     <li><span class="separator"><i class="fa-solid fa-chevron-left"></i></span></li>
     <li><span class="current">{{ title }}</span></li>
   </ul>
@@ -16,13 +16,12 @@
   </div>
 </header>
 
-<article class="card pad" aria-label="{{ title|default:'إضافة منتج' }}">
+<article class="card pad" aria-label="{{ title|default:'إضافة كوبون' }}">
 
-<form method="post" enctype="multipart/form-data" style="display:grid; gap:10px; margin-top:12px">
+<form method="post" style="display:grid; gap:10px; margin-top:12px">
     {% csrf_token %}
     
     {% for field in form %}
-    {% if field.name != 'send_notification' %}
     <div>
         <label for="{{ field.id_for_label }}">{{ field.label }}</label>
         {{ field }}
@@ -30,18 +29,7 @@
             <div style="color: var(--danger); font-size: 12px;">{{ field.errors }}</div>
         {% endif %}
     </div>
-    {% endif %}
     {% endfor %}
-
-    {% if form.send_notification %}
-    <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
-      {{ form.send_notification }}
-      <label for="{{ form.send_notification.id_for_label }}" style="margin:0;">{{ form.send_notification.label }}</label>
-    </div>
-    {% if form.send_notification.errors %}
-      <div style="color: var(--danger); font-size: 12px;">{{ form.send_notification.errors }}</div>
-    {% endif %}
-    {% endif %}
 
     <button class="btn" type="submit">{{ title|default:"حفظ" }}</button>
 </form>

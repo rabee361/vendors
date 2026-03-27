@@ -23,10 +23,10 @@
             <div class="kpi"><b>{{ product_count }}</b><span>عدد المنتجات</span></div>
           </div>
           <div class="card pad">
-            <div class="kpi"><b>{{ weekly_views }}</b><span>مشاهدات هذا الأسبوع</span></div>
+            <div class="kpi"><b>{{ total_categories }}</b><span>عدد الفئات</span></div>
           </div>
           <div class="card pad">
-            <div class="kpi"><b>{{ monthly_sales }}</b><span>مبيعات الشهر</span></div>
+            <div class="kpi"><b>{{ this_monthl_sales }} $</b><span>مبيعات الشهر</span></div>
           </div>
         </div>
 
@@ -73,7 +73,7 @@
                   </tr>
                   {% empty %}
                   <tr>
-                    <td colspan="4" style="text-align:center">لا يوجد منتجات حالياً.</td>
+                    <td colspan="5" style="text-align:center">لا يوجد منتجات حالياً.</td>
                   </tr>
                   {% endfor %}
                 </tbody>

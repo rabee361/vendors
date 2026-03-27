@@ -3,10 +3,10 @@
 /* Product Detail Page Layout */
 .product-grid {
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
+  grid-template-columns: 1.1fr 0.9fr; /* Left (info): 1.1fr, Right (image): 0.9fr */
   gap: 24px;
   margin-top: 24px;
-  align-items: start;
+  align-items: stretch;
 }
 
 .product-img-container {
@@ -49,92 +49,200 @@
   flex-wrap: wrap;
 }
 
-/* Comparison Modal (Pure CSS implementation) */
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(11, 18, 32, .85);
-  backdrop-filter: blur(14px);
+/* ==============================
+   Compare Modal (scoped classes)
+   ============================== */
+
+/* Override z-index only; base .overlay is in main.css */
+.compare-overlay {
   z-index: 2000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: all .4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(14px);
   padding: 20px;
 }
 
-.overlay:target {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.modal {
+.compare-modal {
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--r);
   width: min(900px, 100%);
-  max-height: 90vh;
+  height: 90vh;
   display: flex;
   flex-direction: column;
   box-shadow: var(--shadow);
   transform: translateY(20px);
   transition: transform .4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  overflow: hidden;
 }
 
-.overlay:target .modal {
+.compare-overlay:target .compare-modal {
   transform: translateY(0);
 }
 
-.mhead {
-  padding: 16px 20px;
+/* Header */
+.compare-header {
+  padding: 18px 22px;
   border-bottom: 1px solid var(--line);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-shrink: 0;
 }
 
-.mhead b {
-  font-size: 18px;
+.compare-header b {
+  font-size: 20px;
 }
 
-.close {
-  width: 36px;
-  height: 36px;
+.compare-close {
+  width: 38px;
+  height: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, .03);
+  background: rgba(255, 255, 255, .04);
+  color: var(--muted);
   transition: all 0.2s;
+  text-decoration: none;
+  font-size: 16px;
 }
 
-.close:hover {
+.compare-close:hover {
   border-color: var(--accent);
-  background: rgba(110, 168, 255, .1);
+  background: rgba(110, 168, 255, .12);
+  color: var(--text);
 }
 
-/* Comparison Table */
-.modal table {
+/* Body: carousel on top, table fills the rest */
+.compare-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ---- Carousel Section (top, fixed height) ---- */
+.compare-carousel-section {
+  flex-shrink: 0;
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.compare-carousel-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.carousel-arrow {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.carousel-arrow:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.compare-carousel-viewport {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  padding: 8px 0;
+}
+
+.compare-carousel-viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.compare-card {
+  width: 110px;
+  height: 80px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  opacity: 0.45;
+  transform: scale(0.88);
+  border: 2px solid transparent;
+  position: relative;
+}
+
+.compare-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.compare-card-placeholder {
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, .05);
+}
+
+.compare-card.active {
+  opacity: 1;
+  transform: scale(1.08);
+  border-color: var(--warn);
+  box-shadow: 0 8px 20px rgba(255, 204, 102, 0.25);
+  z-index: 5;
+}
+
+/* ---- Table Section (fills remaining space, scrollable) ---- */
+.compare-table-wrap {
+  flex: 1;
+  overflow: auto;
+}
+
+.compare-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.modal th, .modal td {
-  padding: 16px;
+.compare-table th,
+.compare-table td {
+  padding: 16px 22px;
   border-bottom: 1px solid var(--line);
   text-align: right;
+  width: 33.33%;
 }
 
-.modal th {
+.compare-table th {
   background: rgba(255, 255, 255, .02);
   color: var(--muted);
   font-size: 14px;
+  position: sticky;
+  top: 0;
+  backdrop-filter: blur(10px);
+  z-index: 5;
 }
 
-.modal tr:last-child td {
+.compare-table td:first-child {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.compare-table tr:last-child td {
   border-bottom: none;
 }
 
@@ -169,3 +277,231 @@
     font-size: 13px;
   }
 }
+
+/* -----------------------------
+   Rating Section Styles
+----------------------------- */
+.rating-section {
+  margin-top: 30px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+
+.rating-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.rating-stats {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.avg-rating {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--warn);
+  line-height: 1;
+}
+
+.rating-scale {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.rating-count {
+  font-size: 13px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, .05);
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-right: 8px; /* Assuming RTL */
+}
+
+/* Interactive Star Rating */
+.star-rating-selector {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(0, 0, 0, 0.15);
+  padding: 16px 24px;
+  border-radius: var(--r);
+  border: 1px solid var(--line);
+}
+
+.stars-container {
+  display: flex;
+  gap: 8px;
+  direction: ltr; /* Ensure stars go left-to-right structurally */
+}
+
+.interactive-star {
+  position: relative;
+  font-size: 36px;
+  color: var(--line); /* Unfilled color */
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.3s;
+  user-select: none;
+  line-height: 1;
+  display: inline-block;
+}
+
+.interactive-star.full {
+  color: var(--warn);
+  text-shadow: 0 0 15px rgba(255, 204, 102, 0.4);
+}
+
+.interactive-star.half {
+  color: var(--line);
+  position: relative;
+}
+
+.interactive-star.half::after {
+  content: '★';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  overflow: hidden;
+  color: var(--warn);
+  text-shadow: 0 0 15px rgba(255, 204, 102, 0.4);
+}
+
+.interactive-star.active-hover {
+  transform: scale(1.15);
+}
+
+.star-half {
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  z-index: 10;
+}
+
+.star-half.left-half {
+  left: 0;
+}
+
+.star-half.right-half {
+  right: 0;
+}
+
+.rating-tooltip {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+  opacity: 0;
+  transition: opacity 0.2s;
+  min-width: 40px;
+  text-align: center;
+}
+
+.rating-login-prompt {
+  background: rgba(110, 168, 255, .05);
+  border: 1px dashed var(--line);
+  border-radius: var(--r);
+  padding: 24px;
+  text-align: center;
+}
+
+.submit-rating-btn {
+  margin-top: 0;
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes popIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* -----------------------------
+   Store Slider Styles
+----------------------------- */
+.store-slider-section {
+  margin-top: 60px;
+  margin-bottom: 40px;
+}
+
+.slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.slider-header h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.slider-controls {
+  display: flex;
+  gap: 12px;
+}
+
+.slider-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.slider-btn:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  transform: scale(1.05);
+}
+
+.slider-container {
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  padding-bottom: 20px; /* shadow room */
+}
+
+.slider-container::-webkit-scrollbar {
+  display: none;
+}
+
+.slider-track {
+  display: inline-flex;
+  gap: 20px;
+  /* Make sure it scrolls properly considering it's RTL */
+}
+
+/* Compact Card for slider */
+.slider-item {
+  width: 260px;
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+}
+
+.slider-item .pimg {
+  height: 180px;
+}
+
+.slider-card-title {
+  font-size: 16px;
+  margin: 6px 0 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+

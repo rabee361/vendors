@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>منتجات جديدة في المتجر</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: Tahoma, Arial, sans-serif;
+			background-color: #f3f7f9;
+			color: #1f2937;
+			line-height: 1.8;
+			padding: 20px 10px;
+		}
+
+		.email-container {
+			max-width: 640px;
+			margin: 0 auto;
+			background-color: #ffffff;
+			border: 1px solid #dce6eb;
+			border-radius: 14px;
+			overflow: hidden;
+		}
+
+		.header {
+			background: linear-gradient(135deg, #0f766e 0%, #0ea5a5 50%, #14b8a6 100%);
+			color: #ffffff;
+			padding: 28px 24px;
+			text-align: center;
+		}
+
+		.header h1 {
+			font-size: 25px;
+			margin-bottom: 8px;
+		}
+
+		.header p {
+			font-size: 15px;
+			opacity: 0.95;
+		}
+
+		.content {
+			padding: 32px 24px;
+		}
+
+		.hello {
+			font-size: 18px;
+			font-weight: 700;
+			color: #0f172a;
+            text-align: center;
+			margin-bottom: 14px;
+		}
+
+		.message {
+			font-size: 15px;
+			color: #334155;
+			margin-bottom: 20px;
+		}
+
+		.store-box {
+			background-color: #ecfeff;
+			border: 1px solid #99f6e4;
+			border-radius: 12px;
+			padding: 18px;
+			text-align: center;
+			margin-bottom: 20px;
+		}
+
+		.store-box .label {
+			display: block;
+			font-size: 13px;
+			color: #0f766e;
+			margin-bottom: 8px;
+		}
+
+		.store-box .store-name {
+			font-size: 24px;
+			font-weight: 800;
+			color: #0f766e;
+		}
+
+		.note {
+			font-size: 14px;
+			color: #475569;
+			background-color: #f8fafc;
+			border: 1px dashed #cbd5e1;
+			border-radius: 10px;
+			padding: 14px;
+		}
+
+		.footer {
+			background-color: #f8fafc;
+			border-top: 1px solid #e2e8f0;
+			padding: 20px;
+			text-align: center;
+			color: #64748b;
+			font-size: 13px;
+		}
+
+		.footer .brand {
+			display: block;
+			color: #0f766e;
+			font-weight: 700;
+			margin-bottom: 6px;
+		}
+
+		@media only screen and (max-width: 600px) {
+			.header h1 {
+				font-size: 22px;
+			}
+
+			.content {
+				padding: 24px 16px;
+			}
+
+			.store-box .store-name {
+				font-size: 20px;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="email-container">
+		<div class="header">
+			<h1>هل استمتعت بتجربتك معنا؟
+                 لدينا المزيد من  المنتجات </h1>
+			<p>تمت إضافة منتجات جديدة في متاجرنا التي اشتريت منها سابقاً</p>
+		</div>
+
+		<div class="content">
+			<div class="hello">مرحباً بك،</div>
+			<div class="message">
+				نود إخبارك بأنه تمت إضافة منتجات جديدة في المتجر التالي:
+			</div>
+
+			<div class="store-box">
+				<span class="store-name">{{ store_name }}</span>
+			</div>
+
+			<div class="note">
+				تابع زيارة المتجر للاطلاع على أحدث الإضافات والعروض المتوفرة.
+			</div>
+		</div>
+
+		<div class="footer">
+			<span class="brand">Vendor Store</span>
+			<span>هذه رسالة إشعار تلقائية من النظام</span>
+		</div>
+	</div>
+</body>
+</html>

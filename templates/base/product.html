@@ -6,117 +6,353 @@
 {% endblock %}
 {% block content %}
 <!-- Compare Modal -->
-<section id="compare" class="overlay" aria-label="مقارنة المنتجات">
-  <div class="modal" role="dialog" aria-modal="true">
-    <div class="mhead">
+<section id="compare" class="overlay compare-overlay" aria-label="مقارنة المنتجات">
+  <div class="compare-modal" role="dialog" aria-modal="true">
+    <div class="compare-header">
       <b>مقارنة المنتجات</b>
-      <a class="close" href="#">إغلاق</a>
+      <a class="compare-close" href="#" aria-label="إغلاق">
+        <i class="fas fa-times"></i>
+      </a>
     </div>
-    <div class="pad">
-      <div class="small">* هذه واجهة مقارنة بدون JS. الـ Backend يملأ الأعمدة حسب اختيار المستخدم.</div>
+    
+    <div class="compare-body">
+      <!-- Carousel ABOVE the table -->
+      {% if store_products %}
+      <div class="compare-carousel-section">
+        <div class="small muted" style="text-align:center; margin-bottom: 10px;">اختر منتج للمقارنة</div>
+        <div class="compare-carousel-wrapper">
+          <button class="carousel-arrow carousel-arrow-right" id="carousel-prev" aria-label="السابق"><i class="fas fa-chevron-right"></i></button>
+          <div class="compare-carousel-viewport" id="compare-carousel">
+            {% for s_product in store_products %}
+            <div class="compare-card {% if forloop.first %}active{% endif %}" 
+                 data-index="{{ forloop.counter0 }}"
+                 data-name="{{ s_product.name }}"
+                 data-price="${{ s_product.price }}"
+                 data-rating="{{ s_product.average_rating|floatformat:1 }} / 5"
+                 data-stock="{% if s_product.stock > 0 %}{{ s_product.stock }} متوفر{% else %}نفد المخزون{% endif %}"
+                 data-category="{{ s_product.category.name|default:'عام' }}">
+              {% if s_product.image %}
+              <img src="{{ s_product.image.url }}" alt="{{ s_product.name }}">
+              {% else %}
+              <div class="compare-card-placeholder"></div>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+          <button class="carousel-arrow carousel-arrow-left" id="carousel-next" aria-label="التالي"><i class="fas fa-chevron-left"></i></button>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Comparison Table -->
+      <div class="compare-table-wrap">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>الميزة</th>
+              <th>المنتج الحالي</th>
+              <th>منتج للمقارنة</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>الاسم</td>
+              <td>{{ product.name }}</td>
+              <td id="compare-name">-</td>
+            </tr>
+            <tr>
+              <td>السعر</td>
+              <td><b>${{ product.price }}</b></td>
+              <td id="compare-price">-</td>
+            </tr>
+            <tr>
+              <td>التقييم</td>
+              <td>{{ product.average_rating|floatformat:1 }} / 5</td>
+              <td id="compare-rating">-</td>
+            </tr>
+            <tr>
+              <td>المخزون</td>
+              <td>{% if product.stock > 0 %}{{ product.stock }} متوفر{% else %}نفد المخزون{% endif %}</td>
+              <td id="compare-stock">-</td>
+            </tr>
+            <tr>
+              <td>التصنيف</td>
+              <td>{{ product.category.name|default:"عام" }}</td>
+              <td id="compare-category">-</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-    <div style="overflow:auto">
-      <table aria-label="جدول المقارنة">
-        <thead>
-          <tr>
-            <th style="min-width:170px">الميزة</th>
-            <th style="min-width:240px">المنتج الحالي</th>
-            <th style="min-width:240px">منتج للمقارنة</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>الاسم</td>
-            <td>سماعات Pro ANC</td>
-            <td>سماعات Lite</td>
-          </tr>
-          <tr>
-            <td>السعر</td>
-            <td><b>$59</b></td>
-            <td><b>$39</b></td>
-          </tr>
-          <tr>
-            <td>التقييم</td>
-            <td>4.7 / 5</td>
-            <td>4.3 / 5</td>
-          </tr>
-          <tr>
-            <td>ميزة أساسية</td>
-            <td>عزل ضوضاء + بطارية 30 ساعة</td>
-            <td>بطارية 18 ساعة</td>
-          </tr>
-          <tr>
-            <td>الضمان</td>
-            <td>12 شهر</td>
-            <td>6 أشهر</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="pad">
-      <a class="btn primary" href="#cart">إضافة المنتج للسلة</a>
-      <a class="btn" href="index.html">عودة للمتجر</a>
-    </div>
+
   </div>
 </section>
 
 <div class="container">
   <div class="product-grid">
+    
+    <!-- Info Section (Left in RTL) -->
+    <section class="card pad product-info" aria-label="تفاصيل المنتج">
+      <div class="muted" style="margin-bottom: 8px;">من متجر: {{ product.tenant.store_name }} • {{ product.category.name|default:"عام" }}</div>
+      
+      <h1 style="margin: 0 0 12px; font-size: 28px; line-height: 1.3;">{{ product.name }}</h1>
+      
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:20px;">
+        <span class="stars">
+          {% if product.average_rating >= 1 %}★{% else %}☆{% endif %}
+          {% if product.average_rating >= 2 %}★{% else %}☆{% endif %}
+          {% if product.average_rating >= 3 %}★{% else %}☆{% endif %}
+          {% if product.average_rating >= 4 %}★{% else %}☆{% endif %}
+          {% if product.average_rating >= 5 %}★{% else %}☆{% endif %}
+        </span>
+        <span class="muted">{{ product.average_rating|floatformat:1 }} ({{ product.rating_count }} تقييم)</span>
+      </div>
+
+      <div class="price" style="font-size: 32px; margin-bottom: 24px; color: var(--warn);">${{ product.price }}</div>
+
+      <p class="muted" style="margin:0 0 30px; line-height:1.9">
+        {{ product.description }}
+      </p>
+
+      <div class="product-actions-row">
+        <div style="display:flex; gap:12px; flex-wrap:wrap">
+          <button class="paction-btn primary cart {% if product.id|slugify in cart_product_ids %}active{% endif %}" hx-post="{% url 'add_to_cart' product.id %}"
+            hx-vals='{"quantity": 1}' hx-target="#cart" hx-swap="outerHTML" aria-label="إضافة للسلة"><i
+              class="fas fa-cart-plus"></i></button>
+          
+          <button class="paction-btn fav {% if product.id|slugify in favorite_product_ids %}active{% endif %}"
+            hx-post="{% url 'toggle_favorite' product.id %}" hx-target="#favorites" hx-swap="outerHTML"
+            aria-label="مفضلة" hx-on::after-request="this.classList.toggle('active')"><i class="fas fa-heart"></i></button>
+          
+          <a class="paction-btn" href="#compare" aria-label="مقارنة"><i class="fas fa-exchange-alt"></i></a>
+          <a class="paction-btn" href="{% url 'vendor_store' product.tenant.id %}" aria-label="عرض متجر البائع"><i class="fas fa-store"></i></a>
+        </div>
+      </div>
+
+      <!-- Included Rating Section -->
+      {% include 'base/partials/rating_partial.html' %}
+      
+    </section>
+
+    <!-- Image Section (Right in RTL) -->
     <section class="card" aria-label="صورة المنتج">
-      <div class="product-img-container">
+      <div class="product-img-container" style="height: 100%; border-bottom: none;">
         {% if product.image %}
-        <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width:100%; height:100%; object-fit:cover;">
+        <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width:100%; height:100%; min-height: 480px; object-fit:cover;">
+        {% else %}
+        <div style="width:100%; height:100%; min-height:480px; background:var(--grad-panel);"></div>
         {% endif %}
         {% if product.is_sponsored_badge %}
         <span class="product-badge">ممول</span>
         {% endif %}
       </div>
-      <div class="pad">
-        <div class="muted">من متجر: {{ product.tenant.store_name }} • {{ product.category.name|default:"عام" }}</div>
-        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:8px">
-          <span class="stars">
-            {% if product.rating >= 1 %}★{% else %}☆{% endif %}
-            {% if product.rating >= 2 %}★{% else %}☆{% endif %}
-            {% if product.rating >= 3 %}★{% else %}☆{% endif %}
-            {% if product.rating >= 4 %}★{% else %}☆{% endif %}
-            {% if product.rating >= 5 %}★{% else %}☆{% endif %}
-          </span>
-          <span class="muted">{{ product.rating|default:"0.0" }} ({{ product.rating_count|default:"0" }} تقييم)</span>
-        </div>
-        <div class="product-details-row">
-          <div>
-            <div class="muted">السعر</div>
-            <div class="price">${{ product.price }}</div>
-          </div>
-          <div style="display:flex; gap:10px; flex-wrap:wrap">
-            <a class="btn primary" href="#">شراء الآن</a>
-            <a class="btn" href="#">مفضلة</a>
-          </div>
-        </div>
-      </div>
     </section>
 
-    <section class="card pad product-info" aria-label="تفاصيل المنتج">
-      <h1>{{ product.name }}</h1>
-      <p class="muted" style="margin:0; line-height:1.9">
-        {{ product.description }}
-      </p>
-
-      <div class="product-details-row">
-        <div style="display:flex; gap:10px; flex-wrap:wrap">
-          <button class="paction-btn primary cart {% if product.id|slugify in cart_product_ids %}active{% endif %}" hx-post="{% url 'add_to_cart' product.id %}"
-            hx-vals='{"quantity": 1}' hx-target="#cart" hx-swap="outerHTML" aria-label="إضافة للسلة"><i
-              class="fas fa-cart-plus"></i></button>
-          <button class="paction-btn fav {% if product.id|slugify in favorite_product_ids %}active{% endif %}"
-            hx-post="{% url 'toggle_favorite' product.id %}" hx-target="#favorites" hx-swap="outerHTML"
-            aria-label="مفضلة" hx-on::after-request="this.classList.toggle('active')"><i class="fas fa-heart"></i></button>
-          <a class="paction-btn" href="#compare" aria-label="مقارنة"><i class="fas fa-exchange-alt"></i></a>
-          <a class="paction-btn" href="#" aria-label="عرض متجر البائع"><i class="fas fa-store"></i></a>
-        </div>
-      </div>
-
-    </section>
   </div>
+
+  <!-- Store Products Slider -->
+  {% if store_products %}
+  <section class="store-slider-section" aria-label="منتجات أخرى من نفس المتجر">
+    <div class="slider-header">
+      <h2>المزيد من متجر: {{ product.tenant.store_name }}</h2>
+      <div class="slider-controls">
+        <button class="slider-btn prev" aria-label="السابق"><i class="fas fa-chevron-right"></i></button>
+        <button class="slider-btn next" aria-label="التالي"><i class="fas fa-chevron-left"></i></button>
+      </div>
+    </div>
+    <div class="slider-container" id="store-slider">
+      <div class="slider-track">
+        {% for s_product in store_products %}
+        <article class="card slider-item">
+          <div class="pimg">
+            {% if s_product.is_sponsored_badge %}
+            <span class="badge">ممول</span>
+            {% endif %}
+            {% if s_product.image %}
+            <img src="{{ s_product.image.url }}" alt="{{ s_product.name }}">
+            {% else %}
+            <div class="placeholder"></div>
+            {% endif %}
+          </div>
+          <div class="pad">
+            <h3 class="slider-card-title">{{ s_product.name }}</h3>
+            <div class="pmeta" style="margin-top: auto;">
+              <span class="stars">
+                {% if s_product.average_rating >= 1 %}★{% else %}☆{% endif %}
+                {% if s_product.average_rating >= 2 %}★{% else %}☆{% endif %}
+                {% if s_product.average_rating >= 3 %}★{% else %}☆{% endif %}
+                {% if s_product.average_rating >= 4 %}★{% else %}☆{% endif %}
+                {% if s_product.average_rating >= 5 %}★{% else %}☆{% endif %}
+              </span>
+              <b class="price">${{ s_product.price }}</b>
+            </div>
+            <div class="pactions" style="margin-top: 12px;">
+                <a class="paction-btn view" href="{% url 'product' s_product.id %}" aria-label="عرض التفاصيل"><i class="fas fa-eye"></i></a>
+                <button class="paction-btn primary cart {% if s_product.id|slugify in cart_product_ids %}active{% endif %}" hx-post="{% url 'add_to_cart' s_product.id %}" hx-vals='{"quantity": 1}' hx-target="#cart" hx-swap="outerHTML" aria-label="إضافة للسلة"><i class="fas fa-cart-plus"></i></button>
+            </div>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
 </div>
+
+<script>
+  // Slider Logic
+  document.addEventListener('DOMContentLoaded', () => {
+    const slider = document.getElementById('store-slider');
+    if (!slider) return;
+    const prevBtn = document.querySelector('.slider-btn.prev');
+    const nextBtn = document.querySelector('.slider-btn.next');
+    const scrollAmount = 300; // Approx card width + gap
+
+    prevBtn?.addEventListener('click', () => {
+        // Since RTL, scrolling "previous" might mean scrolling right (positive)
+        slider.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    });
+    
+    nextBtn?.addEventListener('click', () => {
+        slider.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    });
+
+    // Rating Logic Setup
+    initStarRating();
+    
+    // Re-init after HTMX swaps
+    document.body.addEventListener('htmx:afterSwap', function(event) {
+      if (event.detail.target.id === 'product-rating-section') {
+        initStarRating();
+      }
+    });
+
+    function initStarRating() {
+      const container = document.querySelector('.stars-container');
+      if (!container) return;
+      
+      const selector = document.querySelector('.star-rating-selector');
+      const input = document.getElementById('rating-input');
+      const tooltip = document.getElementById('rating-tooltip');
+      const submitBtn = document.getElementById('submit-rating-btn');
+      
+      let currentRating = parseFloat(selector.dataset.currentRating) || 0;
+      let hoverRating = 0;
+      
+      // Clear existing stars if any
+      container.innerHTML = '';
+      
+      // Build 5 stars
+      for (let i = 1; i <= 5; i++) {
+        const star = document.createElement('div');
+        star.className = 'interactive-star';
+        // HTML entity for star
+        star.innerHTML = '★';
+        
+        // Two halves for each star
+        const leftHalf = document.createElement('div');
+        leftHalf.className = 'star-half left-half';
+        const rightHalf = document.createElement('div');
+        rightHalf.className = 'star-half right-half';
+        
+        star.appendChild(leftHalf);
+        star.appendChild(rightHalf);
+        container.appendChild(star);
+        
+        // Events
+        leftHalf.addEventListener('mouseenter', () => updateVisuals(i - 0.5));
+        rightHalf.addEventListener('mouseenter', () => updateVisuals(i));
+        
+        leftHalf.addEventListener('click', () => setRating(i - 0.5));
+        rightHalf.addEventListener('click', () => setRating(i));
+      }
+      
+      container.addEventListener('mouseleave', () => {
+        updateVisuals(currentRating);
+        tooltip.style.opacity = '0';
+      });
+
+      // Initial visual
+      updateVisuals(currentRating, false);
+      
+      function updateVisuals(rating, showTooltip = true) {
+        const stars = container.querySelectorAll('.interactive-star');
+        stars.forEach((star, index) => {
+          const starVal = index + 1;
+          star.classList.remove('full', 'half', 'active-hover');
+          
+          if (rating >= starVal) {
+            star.classList.add('full');
+          } else if (rating === starVal - 0.5) {
+            star.classList.add('half');
+          }
+          
+          if (showTooltip && rating > 0) {
+            star.classList.add('active-hover');
+          }
+        });
+        
+        if (showTooltip && rating > 0) {
+           tooltip.textContent = rating.toFixed(1);
+           tooltip.style.opacity = '1';
+        }
+      }
+      
+      function setRating(rating) {
+        currentRating = rating;
+        input.value = rating;
+        updateVisuals(rating);
+        submitBtn.style.display = 'inline-block';
+      }
+    }
+
+    // Compare Carousel Logic (index-based, deterministic)
+    const carouselViewport = document.getElementById('compare-carousel');
+    if (carouselViewport) {
+      const cards = Array.from(carouselViewport.querySelectorAll('.compare-card'));
+      let activeIndex = 0;
+
+      const updateCompareTable = (card) => {
+        if (!card) return;
+        document.getElementById('compare-name').textContent = card.dataset.name || '-';
+        document.getElementById('compare-price').innerHTML = '<b>' + (card.dataset.price || '-') + '</b>';
+        document.getElementById('compare-rating').textContent = card.dataset.rating || '-';
+        document.getElementById('compare-stock').textContent = card.dataset.stock || '-';
+        document.getElementById('compare-category').textContent = card.dataset.category || '-';
+      };
+
+      const setActive = (index) => {
+        if (index < 0 || index >= cards.length) return;
+        activeIndex = index;
+        cards.forEach((c, i) => {
+          c.classList.toggle('active', i === index);
+        });
+        updateCompareTable(cards[index]);
+      };
+
+      // Initial state
+      setActive(0);
+
+      // Click on any card to select it
+      cards.forEach((card, i) => {
+        card.addEventListener('click', () => setActive(i));
+      });
+
+      // Prev/Next arrows
+      const prevBtn = document.getElementById('carousel-prev');
+      const nextBtn = document.getElementById('carousel-next');
+      
+      prevBtn?.addEventListener('click', () => {
+        setActive(activeIndex + 1 < cards.length ? activeIndex + 1 : 0);
+      });
+      
+      nextBtn?.addEventListener('click', () => {
+        setActive(activeIndex - 1 >= 0 ? activeIndex - 1 : cards.length - 1);
+      });
+    }
+
+  });
+</script>
 
 {% endblock %}

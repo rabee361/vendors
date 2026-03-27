@@ -102,7 +102,7 @@
           <div class="muted">من متجر: {{ ad.tenant.store_name }}</div>
           <h3 style="margin:6px 0">{{ ad.product }}</h3>
           <div class="pmeta">
-            <span class="stars"> ⭐ {{ ad.product.rating }}</span>
+            <span class="stars"> ⭐ {{ ad.product.average_rating }}</span>
             <b class="price">${{ ad.product.price }}</b>
           </div>
           <div class="pactions">
@@ -204,7 +204,7 @@
               <div class="avatar" aria-hidden="true"></div>
               {% endif %}
               <b>{{ vendor.store_name }}</b>
-              <span>{{ vendor.category.name|default:"عام" }} • تقييم {{ vendor.rating|default:"0.0" }}</span>
+              <span>{{ vendor.category.name }}</span>
             </div>
             <a class="btn2 primary" href="{% url 'vendor_store' vendor.id %} " aria-label="عرض المتجر"><span class="arrow"><i class="fas fa-arrow-left"></i></span></a>
           </div>

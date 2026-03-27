@@ -99,7 +99,6 @@ class Command(BaseCommand):
                 defaults={
                     'store_name': COMPANY_NAMES[i % len(COMPANY_NAMES)],
                     'category': random.choice(store_categories),
-                    'rating': random.uniform(3.5, 5.0),
                     'address': f"{random.choice(CITIES)}, Street {random.randint(1, 100)}",
                     'phone': f"+9647{random.randint(700000000, 799999999)}",
                 }
@@ -159,7 +158,6 @@ class Command(BaseCommand):
                             'price': random.uniform(15.0, 450.0),
                             'stock': random.randint(10, 200),
                             'category': p_cat,
-                            'rating': random.uniform(3.8, 5.0),
                             'rating_count': random.randint(5, 150),
                             'is_active': True
                         }
@@ -189,7 +187,8 @@ class Command(BaseCommand):
                         }
                     )
 
-        # 7. Create Sponsored Ads
+        # 7. Create Sponsored q
+        
         self.stdout.write("Generating Ads...")
         if all_products:
             for _ in range(5):

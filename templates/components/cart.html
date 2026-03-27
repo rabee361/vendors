@@ -56,12 +56,68 @@
                         الكلي</span><b>${{ cart_total }}</b></div>
             </div>
 
+            {% if requested_by_htmx != "topbar" %}
+            <!-- Suggested Products Section -->
+            {% if suggested_products %}
+            <div class="cart-suggestions" style="margin-top: 30px; padding-top: 20px; border-top: 1px dashed var(--line);">
+                <div class="small muted" style="margin-bottom: 12px; font-weight: 700;">قد يهمك أيضاً:</div>
+                <div class="suggestion-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    {% for s_product in suggested_products %}
+                    <div class="s-card">
+                        <div class="s-img">
+                            {% if s_product.image %}
+                            <img src="{{ s_product.image.url }}" alt="{{ s_product.name }}">
+                            {% else %}
+                            <div class="placeholder-small"></div>
+                            {% endif %}
+                        </div>
+                        <div class="s-info">
+                            <div class="s-name">{{ s_product.name }}</div>
+                            <div class="s-rating">⭐ {{ s_product.average_rating|floatformat:1 }}</div>
+                            <button class="s-add-btn" hx-post="{% url 'add_to_cart' s_product.id %}" hx-vals='{"quantity": 1}' hx-target="#cart .drawer" hx-select=".drawer" hx-swap="outerHTML">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            {% endif %}
+
             {% else %}
             <div style="text-align: center; padding: 40px 20px;">
                 <i class="fas fa-shopping-cart" style="font-size: 48px; color: var(--muted); margin-bottom: 20px;"></i>
                 <p class="muted">السلة فارغة حالياً.</p>
                 <a class="btn primary" href="{% url 'product_list' %}" style="margin-top: 15px;">تسوق الآن</a>
             </div>
+
+            <!-- Also show suggestions if empty -->
+            {% if suggested_products %}
+            <div class="cart-suggestions" style="margin-top: 30px; padding-top: 20px; border-top: 1px dashed var(--line);">
+                <div class="small muted" style="text-align:center; margin-bottom: 15px;">منتجات مقترحة لك</div>
+                <div class="suggestion-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    {% for s_product in suggested_products %}
+                    <div class="s-card">
+                        <div class="s-img">
+                            {% if s_product.image %}
+                            <img src="{{ s_product.image.url }}" alt="{{ s_product.name }}">
+                            {% else %}
+                            <div class="placeholder-small"></div>
+                            {% endif %}
+                        </div>
+                        <div class="s-info">
+                            <div class="s-name">{{ s_product.name }}</div>
+                            <div class="s-rating">⭐ {{ s_product.average_rating|floatformat:1 }}</div>
+                            <button class="s-add-btn" hx-post="{% url 'add_to_cart' s_product.id %}" hx-vals='{"quantity": 1}' hx-target="#cart .drawer" hx-select=".drawer" hx-swap="outerHTML">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
             {% endif %}
 
         </div>

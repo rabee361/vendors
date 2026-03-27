@@ -1,22 +1,19 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import TemplateView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
-from ..models import Product, Offer, Order, SponsoredAd, Vendor, StoreCategory, ProductCategory, Favorite, CartItem
+from ..models import Product, Offer, Order, SponsoredAd, Vendor, StoreCategory, ProductCategory, Favorite, CartItem, Coupon
 from django.views.generic import FormView
-from ..forms import VendorSignupForm, ProductForm, OfferForm, SponsoredAdForm, OrderUpdateForm, ProductCategoryForm
-from utils.types import UserType, CodeTypes
+from ..forms import VendorSignupForm, ProductForm, OfferForm, SponsoredAdForm, OrderUpdateForm, ProductCategoryForm, CouponForm, VendorSettingsForm
+from utils.types import OrderStatus, UserType, CodeTypes
 from utils.mixins import SellerRequiredMixin
-from utils.email import send_otp_email
+from utils.email import send_otp_email, send_new_product_email
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth import get_user_model
-from django.db.models import Q
+from django.db.models import Q, Sum, F
 from django.utils import timezone
 
 
 User = get_user_model()
-
-
-from django.db.models import Sum
 
 class VendorDashboardView(SellerRequiredMixin, View):
     def get(self, request):
@@ -24,7 +21,7 @@ class VendorDashboardView(SellerRequiredMixin, View):
         
         products = Product.objects.filter(tenant=vendor).order_by('-created_at')
         offers = Offer.objects.filter(tenant=vendor).order_by('-created_at')
-        ads = SponsoredAd.objects.filter(product__tenant=vendor).order_by('-created_at')
+        ads = SponsoredAd.objects.filter(product__tenant=vendor).order_by('-start_date')
         orders = Order.objects.filter(tenant=vendor).order_by('-created_at')
         
         # Real Stats
@@ -37,7 +34,7 @@ class VendorDashboardView(SellerRequiredMixin, View):
         }
 
         # Enhanced Stats
-        top_rated = products.exclude(rating=0).order_by('-rating', '-rating_count').first()
+        top_rated = products.order_by('-ratings').first()
         
         most_ordered = Product.objects.filter(tenant=vendor).annotate(
             total_sold=Sum('orderitem__quantity')
@@ -70,7 +67,7 @@ class VendorStoreView(View):
     def get(self, request, pk):
         vendor = get_object_or_404(Vendor, pk=pk)
         products = Product.objects.filter(tenant=vendor).order_by('-created_at')
-        ads = SponsoredAd.objects.filter(Q(product__tenant=vendor) & Q(start_date__lte=timezone.now()) & Q(end_date__gte=timezone.now())).order_by('-created_at')
+        ads = SponsoredAd.objects.filter(Q(product__tenant=vendor) & Q(start_date__lte=timezone.now()) & Q(end_date__gte=timezone.now())).order_by('-start_date')
         offers = Offer.objects.filter(Q(tenant=vendor) & Q(start_date__lte=timezone.now()) & Q(end_date__gte=timezone.now())).order_by('-created_at')
         context = {
             'vendor': vendor,
@@ -129,12 +126,14 @@ class ProductsListView(SellerRequiredMixin, View):
         vendor = get_object_or_404(Vendor, user=request.user)
         query = request.GET.get('q')
         products = Product.objects.filter(tenant=vendor)
+        categories = ProductCategory.objects.filter(tenant=vendor)
+        this_monthl_sales = Order.objects.filter(tenant=vendor, created_at__month=timezone.now().month, status=OrderStatus.DELIVERED).aggregate(total_sales=Sum(F('total') + F('shipping_cost') - F('discount_amount')))
         if query:
             products = products.filter(Q(name__icontains=query))
         products = products.order_by('-created_at')
         context = {
-            'weekly_views':30,
-            'monthly_sales':100,
+            'total_categories':categories.count(),
+            'this_monthl_sales':this_monthl_sales['total_sales'] or 0.0,
             'products': products,
             'product_count': products.count(),
             'vendor_id': vendor.id
@@ -154,6 +153,21 @@ class ProductAddView(SellerRequiredMixin, View):
             product = form.save(commit=False)
             product.tenant = vendor
             product.save()
+
+            if form.cleaned_data.get('send_notification'):
+                recipient_emails = list(
+                    Order.objects.filter(
+                        tenant=vendor,
+                        status=OrderStatus.DELIVERED,
+                    )
+                    .exclude(email__isnull=True)
+                    .exclude(email__exact='')
+                    .values_list('email', flat=True)
+                    .distinct()
+                )
+                # Notification delivery should never block product creation.
+                send_new_product_email(vendor.store_name, recipient_emails)
+
             return redirect('vendor_products')
         return render(request, self.template_name, {'form': form, 'title': 'إضافة منتج', 'vendor_id': vendor.id})
 
@@ -253,7 +267,7 @@ class AdsListView(SellerRequiredMixin, View):
         ads = SponsoredAd.objects.filter(product__tenant=vendor)
         if query:
             ads = ads.filter(Q(product__name__icontains=query))
-        ads = ads.order_by('-created_at')
+        ads = ads.order_by('-start_date')
         return render(request, 'vendors/ads.html', {'ads': ads, 'vendor_id': vendor.id})
 
 class AdAddView(SellerRequiredMixin, View):
@@ -362,3 +376,78 @@ class CategoryUpdateView(SellerRequiredMixin, View):
             category.save()
             return redirect('vendor_categories')
         return render(request, self.template_name, {'form': form, 'title': 'تحديث الصنف', 'object': category, 'vendor_id': vendor.id})
+
+class VendorCouponsView(SellerRequiredMixin, View):
+    def get(self, request):
+        vendor = get_object_or_404(Vendor, user=request.user)
+        query = request.GET.get('q')
+        coupons = Coupon.objects.filter(tenant=vendor)
+        if query:
+            coupons = coupons.filter(Q(code__icontains=query))
+        coupons = coupons.order_by('-created_at')
+        return render(request, 'vendors/coupons.html', {'coupons': coupons, 'vendor_id': vendor.id})
+
+class VendorCouponAddView(SellerRequiredMixin, View):
+    template_name = 'vendors/coupon_form.html'
+    def get(self, request):
+        vendor = get_object_or_404(Vendor, user=request.user)
+        form = CouponForm()
+        return render(request, self.template_name, {'form': form, 'title': 'إضافة كود خصم', 'vendor_id': vendor.id})
+    def post(self, request):
+        vendor = get_object_or_404(Vendor, user=request.user)
+        form = CouponForm(request.POST)
+        if form.is_valid():
+            coupon = form.save(commit=False)
+            coupon.tenant = vendor
+            coupon.save()
+            return redirect('vendor_coupons')
+        return render(request, self.template_name, {'form': form, 'title': 'إضافة كود خصم', 'vendor_id': vendor.id})
+
+class VendorCouponUpdateView(SellerRequiredMixin, View):
+    template_name = 'vendors/coupon_form.html'
+    def get(self, request, pk):
+        vendor = get_object_or_404(Vendor, user=request.user)
+        coupon = get_object_or_404(Coupon, pk=pk, tenant=vendor)
+        form = CouponForm(instance=coupon)
+        return render(request, self.template_name, {'form': form, 'title': 'تحديث كود الخصم', 'object': coupon, 'vendor_id': vendor.id})
+    def post(self, request, pk):
+        vendor = get_object_or_404(Vendor, user=request.user)
+        coupon = get_object_or_404(Coupon, pk=pk, tenant=vendor)
+        form = CouponForm(request.POST, instance=coupon)
+        if form.is_valid():
+            form.save()
+            return redirect('vendor_coupons')
+        return render(request, self.template_name, {'form': form, 'title': 'تحديث كود الخصم', 'object': coupon, 'vendor_id': vendor.id})
+
+class VendorCouponDeleteView(SellerRequiredMixin, View):
+    def get(self, request, pk):
+        vendor = get_object_or_404(Vendor, user=request.user)
+        coupon = get_object_or_404(Coupon, pk=pk, tenant=vendor)
+        coupon.delete()
+        return redirect('vendor_coupons')
+
+class VendorSettingsView(SellerRequiredMixin, View):
+    template_name = 'vendors/vendor_form.html'
+
+    def get(self, request):
+        vendor = get_object_or_404(Vendor, user=request.user)
+        form = VendorSettingsForm(instance=vendor)
+        return render(request, self.template_name, {
+            'form': form,
+            'title': 'إعدادات المتجر',
+            'vendor': vendor,
+            'vendor_id': vendor.id,
+        })
+
+    def post(self, request):
+        vendor = get_object_or_404(Vendor, user=request.user)
+        form = VendorSettingsForm(request.POST, request.FILES, instance=vendor)
+        if form.is_valid():
+            form.save()
+            return redirect('vendor_settings')
+        return render(request, self.template_name, {
+            'form': form,
+            'title': 'إعدادات المتجر',
+            'vendor': vendor,
+            'vendor_id': vendor.id,
+        })

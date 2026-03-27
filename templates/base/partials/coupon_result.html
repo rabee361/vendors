@@ -1,0 +1,59 @@
+{% if error %}
+<div style="color:var(--danger); font-size:13px; margin-top:5px;">
+    <i class="fas fa-times-circle"></i> {{ error }}
+</div>
+
+{% elif cleared %}
+<!-- All coupons removed, reset totals -->
+<div id="checkout-totals" class="sum" hx-swap-oob="true">
+    <div style="display:flex; justify-content:space-between; margin-bottom:8px">
+        <span>المجموع الفرعي</span>
+        <b>${{ original_total }}</b>
+    </div>
+    <div style="display:flex; justify-content:space-between; margin-bottom:8px">
+        <span>تكلفة الشحن</span>
+        <b>$0</b>
+    </div>
+    <div class="checkout-total" style="display:flex; justify-content:space-between; margin-top:12px; padding-top:12px; border-top:1px solid var(--line);">
+        <span>الإجمالي الكلي</span>
+        <b class="price" style="font-size: 24px; color: var(--accent2);">${{ original_total }}</b>
+    </div>
+</div>
+
+{% else %}
+<!-- Applied coupons list -->
+<div style="margin-top: 8px;">
+    {% for c in applied_coupons %}
+    <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; padding:4px 8px; margin-bottom:4px; background:rgba(255,255,255,0.03); border-radius:6px; border:1px solid var(--line);">
+        <span style="color:var(--accent);"><i class="fas fa-check-circle"></i> {{ c.code }} &mdash; -${{ c.value }}</span>
+        <button type="button" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:11px; padding:2px 6px;"
+            hx-post="{% url 'remove_coupon' vendor_id %}"
+            hx-vals='{"remove_code": "{{ c.code }}"}'
+            hx-target="#coupon-result"
+            title="إزالة">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- OOB swap: update totals -->
+<div id="checkout-totals" class="sum" hx-swap-oob="true">
+    <div style="display:flex; justify-content:space-between; margin-bottom:8px">
+        <span>المجموع الفرعي</span>
+        <b>${{ original_total }}</b>
+    </div>
+    <div style="display:flex; justify-content:space-between; margin-bottom:8px; color:var(--accent);">
+        <span>إجمالي الخصم ({{ applied_coupons|length }} كوبون)</span>
+        <b>-${{ total_discount }}</b>
+    </div>
+    <div style="display:flex; justify-content:space-between; margin-bottom:8px">
+        <span>تكلفة الشحن</span>
+        <b>$0</b>
+    </div>
+    <div class="checkout-total" style="display:flex; justify-content:space-between; margin-top:12px; padding-top:12px; border-top:1px solid var(--line);">
+        <span>الإجمالي الكلي</span>
+        <b class="price" style="font-size: 24px; color: var(--accent2);">${{ new_total }}</b>
+    </div>
+</div>
+{% endif %}

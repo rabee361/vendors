@@ -104,12 +104,30 @@ class CartService:
                 cart_count += quantity
                 total_price += item_total
 
+        # Suggested products: same vendor(s) as cart items, or random if cart empty
+        if self.request.user.is_authenticated:
+            cart_product_ids_list = [str(pid) for pid in CartItem.objects.filter(cart__user=self.request.user).values_list('product_id', flat=True)]
+        else:
+            cart_product_ids_list = list(self.cart.keys())
+        vendor_ids = [v.id for v in grouped_items.keys()]
+
+        if vendor_ids:
+            suggested = Product.objects.filter(
+                tenant_id__in=vendor_ids, is_active=True
+            ).exclude(id__in=cart_product_ids_list).order_by('?')[:2]
+        else:
+            suggested = Product.objects.filter(is_active=True).order_by('?')[:2]
+
         return {
             'grouped_items': dict(grouped_items),
             'cart_count': cart_count,
             'cart_total': total_price,
-            'cart_product_ids': [str(pid) for pid in (self.cart.keys() if not self.request.user.is_authenticated else items.values_list('product_id', flat=True))]
+            'cart_product_ids': cart_product_ids_list,
+            'suggested_products': suggested
         }
+
+    def get_items(self):
+        return self.get_context()['grouped_items']
 
     def clear_by_vendor(self, vendor_id):
         if self.request.user.is_authenticated:

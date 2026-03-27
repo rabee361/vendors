@@ -26,7 +26,11 @@
       <div class="container">
           <div class="row">
               <a class="brand" href="{% url 'home' %}" aria-label="العودة للصفحة الرئيسية">
-                <img class="logo-img" src="{{ vendor.logo.url }}" style="width: 50px; height: 50px;" alt="Marketplace Logo">
+                {% if vendor.logo %}
+                  <img class="logo-img" src="{{ vendor.logo.url }}" style="width: 50px; height: 50px;" alt="{{ vendor.store_name }} Logo">  
+                  {% else %}
+                  <img class="logo-img" src="" style="width: 50px; height: 50px;" alt="{{ vendor.store_name }} Logo">
+                  {% endif %}
                 <h1 style="margin:0 0 6px; font-size:18px; margin-left: 10px;">{{ vendor.store_name }}</h1>
               </a>
 
@@ -36,9 +40,6 @@
               </nav>
 
               <div class="actions">
-              <button id="theme-toggler" class="theme-toggle" aria-label="تبديل المظهر">
-                  <i class="fas fa-moon"></i>
-              </button>
               <a class="iconbtn" onclick="toggleOverlay('favorites')" title="المفضلة" style="cursor: pointer;">
                   <i class="fa-regular fa-heart"></i>
                   <span class="badge" id="fav-count">{{ favorites_count|default:0 }}</span>
@@ -47,6 +48,9 @@
                   <i class="fa-solid fa-cart-shopping"></i>
                   <span class="badge" id="cart-count">{{ cart_count|default:0 }}</span>
               </a>
+              <button id="theme-toggler" class="theme-toggle" aria-label="تبديل المظهر">
+                  <i class="fas fa-moon"></i>
+              </button>
               {% if user.is_authenticated %}
               <a class="iconbtn" onclick="toggleOverlay('account')" title="الحساب" style="cursor: pointer;"><i class="far fa-user"></i></a>
               {% else %}
@@ -80,13 +84,7 @@
               <div class="muted">{{ product.category.name|default:"عام" }} • من متجر {{ product.tenant.store_name }}</div>
               <h3 style="margin:6px 0">{{ product.name }}</h3>
               <div class="pmeta">
-                  <span class="stars">
-                      {% if product.rating >= 1 %}★{% else %}☆{% endif %}
-                      {% if product.rating >= 2 %}★{% else %}☆{% endif %}
-                      {% if product.rating >= 3 %}★{% else %}☆{% endif %}
-                      {% if product.rating >= 4 %}★{% else %}☆{% endif %}
-                      {% if product.rating >= 5 %}★{% else %}☆{% endif %}
-                  </span>
+                  <span class="stars"> ⭐ {{ product.average_rating }}</span>
                   <b class="price">${{ product.price }}</b>
               </div>
               <div class="pactions">
@@ -103,6 +101,10 @@
               </div>
           </div>
       </article>
+      {% empty %}
+        <div style="text-align: center; margin: 16px 0; width: 100%;">
+          <p>لا توجد منتجات حاليا</p>
+        </div>
       {% endfor %}
     </div>
 
@@ -142,6 +144,10 @@
             </div>
           </div>
         </article>
+        {% empty %}
+          <div style="text-align: center; margin: 16px 0; width: 100%;">
+            <p>لا توجد عروض حاليا</p>
+          </div>
         {% endfor %}
       </div>
     </section>
@@ -152,9 +158,9 @@
       <div class="section-head">
         <div>
           <h2>الإعلانات الممولة</h2>
-          <p>منتجات مميزة تظهر هنا كإعلان ممول مستقل.</p>
+          <p>منتجات مميزة.</p>
         </div>
-        <span class="tag sponsored">Sponsored</span>
+        <span class="tag sponsored">اعلانات</span>
       </div>
 
       <div class="grid3">
@@ -170,7 +176,7 @@
             <div class="muted">من متجر: {{ ad.vendor.store_name }}</div>
             <h3 style="margin:6px 0">{{ ad.product }}</h3>
             <div class="pmeta">
-              <span class="stars">{{ ad.product.rating }}</span>
+              <span class="stars"> ⭐ {{ ad.product.average_rating }}</span>
               <b class="price">${{ ad.product.price }}</b>
             </div>
             <div class="pactions">
@@ -182,6 +188,10 @@
             </div>
           </div>
         </article>
+        {% empty %}
+          <div style="text-align: center; margin: 16px 0; width: 100%;">
+            <p>لا توجد اعلانات حاليا</p>
+          </div>
         {% endfor %}
       </div>
     </section>

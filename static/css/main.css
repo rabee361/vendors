@@ -1028,3 +1028,111 @@ textarea {
     opacity: 1;
     color: var(--accent);
 }
+
+/* Cart Suggestions Styling */
+.cart-suggestions {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.suggestion-grid {
+    margin-bottom: 20px;
+}
+
+.s-card {
+    background: rgba(255, 255, 255, .03);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.s-card:hover {
+    background: rgba(255, 255, 255, .06);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+}
+
+.s-img {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: var(--line);
+}
+
+.s-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.placeholder-small {
+    width: 100%;
+    height: 100%;
+    background: var(--grad-panel);
+}
+
+.s-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.s-name {
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 2px;
+}
+
+.s-rating {
+    font-size: 10px;
+    color: var(--ffd27a);
+}
+
+.s-add-btn {
+    position: absolute;
+    bottom: 6px;
+    left: 6px; /* RTL aware: this is 'left' in structural sense */
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    opacity: 0;
+    transform: translateY(5px);
+}
+
+.s-card:hover .s-add-btn {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.s-add-btn:hover {
+    filter: brightness(1.1);
+    transform: scale(1.1);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+[dir="rtl"] .s-add-btn {
+    left: 6px;
+    right: auto;
+}

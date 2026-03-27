@@ -5,7 +5,7 @@ from .models import StoreCategory, OTPCode, ContactMessage, CustomUser
 from utils.validators import SyrianPhoneValidator
 from utils.types import UserType
 from django.contrib.auth import authenticate
-from .models import Product, Offer, SponsoredAd, Order, Vendor, ProductCategory
+from .models import Product, Offer, SponsoredAd, Order, Vendor, ProductCategory, Coupon
 
 User = get_user_model()
 
@@ -285,9 +285,19 @@ class ModeratorVendorForm(forms.ModelForm):
         return vendor
 
 class ProductForm(forms.ModelForm):
+    send_notification = forms.BooleanField(
+        required=False,
+        label='إرسال إشعار بريدي للعملاء الذين استلموا طلباتهم',
+        initial=False,
+    )
+
     def __init__(self, *args, **kwargs):
         vendor = kwargs.pop('vendor', None)
         super().__init__(*args, **kwargs)
+
+        if self.instance and self.instance.pk:
+            self.fields.pop('send_notification', None)
+
         if vendor:
             self.fields['category'].queryset = ProductCategory.objects.filter(tenant=vendor)
 
@@ -374,3 +384,23 @@ class ChangePasswordForm(forms.Form):
         self.user.set_password(new_password)
         self.user.save()
         return self.user
+
+class CouponForm(forms.ModelForm):
+    class Meta:
+        model = Coupon
+        fields = ['value', 'start_date', 'end_date']
+        widgets = {
+            'value': forms.NumberInput(attrs={'placeholder': 'قيمة الخصم الثابتة$'}),
+            'start_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'end_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+        }
+
+class VendorSettingsForm(forms.ModelForm):
+    class Meta:
+        model = Vendor
+        fields = ['store_name', 'address', 'phone', 'logo']
+        widgets = {
+            'store_name': forms.TextInput(attrs={'placeholder': 'اسم المتجر'}),
+            'address': forms.TextInput(attrs={'placeholder': 'المدينة - الحي - الشارع'}),
+            'phone': forms.TextInput(attrs={'placeholder': '+963 9xx xxx xxx'}),
+        }

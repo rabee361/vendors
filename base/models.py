@@ -5,7 +5,7 @@ from django.conf import settings
 from django.utils.text import slugify
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
-from utils.helper import generate_code, get_expiration_time
+from utils.helper import generate_code, generate_coupon_code, get_expiration_time
 from utils.types import UserType, AdType, AdStatus, OrderStatus, CodeTypes
 from django.utils import timezone
 from utils.managers import CustomUserManager
@@ -124,8 +124,6 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveIntegerField(default=0)
     category = models.ForeignKey(ProductCategory, on_delete=models.SET_NULL, null=True)
-    rating = models.DecimalField(max_digits=2, decimal_places=1, default=0)
-    rating_count = models.PositiveIntegerField(default=0)
     image = models.ImageField(upload_to='products/images/')
     is_active = models.BooleanField(default=True)
     is_sponsored_badge = models.BooleanField(default=False)
@@ -140,6 +138,17 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def average_rating(self):
+        reviews = self.ratings.all()
+        if reviews:
+            return sum(review.rating for review in reviews) / len(reviews)
+        return 0.0
+
+    @property
+    def rating_count(self):
+        return self.ratings.count()
 
     @property
     def current_price(self):
@@ -221,6 +230,7 @@ class Order(models.Model):
     tenant = models.ForeignKey(Vendor, on_delete=models.CASCADE, null=True)
     order_number = models.CharField(max_length=20, unique=True)
     total = models.DecimalField(max_digits=10, decimal_places=2)
+    discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     notes = models.TextField(blank=True, null=True)
     address = models.CharField(max_length=255)
     city = models.CharField(max_length=100)
@@ -234,7 +244,7 @@ class Order(models.Model):
     @property
     def total_cost(self):
         if self.total:
-            return self.total + self.shipping_cost
+            return self.total + self.shipping_cost - self.discount_amount
         return 0
 
     def __str__(self):
@@ -298,3 +308,38 @@ class OTPCode(models.Model):
 
     def __str__(self) -> str:
         return f"{self.email} - {self.code} ({self.code_type})"
+
+class ProductRating(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='product_ratings')
+    product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='ratings')
+    rating = models.FloatField(validators=[MinValueValidator(1.0), MaxValueValidator(5.0)])
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('user', 'product')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.product.name} ({self.rating})"
+
+
+class Coupon(models.Model):
+    tenant = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='coupons')
+    code = models.CharField(max_length=8, default=generate_coupon_code)
+    value = models.DecimalField(max_digits=10, decimal_places=2)
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+    is_used = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('tenant', 'code')
+
+    def __str__(self):
+        return f"{self.code} ({self.value})"
+
+    @property
+    def is_valid(self):
+        now = timezone.now()
+        return not self.is_used and self.start_date <= now <= self.end_date
+

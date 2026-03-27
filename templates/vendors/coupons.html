@@ -1,0 +1,65 @@
+{% extends 'vendors/base.html' %}
+
+{% block content %}
+
+<header class="page-header">
+  <ul class="breadcrumb">
+    <li><a href="{% url 'vendor_dashboard' %}"><i class="fa-solid fa-house"></i></a></li>
+    <li><span class="separator"><i class="fa-solid fa-chevron-left"></i></span></li>
+    <li><span class="current">الكوبونات</span></li>
+  </ul>
+  <div class="header-actions">
+    <a class="chip accent" href="{% url 'coupon_add' %}">+ إضافة كوبون</a>
+    <a class="chip" href="{% url 'vendor_store' vendor_id %}">عرض المتجر</a>
+    <a class="chip" href="{% url 'home' %}">زيارة الموقع</a>
+  </div>
+</header>
+
+      <!-- الأصناف -->
+      <section id="categories" class="section">
+        <div class="card pad">
+          <h2 style="margin:0 0 6px">الكوبونات الحالية</h2>
+          
+          <div style="overflow:auto; margin-top:12px">
+            <table aria-label="جدول الكوبونات">
+              <thead>
+                <tr>
+                  <th>الكود</th>
+                  <th>القيمة</th>
+                  <th>تم استعماله</th>
+                  <th>تاريخ البدء</th>
+                  <th>تاريخ الانتهاء</th>
+                  <th>الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for coupon in coupons %}
+                <tr>
+                  <td>{{ coupon.code }}</td>
+                  <td>{{ coupon.value }}</td>
+                  <td>{{ coupon.is_used|yesno:"نعم,لا" }}</td>
+                  <td>{{ coupon.start_date }}</td>
+                  <td>{{ coupon.end_date }}</td>
+                  <td>
+                    <div style="display: flex; gap: 8px;">
+                      <a href="{% url 'coupon_update' coupon.id %}" style="color: var(--accent);" title="تعديل">
+                        <i class="fas fa-edit"></i>
+                      </a>
+                      <a href="{% url 'coupon_delete' coupon.id %}" style="color: var(--danger);" title="حذف" onclick="return confirm('هل أنت متأكد من الحذف؟')">
+                        <i class="fas fa-trash"></i>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="6" style="text-align:center">لا يوجد كوبونات حالياً.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+{% endblock %}

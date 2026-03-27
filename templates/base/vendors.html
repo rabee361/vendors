@@ -13,13 +13,13 @@
       <div class="pad">
           <div class="vendor-card">
             <div style="text-align: right; display: flex; align-items: center; gap: 10px">
-              {% if vendor.avatar %}
-              <img src="{{ vendor.avatar.url }}" class="avatar" alt="{{ vendor.store_name }}">
+              {% if vendor.logo %}
+              <img src="{{ vendor.logo.url }}" class="avatar" alt="{{ vendor.store_name }}">
               {% else %}
               <div class="avatar" aria-hidden="true"></div>
               {% endif %}
               <b>{{ vendor.store_name }}</b>
-              <span>{{ vendor.category.name|default:"عام" }} • تقييم {{ vendor.rating|default:"0.0" }}</span>
+              <span>{{ vendor.category.name|default:"عام" }}</span>
             </div>
             <a class="btn2 primary" href="{% url 'vendor_store' vendor.id %}"><span class="arrow"><i class="fas fa-arrow-left"></i></span></a>
           </div>

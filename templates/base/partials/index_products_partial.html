@@ -15,13 +15,7 @@
             <div class="muted">{{ product.category.name|default:"عام" }} • من متجر {{ product.tenant.store_name }}</div>
             <h3 style="margin:6px 0">{{ product.name }}</h3>
             <div class="pmeta">
-              <span class="stars">
-                {% if product.rating >= 1 %}★{% else %}☆{% endif %}
-                {% if product.rating >= 2 %}★{% else %}☆{% endif %}
-                {% if product.rating >= 3 %}★{% else %}☆{% endif %}
-                {% if product.rating >= 4 %}★{% else %}☆{% endif %}
-                {% if product.rating >= 5 %}★{% else %}☆{% endif %}
-              </span>
+              <span class="stars"> ⭐ {{ product.average_rating }}</span>
               <b class="price">${{ product.price }}</b>
             </div>
             <div class="pactions">

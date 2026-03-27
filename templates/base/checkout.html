@@ -47,10 +47,19 @@
                 </div>
             </div>
 
-            <div class="sum">
-                <div style="display:flex; justify-content:space-between"><span>المجموع الفرعي</span><b>${{ total }}</b></div>
-                <div style="display:flex; justify-content:space-between"><span>تكلفة الشحن</span><b>$0</b></div>
-                <div class="checkout-total" style="display:flex; justify-content:space-between">
+            <div class="coupon-section" style="margin-bottom: 20px; padding: 12px; background: rgba(255,255,255,0.02); border: 1px dashed var(--line); border-radius: 12px;">
+                <label style="font-size: 13px; margin-bottom: 8px; display: block;">كود الخصم (اختياري)</label>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" name="coupon_code" id="coupon_code" style="flex: 1; min-width: 0; padding: 10px; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: var(--text);" placeholder="أدخل الكود هنا">
+                    <button type="button" class="btn2" hx-post="{% url 'validate_coupon' vendor.id %}" hx-include="#coupon_code" hx-target="#coupon-result" style="padding: 10px 16px;">تطبيق</button>
+                </div>
+                <div id="coupon-result"></div>
+            </div>
+
+            <div id="checkout-totals" class="sum">
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px"><span>المجموع الفرعي</span><b>${{ total }}</b></div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px"><span>تكلفة الشحن</span><b>$0</b></div>
+                <div class="checkout-total" style="display:flex; justify-content:space-between; margin-top:12px; padding-top:12px; border-top:1px solid var(--line);">
                     <span>الإجمالي الكلي</span>
                     <b class="price" style="font-size: 24px; color: var(--accent2);">${{ total }}</b>
                 </div>

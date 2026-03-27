@@ -55,8 +55,9 @@
 
         <div style="margin-top: 20px; padding-top: 10px; border-top: 1px solid var(--line); display: grid; gap: 8px; justify-content: end; text-align: end;">
             <div class="muted">إجمالي المنتجات: ${{ order.total }}</div>
+            <div class="muted"> الخصم: ${{ order.discount_amount }}</div>
             <div class="muted">تكلفة الشحن: ${{ order.shipping_cost }}</div>
-            <div style="font-size: 1.2rem; font-weight: 900;">الإجمالي الكلي: ${{ order.total|add:order.shipping_cost }}</div>
+            <div style="font-size: 1.2rem; font-weight: 900;">الإجمالي الكلي: ${{ order.total_cost }}</div>
         </div>
     </article>
 

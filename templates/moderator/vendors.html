@@ -23,7 +23,6 @@
                 <th>التصنيف</th>
                 <th>الموقع</th>
                 <th>تاريخ الانضمام</th>
-                <th>التقييم</th>
                 <th>الحالة</th>
                 <th>الإجراءات</th>
             </tr>
@@ -44,7 +43,6 @@
                 <td>{{ vendor.category.name|default:"-" }}</td>
                 <td>{{ vendor.address|truncatechars:20 }}</td>
                 <td>{{ vendor.created_at|date:"Y/m/d" }}</td>
-                <td><i class="fas fa-star" style="color: var(--warn);"></i> {{ vendor.rating }}</td>
                 <td>
                     {% if vendor.user.is_active %}
                     <span class="status c" style="color: var(--accent2);">نشط</span>
@@ -65,7 +63,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="7" style="text-align: center; padding: 40px; color: var(--muted);">
+                <td colspan="6" style="text-align: center; padding: 40px; color: var(--muted);">
                     لا يوجد بائعين مطابقين للبحث.
                 </td>
             </tr>

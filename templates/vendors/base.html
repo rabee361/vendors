@@ -17,7 +17,7 @@
   <!-- Mobile Top Bar -->
   <div class="mobile-topbar">
     <div class="topbar-brand">
-      <img src="{{ user_vendor_profile.avatar.url }}" alt="Logo">
+      <img src="{{ user_vendor_profile.logo.url }}" alt="Logo">
       <span>{{ user_vendor_profile.store_name }}</span>
     </div>
     <button class="hamburger-btn" id="hamburger-btn" aria-label="فتح القائمة">
@@ -32,8 +32,8 @@
 
     <aside class="side" id="sidebar">
       <a class="brand" href="{% url 'home' %}" aria-label="العودة للموقع">
-        {% if user_vendor_profile.avatar %}
-          <img src="{{ user_vendor_profile.avatar.url }}" alt="{{ user_vendor_profile.store_name }}" class="side-logo">
+        {% if user_vendor_profile.logo %}
+          <img src="{{ user_vendor_profile.logo.url }}" alt="{{ user_vendor_profile.store_name }}" class="side-logo">
         {% else %}
           <span class="mark" aria-hidden="true"></span>
         {% endif %}
@@ -58,6 +58,12 @@
         </a>
         <a class="nav-item {% if request.resolver_match.url_name == 'vendor_categories' %}active{% endif %}" href="{% url 'vendor_categories' %}">
           <span class="nav-label"><i class="fa-solid fa-list"></i> الأصناف</span>
+        </a>
+        <a class="nav-item {% if request.resolver_match.url_name == 'vendor_coupons' %}active{% endif %}" href="{% url 'vendor_coupons' %}">
+          <span class="nav-label"><i class="fa-solid fa-ticket-simple"></i> كوبونات الخصم</span>
+        </a>
+        <a class="nav-item {% if request.resolver_match.url_name == 'vendor_settings' %}active{% endif %}" href="{% url 'vendor_settings' %}">
+          <span class="nav-label"><i class="fa-solid fa-gear"></i> إعدادات المتجر</span>
         </a>
         <a class="nav-item {% if request.resolver_match.url_name == 'logout' %}active{% endif %}" href="{% url 'logout' %}" style="margin-top:6px">
           <span class="nav-label"><i class="fa-solid fa-right-from-bracket"></i> تسجيل خروج</span>

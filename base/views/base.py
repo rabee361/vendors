@@ -13,16 +13,20 @@ from utils.mixins import UserAlreadyLoggedInMixin
 from urllib.parse import quote
 from ..cart import CartService
 from ..favorite import FavoriteService
-from django.db.models import Q
+from django.db.models import Q, Avg
 from ..models import *
 import uuid
+from decimal import Decimal
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Prefetch
+from django.utils import timezone
 
 User = get_user_model()
 
 
 class HomeView(View):
     def get(self, request):
+
         if request.htmx:
             template_name = 'base/partials/products_partial.html'
         else:
@@ -41,7 +45,7 @@ class HomeView(View):
         max_price = request.GET.get('maxPrice','99999')
         rating = request.GET.get('rating','')
 
-        products = Product.objects.select_related('tenant', 'category', 'tenant__category').filter(is_active=True)
+        products = Product.objects.select_related('tenant', 'category', 'tenant__category').filter(is_active=True).annotate(avg_rating=Avg('ratings__rating'))
 
         if query:
             products = products.filter(name__icontains=query)
@@ -52,7 +56,10 @@ class HomeView(View):
         if max_price:
             products = products.filter(price__lte=max_price)
         if rating:
-            products = products.filter(rating__gte=rating)
+            try:
+                products = products.filter(avg_rating__gte=float(rating))
+            except (TypeError, ValueError):
+                pass
 
         products = products.annotate(
             is_ad_badge=Exists(
@@ -289,7 +296,7 @@ class ProductListView(View):
         max_price = request.GET.get('maxPrice','999999')
         rating = request.GET.get('rating','')
 
-        products_list = Product.objects.select_related('tenant', 'category', 'tenant__category').filter(is_active=True)
+        products_list = Product.objects.select_related('tenant', 'category', 'tenant__category').filter(is_active=True).annotate(avg_rating=Avg('ratings__rating'))
 
         if query:
             products_list = products_list.filter(name__icontains=query)
@@ -300,8 +307,11 @@ class ProductListView(View):
         if max_price:
             products_list = products_list.filter(price__lte=max_price)
         if rating:
-            products_list = products_list.filter(rating__gte=rating)
-
+            try:
+                products_list = products_list.filter(avg_rating__gte=float(rating))
+            except (TypeError, ValueError):
+                pass
+            
         products_list = products_list.annotate(
             is_ad_badge=Exists(
                 SponsoredAd.objects.filter(
@@ -336,8 +346,64 @@ class ProductListView(View):
 
 class ProductDetailView(View):
     def get(self, request, product_id):
-        product = Product.objects.select_related('tenant', 'category', 'tenant__category').get(id=product_id)
-        return render(request, 'base/product.html', {'product': product})
+        product = get_object_or_404(Product.objects.select_related('tenant', 'category', 'tenant__category'), id=product_id)
+        
+        # Get 6 newest active products from the same store, excluding this product
+        store_products = Product.objects.filter(
+            tenant=product.tenant, 
+            is_active=True
+        ).exclude(id=product.id).order_by('-created_at')[:6]
+
+        # Get the user's rating if they are logged in
+        user_rating = None
+        if request.user.is_authenticated:
+            user_rating_obj = ProductRating.objects.filter(user=request.user, product=product).first()
+            if user_rating_obj:
+                user_rating = user_rating_obj.rating
+
+        cart_product_ids = []
+        if request.user.is_authenticated:
+            cart = CartService(request)
+            cart_items = cart.get_items()
+            cart_product_ids = [str(item.id) for item in getattr(cart_items, 'all', lambda: cart_items)()]
+
+        context = {
+            'product': product,
+            'store_products': store_products,
+            'user_rating': user_rating,
+            'cart_product_ids': cart_product_ids
+        }
+        return render(request, 'base/product.html', context)
+
+class RateProductView(LoginRequiredMixin, View):
+    def post(self, request, product_id):
+        product = get_object_or_404(Product, id=product_id)
+        rating_val = request.POST.get('rating')
+        
+        try:
+            rating_val = float(rating_val)
+            if not (1.0 <= rating_val <= 5.0):
+                raise ValueError("Rating out of bounds.")
+        except (TypeError, ValueError):
+            return HttpResponse("Invalid rating value.", status=400)
+
+        # Create or update the rating
+        ProductRating.objects.update_or_create(
+            user=request.user,
+            product=product,
+            defaults={'rating': rating_val}
+        )
+
+        context = {
+            'product': product,
+            'user_rating': rating_val
+        }
+        
+        response = render(request, 'base/partials/rating_partial.html', context)
+        response['X-Toast-Message'] = quote("تم حفظ التقييم بنجاح")
+        response['X-Toast-Type'] = "success"
+        response['X-Toast-Title'] = quote("تقييم المنتج")
+        return response
 
 
 class AddToCartView(View):
@@ -433,9 +499,11 @@ class CheckoutView(LoginRequiredMixin, View):
         cart = CartService(request)
         context = cart.get_context()
         
-        # Filter items to only show the relevant vendor
         if vendor not in context['grouped_items']:
             return redirect('home')
+        
+        # Clear any previously applied coupons when entering checkout fresh
+        request.session.pop('applied_coupons', None)
             
         vendor_data = context['grouped_items'][vendor]
         context['vendor'] = vendor
@@ -458,12 +526,30 @@ class CheckoutView(LoginRequiredMixin, View):
         
         if form.is_valid() and vendor in cart_data['grouped_items']:
             data = cart_data['grouped_items'][vendor]
+            subtotal = data['subtotal']
             
-            # Create the order for the specific vendor
+            # Calculate total discount from session coupons
+            applied_codes = request.session.get('applied_coupons', [])
+            total_discount = Decimal(0)
+            
+            for code in applied_codes:
+                try:
+                    c = Coupon.objects.get(code=code, is_used=False)
+                    total_discount += c.value
+                    c.is_used = True
+                    c.save()
+                except Coupon.DoesNotExist:
+                    pass
+            
+            final_total = subtotal - total_discount
+            if final_total < 0:
+                final_total = Decimal(0)
+            
             order = Order.objects.create(
                 tenant=vendor,
                 order_number=str(uuid.uuid4()).split('-')[0].upper(),
-                total=data['subtotal'],
+                total=subtotal,
+                discount_amount=total_discount,
                 full_name=form.cleaned_data['full_name'],
                 email=form.cleaned_data['email'],
                 phone=form.cleaned_data['phone'],
@@ -473,7 +559,6 @@ class CheckoutView(LoginRequiredMixin, View):
                 status='preparing'
             )
             
-            # Create OrderItems for this vendor
             for item in data['items']:
                 OrderItem.objects.create(
                     tenant=vendor,
@@ -483,7 +568,8 @@ class CheckoutView(LoginRequiredMixin, View):
                     price_at_order=item['price']
                 )
             
-            # Clear items for THIS vendor only
+            # Clear session coupons and cart
+            request.session.pop('applied_coupons', None)
             cart_service.clear_by_vendor(vendor_id)
             
             return redirect('checkout_success')
@@ -491,7 +577,6 @@ class CheckoutView(LoginRequiredMixin, View):
         if vendor not in cart_data['grouped_items']:
             return redirect('home')
 
-        # If we reach here, form is not valid! We re-render template to show errors
         context = cart_service.get_context()
         vendor_data = context['grouped_items'][vendor]
         context['vendor'] = vendor
@@ -500,6 +585,109 @@ class CheckoutView(LoginRequiredMixin, View):
         context['form'] = form
         return render(request, 'base/checkout.html', context)
 
+class ValidateCouponHTMXView(View):
+    def post(self, request, vendor_id):
+        vendor = get_object_or_404(Vendor, pk=vendor_id)
+        coupon_code = request.POST.get('coupon_code', '').strip()
+
+        cart_service = CartService(request)
+        context = cart_service.get_context()
+        if vendor not in context['grouped_items']:
+            return render(request, 'base/partials/coupon_result.html', {'error': 'خطأ في السلة'})
+
+        original_total = context['grouped_items'][vendor]['subtotal']
+        applied_codes = request.session.get('applied_coupons', [])
+
+        # Check if already applied
+        if coupon_code in applied_codes:
+            return render(request, 'base/partials/coupon_result.html', {'error': 'تم تطبيق هذا الكود مسبقاً'})
+
+        coupon = Coupon.objects.filter(code=coupon_code).first()
+
+        if not coupon:
+            return render(request, 'base/partials/coupon_result.html', {'error': 'الكود غير صحيح'})
+
+        if coupon.is_used:
+            return render(request, 'base/partials/coupon_result.html', {'error': 'الكود مستخدم مسبقاً'})
+
+        if not coupon.is_valid:
+            return render(request, 'base/partials/coupon_result.html', {'error': 'الكود منتهي الصلاحية'})
+
+        # Add to session (don't mark is_used yet)
+        applied_codes.append(coupon_code)
+        request.session['applied_coupons'] = applied_codes
+        request.session.modified = True
+
+        # Calculate accumulated discount
+        total_discount = Decimal(0)
+        applied_coupons_data = []
+        for code in applied_codes:
+            try:
+                c = Coupon.objects.get(code=code, is_used=False)
+                total_discount += c.value
+                applied_coupons_data.append({'code': c.code, 'value': c.value})
+            except Coupon.DoesNotExist:
+                pass
+
+        new_total = original_total - total_discount
+        if new_total < 0:
+            new_total = Decimal(0)
+
+        return render(request, 'base/partials/coupon_result.html', {
+            'applied_coupons': applied_coupons_data,
+            'original_total': original_total,
+            'total_discount': total_discount,
+            'new_total': new_total,
+            'vendor_id': vendor_id,
+        })
+
+
+class RemoveCouponHTMXView(View):
+    def post(self, request, vendor_id):
+        vendor = get_object_or_404(Vendor, pk=vendor_id)
+        code_to_remove = request.POST.get('remove_code', '').strip()
+
+        applied_codes = request.session.get('applied_coupons', [])
+        if code_to_remove in applied_codes:
+            applied_codes.remove(code_to_remove)
+            request.session['applied_coupons'] = applied_codes
+            request.session.modified = True
+
+        cart_service = CartService(request)
+        context = cart_service.get_context()
+        if vendor not in context['grouped_items']:
+            return render(request, 'base/partials/coupon_result.html', {'error': 'خطأ في السلة'})
+
+        original_total = context['grouped_items'][vendor]['subtotal']
+
+        if not applied_codes:
+            # No coupons left, return empty state to reset totals
+            return render(request, 'base/partials/coupon_result.html', {
+                'cleared': True,
+                'original_total': original_total,
+            })
+
+        total_discount = Decimal(0)
+        applied_coupons_data = []
+        for code in applied_codes:
+            try:
+                c = Coupon.objects.get(code=code, is_used=False)
+                total_discount += c.value
+                applied_coupons_data.append({'code': c.code, 'value': c.value})
+            except Coupon.DoesNotExist:
+                pass
+
+        new_total = original_total - total_discount
+        if new_total < 0:
+            new_total = Decimal(0)
+
+        return render(request, 'base/partials/coupon_result.html', {
+            'applied_coupons': applied_coupons_data,
+            'original_total': original_total,
+            'total_discount': total_discount,
+            'new_total': new_total,
+            'vendor_id': vendor_id,
+        })
 
 class CheckoutSuccess(View):
     def get(self, request):

@@ -1,0 +1,45 @@
+<div id="product-rating-section" class="rating-section" aria-label="تقييم المنتج">
+  <div class="rating-header">
+    <h3>تقييم هذا المنتج</h3>
+    <div class="rating-stats">
+      <span class="avg-rating">{{ product.average_rating|floatformat:1 }}</span>
+      <span class="rating-scale">/ 5</span>
+      <span class="rating-count">({{ product.rating_count }} تقييم)</span>
+    </div>
+  </div>
+
+  {% if user.is_authenticated %}
+  <div class="rating-interactive">
+    <p class="muted" style="margin-bottom: 16px;">
+      {% if user_rating %}
+      لقد قمت بتقييم هذا المنتج مسبقاً ({{ user_rating }} من 5). يمكنك تغيير تقييمك:
+      {% else %}
+      كم تقيم هذا المنتج؟ انقر لاختيار التقييم (يدعم أنصاف النجوم):
+      {% endif %}
+    </p>
+
+    <!-- Star interactive container -->
+    <div class="star-rating-selector" 
+         data-current-rating="{{ user_rating|default:0 }}">
+      
+      <!-- Generated via JS for exact half-star interaction -->
+      <div class="stars-container">
+        <!-- 5 stars generated via JS -->
+      </div>
+      
+      <span class="rating-tooltip" id="rating-tooltip">0.0</span>
+      
+      <form id="rating-form" hx-post="{% url 'rate_product' product.id %}" hx-target="#product-rating-section" hx-swap="outerHTML">
+        {% csrf_token %}
+        <input type="hidden" name="rating" id="rating-input" value="{{ user_rating|default:0 }}">
+        <button type="submit" class="btn primary submit-rating-btn" style="display:none;" id="submit-rating-btn">حفظ التقييم</button>
+      </form>
+    </div>
+  </div>
+  {% else %}
+  <div class="rating-login-prompt">
+    <p class="muted">يجب تسجيل الدخول لتقييم المنتجات.</p>
+    <a href="{% url 'login' %}?next={{ request.path }}" class="btn ghost">تسجيل الدخول / إنشاء حساب</a>
+  </div>
+  {% endif %}
+</div>
