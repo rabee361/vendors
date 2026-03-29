@@ -6,7 +6,7 @@ from django.views.generic import FormView
 from ..forms import VendorSignupForm, ProductForm, OfferForm, SponsoredAdForm, OrderUpdateForm, ProductCategoryForm, CouponForm, VendorSettingsForm
 from utils.types import OrderStatus, UserType, CodeTypes
 from utils.mixins import SellerRequiredMixin
-from utils.email import send_otp_email, send_new_product_email
+from utils.email import send_otp_email, send_new_product_email, send_coupon_email, send_order_confirmed_email
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth import get_user_model
 from django.db.models import Q, Sum, F
@@ -315,9 +315,41 @@ class OrderUpdateView(SellerRequiredMixin, View):
     def post(self, request, pk):
         vendor = get_object_or_404(Vendor, user=request.user)
         order = get_object_or_404(Order.objects.prefetch_related('items__product'), pk=pk, tenant=vendor)
+        previous_status = order.status
         form = OrderUpdateForm(request.POST, instance=order)
         if form.is_valid():
-            form.save()
+            updated_order = form.save()
+            if previous_status != OrderStatus.SHIPPED and updated_order.status == OrderStatus.SHIPPED:
+                send_order_confirmed_email(
+                    order=updated_order,
+                    store_name=vendor.store_name,
+                    vendor_email=vendor.user.email,
+                )
+                shipped_orders_count = Order.objects.filter(
+                    tenant=vendor,
+                    email=updated_order.email,
+                    status=OrderStatus.SHIPPED,
+                ).count()
+                reward_coupon = Coupon.objects.filter(
+                    tenant=vendor,
+                    orders_to_receive=shipped_orders_count,
+                    is_used=False,
+                    recipient_email__isnull=True,
+                    sent_at__isnull=True,
+                ).order_by('created_at').first()
+
+                if reward_coupon:
+                    reward_coupon.recipient_email = updated_order.email
+                    reward_coupon.save(update_fields=['recipient_email'])
+                    email_sent = send_coupon_email(
+                        coupon=reward_coupon,
+                        customer_name=updated_order.full_name,
+                        email=updated_order.email,
+                        store_name=vendor.store_name,
+                    )
+                    if email_sent:
+                        reward_coupon.sent_at = timezone.now()
+                        reward_coupon.save(update_fields=['sent_at'])
             return redirect('vendor_orders')
         return render(request, self.template_name, {'form': form, 'order': order, 'title': 'تحديث حالة الطلب', 'vendor_id': vendor.id})
 

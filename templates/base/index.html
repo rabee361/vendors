@@ -46,7 +46,7 @@
         <h2>العروض</h2>
         <p>عروض مميزة على منتجات مختارة.</p>
       </div>
-      <span class="tag">محدودة الوقت</span>
+      <a class="chip" href="{% url 'offer_list' %}">عرض المزيد</a>
     </div>
 
     <div class="grid3">
@@ -86,7 +86,7 @@
         <h2>الإعلانات الممولة</h2>
         <p>منتجات مميزة تظهر هنا كإعلان ممول مستقل.</p>
       </div>
-      <span class="tag sponsored">Sponsored</span>
+      <a class="chip" href="{% url 'ad_list' %}">عرض المزيد</a>
     </div>
 
     <div class="grid3">
@@ -139,7 +139,7 @@
 
           <div class="fgroup">
               <label for="cat">الصنف (اكتب أو اختر)</label>
-              <input id="cat" name="category" list="cats" placeholder="مثال: إلكترونيات"
+              <input id="cat" name="category" list="cats" placeholder="مثال: إلكترونيات" hx-get="{% url 'home' %}"  hx-target="#index_products_partial" hx-swap="innerHTML" hx-push-url="true" 
                   value="{{ category_name }}" hx-trigger="keyup changed" />
               <datalist id="cats">
                   {% for cat in categories %}
@@ -151,12 +151,12 @@
           <div class="row2">
               <div class="fgroup">
                   <label for="min">السعر من</label>
-                  <input id="min" name="minPrice" type="number" placeholder="0" value="{{ min_price }}" 
+                  <input id="min" name="minPrice" type="number" placeholder="0"  hx-get="{% url 'home' %}"  hx-target="#index_products_partial" hx-swap="innerHTML" hx-push-url="true" value="{{ min_price }}" 
                       hx-trigger="keyup changed" />
               </div>
               <div class="fgroup">
                   <label for="max">السعر إلى</label>
-                  <input id="max" name="maxPrice" type="number" placeholder="999" value="{{ max_price }}" 
+                  <input id="max" name="maxPrice" type="number" placeholder="999"  hx-get="{% url 'home' %}"  hx-target="#index_products_partial" hx-swap="innerHTML" hx-push-url="true" value="{{ max_price }}" 
                       hx-trigger="keyup changed" />
               </div>
           </div>
@@ -164,7 +164,7 @@
           <div class="fgroup">
               <label for="rate">التقييم (اكتب أو اختر)</label>
               <input id="rate" name="rating" list="rates" placeholder="مثال: 4.5" value="{{ rating }}" 
-                  hx-trigger="keyup changed" />
+                  hx-get="{% url 'home' %}"  hx-target="#index_products_partial" hx-swap="innerHTML" hx-push-url="true" hx-trigger="keyup changed" />
               <datalist id="rates">
                   <option value="5.0"></option>
                   <option value="4.5"></option>
@@ -198,8 +198,8 @@
         <div class="vendor">
           <div class="vendor-card">
             <div style="text-align: right; display: flex; align-items: center; gap: 10px">
-              {% if vendor.avatar %}
-              <img src="{{ vendor.avatar.url }}" class="avatar" alt="{{ vendor.store_name }}">
+              {% if vendor.logo %}
+              <img src="{{ vendor.logo.url }}" class="avatar" alt="{{ vendor.store_name }}">
               {% else %}
               <div class="avatar" aria-hidden="true"></div>
               {% endif %}

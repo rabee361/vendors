@@ -11,8 +11,12 @@
             {% for vendor, data in grouped_items.items %}
             <div class="vendor-cart-group">
                 <div class="vendor-head">
-                    <img src="{% if vendor.avatar %}{{ vendor.avatar.url }}{% else %}/static/images/default-avatar.png{% endif %}"
+                    {% if vendor.logo %}
+                    <img src="{{ vendor.logo.url }}"
                         alt="{{ vendor.store_name }}">
+                    {% else %}
+                    <img src="" alt="{{ vendor.store_name }}">
+                    {% endif %}
                     <b>مشتريات من: {{ vendor.store_name }}</b>
                 </div>
 
@@ -35,7 +39,7 @@
                         <b class="price">${{ item.total }}</b>
                         <br>
                         <button class="remove-btn" type="button" hx-post="{% url 'remove_from_cart' item.product.id %}"
-                            hx-target="#cart .drawer" hx-select=".drawer" hx-swap="outerHTML" aria-label="إزالة المعدة">
+                            hx-target="#cart .drawer" hx-select=".drawer" hx-swap="outerHTML" aria-label="إزالة المنتج">
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     </div>

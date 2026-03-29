@@ -336,7 +336,10 @@ class SponsoredAdForm(forms.ModelForm):
 
     class Meta:
         model = SponsoredAd
-        fields = ['ad_type', 'product', 'status']
+        fields = ['ad_type', 'product', 'status', 'end_date']
+        widgets = {
+            'end_date': forms.DateInput(attrs={'type': 'date'}),
+        }
 
 class OrderUpdateForm(forms.ModelForm):
     class Meta:
@@ -388,8 +391,9 @@ class ChangePasswordForm(forms.Form):
 class CouponForm(forms.ModelForm):
     class Meta:
         model = Coupon
-        fields = ['value', 'start_date', 'end_date']
+        fields = ['value', 'start_date', 'end_date','orders_to_receive']
         widgets = {
+            
             'value': forms.NumberInput(attrs={'placeholder': 'قيمة الخصم الثابتة$'}),
             'start_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'end_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),

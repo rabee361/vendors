@@ -280,6 +280,22 @@ class CategoriesView(View):
             categories = categories.filter(name__icontains=query)
         return render(request, "base/categories.html", {'categories': categories, 'query': query})
 
+class OfferListView(View):
+    def get(self, request):
+        query = request.GET.get('q', '')
+        offers = Offer.objects.all()
+        if query:
+            offers = offers.filter(product__name__icontains=query)
+        return render(request, "base/offers.html", {'offers': offers, 'query': query})
+
+class AdListView(View):
+    def get(self, request):
+        query = request.GET.get('q', '')
+        ads = SponsoredAd.objects.all()
+        if query:
+            ads = ads.filter(product__name__icontains=query)
+        return render(request, "base/ads.html", {'ads': ads, 'query': query})
+
 
 class ProductListView(View):
     paginate_by = 12
@@ -528,22 +544,28 @@ class CheckoutView(LoginRequiredMixin, View):
             data = cart_data['grouped_items'][vendor]
             subtotal = data['subtotal']
             
-            # Calculate total discount from session coupons
+            # Calculate total discount from session coupons (value is a percentage)
             applied_codes = request.session.get('applied_coupons', [])
-            total_discount = Decimal(0)
+            total_percent = Decimal(0)
             
             for code in applied_codes:
                 try:
-                    c = Coupon.objects.get(code=code, is_used=False)
-                    total_discount += c.value
+                    c = Coupon.objects.get(
+                        tenant=vendor,
+                        code=code,
+                        is_used=False,
+                    )
+                    if c.recipient_email and c.recipient_email != request.user.email:
+                        continue
+                    total_percent += c.value
                     c.is_used = True
                     c.save()
                 except Coupon.DoesNotExist:
                     pass
             
+            total_percent = min(total_percent, Decimal(100))
+            total_discount = subtotal * total_percent / Decimal(100)
             final_total = subtotal - total_discount
-            if final_total < 0:
-                final_total = Decimal(0)
             
             order = Order.objects.create(
                 tenant=vendor,
@@ -602,7 +624,7 @@ class ValidateCouponHTMXView(View):
         if coupon_code in applied_codes:
             return render(request, 'base/partials/coupon_result.html', {'error': 'تم تطبيق هذا الكود مسبقاً'})
 
-        coupon = Coupon.objects.filter(code=coupon_code).first()
+        coupon = Coupon.objects.filter(tenant=vendor, code=coupon_code).first()
 
         if not coupon:
             return render(request, 'base/partials/coupon_result.html', {'error': 'الكود غير صحيح'})
@@ -613,30 +635,40 @@ class ValidateCouponHTMXView(View):
         if not coupon.is_valid:
             return render(request, 'base/partials/coupon_result.html', {'error': 'الكود منتهي الصلاحية'})
 
+        if coupon.recipient_email and coupon.recipient_email != request.user.email:
+            return render(request, 'base/partials/coupon_result.html', {'error': 'هذا الكود مخصص لحساب آخر'})
+
         # Add to session (don't mark is_used yet)
         applied_codes.append(coupon_code)
         request.session['applied_coupons'] = applied_codes
         request.session.modified = True
 
-        # Calculate accumulated discount
-        total_discount = Decimal(0)
+        # Calculate accumulated discount (value is a percentage)
+        total_percent = Decimal(0)
         applied_coupons_data = []
         for code in applied_codes:
             try:
-                c = Coupon.objects.get(code=code, is_used=False)
-                total_discount += c.value
-                applied_coupons_data.append({'code': c.code, 'value': c.value})
+                c = Coupon.objects.get(tenant=vendor, code=code, is_used=False)
+                if c.recipient_email and c.recipient_email != request.user.email:
+                    continue
+                total_percent += c.value
+                applied_coupons_data.append({
+                    'code': c.code,
+                    'percent': c.value,
+                    'amount': original_total * c.value / Decimal(100),
+                })
             except Coupon.DoesNotExist:
                 pass
 
+        total_percent = min(total_percent, Decimal(100))
+        total_discount = original_total * total_percent / Decimal(100)
         new_total = original_total - total_discount
-        if new_total < 0:
-            new_total = Decimal(0)
 
         return render(request, 'base/partials/coupon_result.html', {
             'applied_coupons': applied_coupons_data,
             'original_total': original_total,
             'total_discount': total_discount,
+            'total_percent': total_percent,
             'new_total': new_total,
             'vendor_id': vendor_id,
         })
@@ -667,24 +699,31 @@ class RemoveCouponHTMXView(View):
                 'original_total': original_total,
             })
 
-        total_discount = Decimal(0)
+        total_percent = Decimal(0)
         applied_coupons_data = []
         for code in applied_codes:
             try:
-                c = Coupon.objects.get(code=code, is_used=False)
-                total_discount += c.value
-                applied_coupons_data.append({'code': c.code, 'value': c.value})
+                c = Coupon.objects.get(tenant=vendor, code=code, is_used=False)
+                if c.recipient_email and c.recipient_email != request.user.email:
+                    continue
+                total_percent += c.value
+                applied_coupons_data.append({
+                    'code': c.code,
+                    'percent': c.value,
+                    'amount': original_total * c.value / Decimal(100),
+                })
             except Coupon.DoesNotExist:
                 pass
 
+        total_percent = min(total_percent, Decimal(100))
+        total_discount = original_total * total_percent / Decimal(100)
         new_total = original_total - total_discount
-        if new_total < 0:
-            new_total = Decimal(0)
 
         return render(request, 'base/partials/coupon_result.html', {
             'applied_coupons': applied_coupons_data,
             'original_total': original_total,
             'total_discount': total_discount,
+            'total_percent': total_percent,
             'new_total': new_total,
             'vendor_id': vendor_id,
         })

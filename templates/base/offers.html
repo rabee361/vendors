@@ -1,0 +1,56 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<section id="categories" class="section">
+  <div class="section-head">
+    <div>
+      <h2>العروض</h2>
+      <p>استكشف المنتجات حسب العرض (بحث بالاسم).</p>
+    </div>
+  </div>
+
+  <div class="shop">
+    <aside class="filters" aria-label="فلاتر العروض">
+      <h3>البحث</h3>
+      <form action="{% url 'offer_list' %}" method="get">
+        <div class="fgroup">
+          <label for="q">بحث بالاسم</label>
+          <input id="q" name="q" type="search" placeholder="اسم التصنيف..." value="{{ query }}" />
+        </div>
+        <button class="btn" type="submit" style="width:100%">بحث</button>
+      </form>
+    </aside>
+
+    <div class="products" aria-label="قائمة العروض">
+      {% for offer in offers %}
+      <article class="card">
+        <div class="pimg">
+          {% if offer.product.image %}
+          <img src="{{ offer.product.image.url }}" alt="{{ offer.product.name }}">
+          {% else %}
+          <div class="placeholder"><i class="fas fa-image"></i></div>
+          {% endif %}
+        </div>
+        <div class="pad">
+          <span class="tag good">خصم {{ offer.discount }}%</span>
+          <h3 style="margin:10px 0 6px">{{ offer.product.name }}</h3>
+          <div class="muted">{{ offer.product.description }}</div>
+          <div class="pmeta">
+            <b class="price">${{ offer.discount_price }}</b>
+            <span class="muted"><s>${{ offer.product.price }}</s></span>
+          </div>
+          <div class="pactions">
+            <a class="paction-btn view" href="{% url 'product' offer.product.id %}" aria-label="عرض التفاصيل"><i class="fas fa-eye"></i></a>
+            <button class="paction-btn primary cart {% if offer.product.id|slugify in cart_product_ids %}active{% endif %}"
+              hx-post="{% url 'add_to_cart' offer.product.id %}" hx-vals='{"quantity": 1}'
+              hx-target="#cart" hx-swap="outerHTML" aria-label="إضافة للسلة"><i class="fas fa-cart-plus"></i></button>
+          </div>
+        </div>
+      </article>
+      {% empty %}
+      <p class="muted" style="grid-column: 1 / -1; text-align: center; padding: 20px;">لا توجد تصنيفات تطابق البحث.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

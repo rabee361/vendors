@@ -158,7 +158,6 @@ class Command(BaseCommand):
                             'price': random.uniform(15.0, 450.0),
                             'stock': random.randint(10, 200),
                             'category': p_cat,
-                            'rating_count': random.randint(5, 150),
                             'is_active': True
                         }
                     )

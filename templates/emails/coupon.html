@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>كوبون مكافأة</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: Tahoma, Arial, sans-serif;
+			background-color: #f4f7f5;
+			color: #1f2937;
+			line-height: 1.8;
+			padding: 20px 10px;
+		}
+
+		.email-container {
+			max-width: 640px;
+			margin: 0 auto;
+			background-color: #ffffff;
+			border: 1px solid #d7e3dc;
+			border-radius: 16px;
+			overflow: hidden;
+		}
+
+		.header {
+			background: linear-gradient(135deg, #14532d 0%, #15803d 55%, #22c55e 100%);
+			color: #ffffff;
+			padding: 32px 24px;
+			text-align: center;
+		}
+
+		.header h1 {
+			font-size: 28px;
+			margin-bottom: 8px;
+		}
+
+		.header p {
+			font-size: 15px;
+			opacity: 0.95;
+		}
+
+		.content {
+			padding: 32px 24px;
+		}
+
+		.greeting {
+			font-size: 18px;
+			font-weight: 700;
+			color: #111827;
+			margin-bottom: 14px;
+		}
+
+		.message {
+			font-size: 15px;
+			color: #374151;
+			margin-bottom: 20px;
+		}
+
+		.coupon-box {
+			background-color: #f0fdf4;
+			border: 1px solid #86efac;
+			border-radius: 14px;
+			padding: 22px;
+			text-align: center;
+			margin-bottom: 20px;
+		}
+
+		.coupon-box .label {
+			display: block;
+			font-size: 13px;
+			color: #166534;
+			margin-bottom: 10px;
+		}
+
+		.coupon-box .code {
+			display: inline-block;
+			font-size: 30px;
+			font-weight: 800;
+			color: #166534;
+			background-color: #ffffff;
+			border: 2px dashed #22c55e;
+			border-radius: 12px;
+			padding: 12px 20px;
+			letter-spacing: 3px;
+			margin-bottom: 14px;
+		}
+
+		.details {
+			background-color: #f9fafb;
+			border: 1px solid #e5e7eb;
+			border-radius: 12px;
+			padding: 18px;
+			margin-bottom: 18px;
+		}
+
+		.details p {
+			font-size: 14px;
+			color: #4b5563;
+			margin-bottom: 8px;
+		}
+
+		.details p:last-child {
+			margin-bottom: 0;
+		}
+
+		.note {
+			font-size: 14px;
+			color: #475569;
+			background-color: #fff7ed;
+			border: 1px solid #fdba74;
+			border-radius: 10px;
+			padding: 14px;
+		}
+
+		.footer {
+			background-color: #f8fafc;
+			border-top: 1px solid #e2e8f0;
+			padding: 20px;
+			text-align: center;
+			color: #64748b;
+			font-size: 13px;
+		}
+
+		.footer .brand {
+			display: block;
+			color: #166534;
+			font-weight: 700;
+			margin-bottom: 6px;
+		}
+
+		@media only screen and (max-width: 600px) {
+			.header h1 {
+				font-size: 24px;
+			}
+
+			.content {
+				padding: 24px 16px;
+			}
+
+			.coupon-box .code {
+				font-size: 24px;
+				letter-spacing: 2px;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="email-container">
+		<div class="header">
+			<h1>كوبون مكافأة لك</h1>
+			<p>شكراً لوصولك إلى عدد كبير من الطلبات من متجر {{ store_name }}</p>
+		</div>
+
+		<div class="content">
+			<div class="greeting">مرحباً {{ customer_name }}،</div>
+			<div class="message">
+				لأن طلباتك وصلت إلى رقم مميز, تم تخصيص كوبون مكافأة لك لاستخدامه في طلبك القادم من متجر {{ store_name }}.
+			</div>
+
+			<div class="coupon-box">
+				<span class="label">كود الكوبون الخاص بك</span>
+				<div class="code">{{ coupon.code }}</div>
+			</div>
+
+			<div class="details">
+				<p><strong>قيمة الخصم:</strong> {{ coupon.value }}%</p>
+				<p><strong>صالح من:</strong> {{ coupon.start_date|date:"Y-m-d" }}</p>
+				<p><strong>صالح حتى:</strong> {{ coupon.end_date|date:"Y-m-d" }}</p>
+			</div>
+
+		</div>
+	</div>
+</body>
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>تأكيد الطلب</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: Tahoma, Arial, sans-serif;
+			background-color: #f4f7f5;
+			color: #1f2937;
+			line-height: 1.8;
+			padding: 20px 10px;
+		}
+
+		.email-container {
+			max-width: 640px;
+			margin: 0 auto;
+			background-color: #ffffff;
+			border: 1px solid #d7e3dc;
+			border-radius: 16px;
+			overflow: hidden;
+		}
+
+		.header {
+			background: linear-gradient(135deg, #14532d 0%, #15803d 55%, #22c55e 100%);
+			color: #ffffff;
+			padding: 32px 24px;
+			text-align: center;
+		}
+
+		.header h1 {
+			font-size: 28px;
+			margin-bottom: 8px;
+		}
+
+		.header p {
+			font-size: 15px;
+			opacity: 0.95;
+		}
+
+		.content {
+			padding: 32px 24px;
+		}
+
+		.greeting {
+			font-size: 18px;
+			font-weight: 700;
+			color: #111827;
+			margin-bottom: 14px;
+		}
+
+		.message {
+			font-size: 15px;
+			color: #374151;
+			margin-bottom: 20px;
+		}
+
+		.order-box {
+			background-color: #f0fdf4;
+			border: 1px solid #86efac;
+			border-radius: 14px;
+			padding: 22px;
+			text-align: center;
+			margin-bottom: 20px;
+		}
+
+		.order-box .label {
+			display: block;
+			font-size: 13px;
+			color: #166534;
+			margin-bottom: 10px;
+		}
+
+		.order-box .order-number {
+			display: inline-block;
+			font-size: 26px;
+			font-weight: 800;
+			color: #166534;
+			background-color: #ffffff;
+			border: 2px dashed #22c55e;
+			border-radius: 12px;
+			padding: 12px 20px;
+			letter-spacing: 3px;
+		}
+
+		.items-table {
+			width: 100%;
+			border-collapse: collapse;
+			margin-bottom: 20px;
+			font-size: 14px;
+		}
+
+		.items-table th {
+			background-color: #f0fdf4;
+			color: #166534;
+			padding: 10px 12px;
+			text-align: right;
+			border-bottom: 2px solid #86efac;
+		}
+
+		.items-table td {
+			padding: 10px 12px;
+			border-bottom: 1px solid #e5e7eb;
+			color: #374151;
+		}
+
+		.details {
+			background-color: #f9fafb;
+			border: 1px solid #e5e7eb;
+			border-radius: 12px;
+			padding: 18px;
+			margin-bottom: 18px;
+		}
+
+		.details p {
+			font-size: 14px;
+			color: #4b5563;
+			margin-bottom: 8px;
+		}
+
+		.details p:last-child {
+			margin-bottom: 0;
+		}
+
+		.total-row {
+			font-size: 16px;
+			font-weight: 700;
+			color: #166534;
+			border-top: 2px solid #86efac;
+			padding-top: 10px;
+			margin-top: 4px;
+		}
+
+		.note {
+			font-size: 14px;
+			color: #475569;
+			background-color: #fff7ed;
+			border: 1px solid #fdba74;
+			border-radius: 10px;
+			padding: 14px;
+			margin-bottom: 18px;
+		}
+
+		.footer {
+			background-color: #f8fafc;
+			border-top: 1px solid #e2e8f0;
+			padding: 20px;
+			text-align: center;
+			color: #64748b;
+			font-size: 13px;
+		}
+
+		.footer .brand {
+			display: block;
+			color: #166534;
+			font-weight: 700;
+			margin-bottom: 6px;
+		}
+
+		@media only screen and (max-width: 600px) {
+			.header h1 {
+				font-size: 24px;
+			}
+
+			.content {
+				padding: 24px 16px;
+			}
+
+			.order-box .order-number {
+				font-size: 20px;
+				letter-spacing: 2px;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="email-container">
+		<div class="header">
+			<h1>تم تأكيد طلبك وشحنه</h1>
+			<p>طلبك من متجر {{ store_name }} في الطريق إليك</p>
+		</div>
+
+		<div class="content">
+			<div class="greeting">مرحباً {{ order.full_name }}،</div>
+			<div class="message">
+				نود إعلامك بأن طلبك قد تم تأكيده وشحنه بنجاح. إليك تفاصيل طلبك:
+			</div>
+
+			<div class="order-box">
+				<span class="label">رقم الطلب</span>
+				<div class="order-number">{{ order.order_number }}</div>
+			</div>
+
+			<table class="items-table">
+				<thead>
+					<tr>
+						<th>المنتج</th>
+						<th>الكمية</th>
+						<th>السعر</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for item in order.items.all %}
+					<tr>
+						<td>{{ item.product.name|default:"منتج محذوف" }}</td>
+						<td>{{ item.quantity }}</td>
+						<td>${{ item.get_total }}</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+
+			<div class="details">
+				<p><strong>المجموع الفرعي:</strong> ${{ order.total }}</p>
+				{% if order.discount_amount > 0 %}
+				<p><strong>الخصم:</strong> -${{ order.discount_amount }}</p>
+				{% endif %}
+				<p><strong>تكلفة الشحن:</strong> ${{ order.shipping_cost }}</p>
+				<p class="total-row"><strong>الإجمالي:</strong> ${{ order.total_cost }}</p>
+			</div>
+
+			<div class="details">
+				<p><strong>العنوان:</strong> {{ order.address }}، {{ order.city }}</p>
+				<p><strong>الهاتف:</strong> {{ order.phone }}</p>
+			</div>
+
+			<div class="note">
+				لأي استفسار أو معلومات إضافية حول طلبك، يرجى التواصل مع المتجر عبر البريد الإلكتروني: <strong>{{ vendor_email }}</strong>
+			</div>
+		</div>
+
+		<div class="footer">
+			<span class="brand">{{ store_name }}</span>
+			شكراً لتسوقك معنا
+		</div>
+	</div>
+</body>
+</html>

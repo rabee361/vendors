@@ -330,6 +330,9 @@ class Coupon(models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     is_used = models.BooleanField(default=False)
+    orders_to_receive = models.IntegerField(default=50)
+    recipient_email = models.EmailField(blank=True, null=True)
+    sent_at = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

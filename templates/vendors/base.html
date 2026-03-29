@@ -17,7 +17,11 @@
   <!-- Mobile Top Bar -->
   <div class="mobile-topbar">
     <div class="topbar-brand">
+      {% if user_vendor_profile.logo %}
       <img src="{{ user_vendor_profile.logo.url }}" alt="Logo">
+      {% else %}
+      <span class="mark" aria-hidden="true"></span>
+      {% endif %}
       <span>{{ user_vendor_profile.store_name }}</span>
     </div>
     <button class="hamburger-btn" id="hamburger-btn" aria-label="فتح القائمة">
