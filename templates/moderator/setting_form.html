@@ -1,0 +1,37 @@
+{% extends 'moderator/base.html' %}
+{% load static %}
+
+{% block title %}تعديل الإعداد{% endblock %}
+{% block header %}تعديل الإعداد{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/moderator/forms.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="card pad">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>اسم الإعداد</label>
+                    <input type="text" value="{{ object.name }}" disabled>
+                </div>
+
+                <div class="form-group">
+                    <label>قيمة الإعداد</label>
+                    {{ form.value }}
+                    {% if form.value.errors %}<span class="error">{{ form.value.errors.0 }}</span>{% endif %}
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn accent">تحديث القيمة</button>
+                <a href="{% url 'moderator_settings' %}" class="btn muted" style="text-decoration: none;">إلغاء</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

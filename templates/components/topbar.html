@@ -1,0 +1,44 @@
+
+{% load static %}
+<!-- Topbar -->
+<header class="topbar">
+    <div class="container">
+        <div class="row">
+            <a class="brand" href="{% url 'home' %}" aria-label="العودة للصفحة الرئيسية">
+            <img class="logo-img" src="{% static 'images/logo.png' %}" alt="Marketplace Logo">
+            </a>
+
+            <nav class="quick" aria-label="وصول سريع">
+            <a class="chip" href="{% url 'home' %}#categories">التصنيفات</a>
+            <a class="chip" href="{% url 'home' %}#deals">العروض</a>
+            <a class="chip" href="{% url 'home' %}#sponsored">الإعلانات الممولة</a>
+            <a class="chip" href="{% url 'home' %}#products">المنتجات</a>
+            <a class="chip" href="{% url 'home' %}#vendors">البائعون</a>
+            <a class="chip" href="{% url 'home' %}#contact">تواصل معنا</a>
+            </nav>
+
+            <div class="actions">
+            <a class="iconbtn" onclick="toggleOverlay('favorites')" title="المفضلة" style="cursor: pointer;">
+                <i class="fa-regular fa-heart"></i>
+                <span class="badge" id="fav-count">{{ favorites_count|default:0 }}</span>
+            </a>
+            <a class="iconbtn" onclick="toggleOverlay('cart')" title="السلة" style="cursor: pointer;">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span class="badge" id="cart-count">{{ cart_count|default:0 }}</span>
+            </a>
+            <button id="theme-toggler" class="theme-toggle" aria-label="تبديل المظهر">
+                <i class="fas fa-moon"></i>
+            </button>
+            {% if user.is_authenticated %}
+            <a class="iconbtn" onclick="toggleOverlay('account')" title="الحساب" style="cursor: pointer;"><i class="far fa-user"></i></a>
+            {% else %}
+            <a class="iconbtn" href="{% url 'login' %}" aria-label="الحساب"><i class="far fa-user"></i></a>
+            {% endif %}
+
+            {% if user.is_seller %}
+            <a class="iconbtn" href="{% url 'vendor_dashboard' %}" title="لوحة التحكم"><i class="fa-solid fa-store"></i></a>
+            {% endif %}
+            </div>
+        </div>
+    </div>
+</header>

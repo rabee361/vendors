@@ -1,0 +1,109 @@
+{% extends 'vendors/base.html' %}
+
+{% block content %}
+
+<header class="page-header">
+  <ul class="breadcrumb">
+    <li><a href="{% url 'vendor_dashboard' %}"><i class="fa-solid fa-house"></i></a></li>
+    <li><span class="separator"><i class="fa-solid fa-chevron-left"></i></span></li>
+    <li><a href="{% url 'vendor_ads' %}">الإعلانات الممولة</a></li>
+    <li><span class="separator"><i class="fa-solid fa-chevron-left"></i></span></li>
+    <li><span class="current">{{ title }}</span></li>
+  </ul>
+  <div class="header-actions">
+    <a class="chip" href="{% url 'vendor_store' vendor_id %}">عرض المتجر</a>
+    <a class="chip" href="{% url 'home' %}">زيارة الموقع</a>
+  </div>
+</header>
+
+<article class="card pad" aria-label="{{ title|default:'إنشاء إعلان' }}">
+
+<form method="post" style="display:grid; gap:10px; margin-top:12px">
+    {% csrf_token %}
+
+  <div>
+    <label for="{{ form.ad_type.id_for_label }}">{{ form.ad_type.label }}</label>
+    {{ form.ad_type }}
+    {% if form.ad_type.errors %}
+      <div style="color: var(--danger); font-size: 12px;">{{ form.ad_type.errors }}</div>
+    {% endif %}
+  </div>
+
+  <div>
+    <label for="{{ form.product.id_for_label }}">{{ form.product.label }}</label>
+    {{ form.product }}
+    {% if form.product.errors %}
+      <div style="color: var(--danger); font-size: 12px;">{{ form.product.errors }}</div>
+    {% endif %}
+  </div>
+
+  <div id="budget-field-wrapper">
+    <label for="{{ form.budget.id_for_label }}">{{ form.budget.label }}</label>
+    {{ form.budget }}
+    {% if form.budget.errors %}
+      <div style="color: var(--danger); font-size: 12px;">{{ form.budget.errors }}</div>
+    {% endif %}
+    <p class="muted" style="margin:6px 0 0; font-size: 12px;">
+      الحد الأدنى لميزانية إعلان القسم هو {{ form.minimum_ad_budget }}، وتكلفة النقرة الواحدة {{ form.ad_click_cost_display }}.
+    </p>
+  </div>
+
+  <div>
+    <label for="{{ form.status.id_for_label }}">{{ form.status.label }}</label>
+    {{ form.status }}
+    {% if form.status.errors %}
+      <div style="color: var(--danger); font-size: 12px;">{{ form.status.errors }}</div>
+    {% endif %}
+  </div>
+
+  <div>
+    <label for="{{ form.end_date.id_for_label }}">{{ form.end_date.label }}</label>
+    {{ form.end_date }}
+    {% if form.end_date.errors %}
+      <div style="color: var(--danger); font-size: 12px;">{{ form.end_date.errors }}</div>
+    {% endif %}
+  </div>
+
+  <p id="badge-budget-note" class="muted" style="margin:0; font-size:12px;">
+    ميزانية الإعلان العادي ثابتة بقيمة {{ form.normal_ads_budget }}، ولا يمكن تعديلها من هذا النموذج.
+  </p>
+
+    <button class="btn" type="submit">{{ title|default:"حفظ" }}</button>
+</form>
+</article>
+
+<script>
+  (function () {
+  const adTypeField = document.getElementById('{{ form.ad_type.id_for_label }}');
+  const budgetWrapper = document.getElementById('budget-field-wrapper');
+  const budgetInput = document.getElementById('{{ form.budget.id_for_label }}');
+  const badgeBudgetNote = document.getElementById('badge-budget-note');
+  const sectionType = 'section';
+  const badgeType = 'badge';
+  const minimumBudget = '{{ form.minimum_ad_budget }}';
+
+  if (!adTypeField || !budgetWrapper || !budgetInput || !badgeBudgetNote) {
+    return;
+  }
+
+  function syncBudgetUi() {
+    const adType = adTypeField.value;
+    const isSection = adType === sectionType;
+    const isBadge = adType === badgeType;
+
+    budgetWrapper.style.display = isSection ? 'block' : 'none';
+    badgeBudgetNote.style.display = isBadge ? 'block' : 'none';
+    budgetInput.disabled = !isSection;
+    budgetInput.required = isSection;
+
+    if (isSection && !budgetInput.value) {
+      budgetInput.value = minimumBudget;
+    }
+  }
+
+  adTypeField.addEventListener('change', syncBudgetUi);
+  syncBudgetUi();
+  }());
+</script>
+
+{% endblock %}

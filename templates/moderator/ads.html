@@ -1,0 +1,62 @@
+{% extends 'moderator/base.html' %}
+{% load static %}
+
+{% block title %}إدارة الإعلانات{% endblock %}
+{% block header %}الإعلانات الممولة{% endblock %}
+
+{% block content %}
+<div class="table-controls">
+    <div class="search-box">
+        <form method="get" action="{% url 'moderator_ads' %}">
+            <input type="text" name="q" value="{{ request.GET.q }}" placeholder="بحث باسم المنتج...">
+            <i class="fas fa-search"></i>
+        </form>
+    </div>
+</div>
+
+<div class="card" style="padding: 0; overflow: hidden;">
+    <link rel="stylesheet" href="{% static 'css/tables.css' %}">
+    <table>
+        <thead>
+            <tr>
+                <th>البائع</th>
+                <th>المنتج</th>
+                <th>نوع الإعلان</th>
+                <th>الحالة</th>
+                <th>النقرات</th>
+                <th>تاريخ البدء</th>
+                <th>تاريخ الانتهاء</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ad in ads %}
+            <tr>
+                <td>{{ ad.tenant.store_name }}</td>
+                <td>{{ ad.product.name }}</td>
+                <td>{{ ad.get_ad_type_display }}</td>
+                <td>
+                    <span class="status {% if ad.status == 'active' %}c{% else %}r{% endif %}">{{ ad.get_status_display }}</span>
+                </td>
+                <td>{% if ad.ad_type == 'section' %}{{ ad.db_clicks }}{% else %}-{% endif %}</td>
+                <td>{{ ad.start_date|date:"Y/m/d" }}</td>
+                <td>{{ ad.end_date|date:"Y/m/d" }}</td>
+                <td>
+                    <div style="display: flex; gap: 12px; font-size: 18px;">
+                        <a href="{% url 'moderator_ad_update' ad.id %}" style="color: var(--accent);" title="تعديل الحالة">
+                            <i class="fas fa-pen-to-square"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" style="text-align: center; padding: 40px; color: var(--muted);">
+                    لا توجد إعلانات مطابقة للبحث.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

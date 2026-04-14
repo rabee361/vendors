@@ -1,0 +1,67 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+
+<!-- Products + Filters -->
+<section id="products" class="section">
+    <div class="section-head">
+        <div>
+            <h2>المنتجات</h2>
+        </div>
+    </div>
+
+    <div class="shop">
+        <aside class="filters" aria-label="فلاتر المنتجات">
+            <h3>فلترة</h3>
+
+            <form method="get">
+                <div class="fgroup">
+                    <label for="q">بحث</label>
+                    <input hx-get="{% url 'product_list' %}" hx-target="#products_partial" hx-swap="innerHTML" hx-push-url="true" id="q" name="q" type="search" placeholder="اسم المنتج..." value="{{ query }}" hx-trigger="keyup changed delay:500ms" />
+                </div>
+
+                <div class="fgroup">
+                    <label for="cat">الصنف (اكتب أو اختر)</label>
+                    <input id="cat" name="category" list="cats" placeholder="مثال: إلكترونيات"
+                        value="{{ category_name }}" hx-trigger="change, keyup changed delay:500ms" />
+                    <datalist id="cats">
+                        {% for cat in categories %}
+                        <option value="{{ cat.name }}"></option>
+                        {% endfor %}
+                    </datalist>
+                </div>
+
+                <div class="row2">
+                    <div class="fgroup">
+                        <label for="min">السعر من</label>
+                        <input id="min" name="minPrice" type="number" placeholder="0" value="{{ min_price }}" 
+                            hx-trigger="change, keyup changed delay:500ms" />
+                    </div>
+                    <div class="fgroup">
+                        <label for="max">السعر إلى</label>
+                        <input id="max" name="maxPrice" type="number" placeholder="999" value="{{ max_price }}" 
+                            hx-trigger="change, keyup changed delay:500ms" />
+                    </div>
+                </div>
+
+                <div class="fgroup">
+                    <label for="rate">التقييم (اكتب أو اختر)</label>
+                    <input id="rate" name="rating" list="rates" placeholder="مثال: 4.5" value="{{ rating }}" 
+                        hx-trigger="change, keyup changed delay:500ms" />
+                    <datalist id="rates">
+                        <option value="5.0"></option>
+                        <option value="4.5"></option>
+                        <option value="4.0"></option>
+                        <option value="3.5"></option>
+                    </datalist>
+                </div>
+
+                <button class="btn" hx-get="{% url 'product_list' %}" hx-target="#products_partial" hx-swap="innerHTML" hx-push-url="true" hx-trigger="submit" type="submit" style="width:100%">تطبيق الفلاتر</button>
+            </form>
+        </aside>
+        <div id="products_partial" class="products" aria-label="قائمة المنتجات">
+            {% include 'base/partials/products_partial.html' %}
+        </div>
+    </div>
+</section>
+{% endblock %}

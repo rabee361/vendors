@@ -1,0 +1,54 @@
+{% extends 'auth/base.html' %}
+
+{% block content %}
+    <title></title>
+
+    <main class="wrap">
+        <section class="panel">
+            <div class="head">
+                <b>تأكيد رمز التحقق</b>
+            </div>
+
+            <form action="{% url 'verify_otp' %}" method="post" class="grid">
+                {% csrf_token %}
+                
+                {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                    <div class="msg {{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if form.errors %}
+                <div class="messages">
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                        <div class="msg error">{{ error }}</div>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <p style="text-align: center; color: var(--muted); font-size: 13px;">
+                    تم إرسال رمز التحقق إلى: <br>
+                    <b style="color: var(--text)">{{ email|default:"بريدك الإلكتروني" }}</b>
+                </p>
+
+                <div>
+                    <label for="otpCode">رمز التحقق (6 أرقام)</label>
+                    <input id="otpCode" name="code" type="text" maxlength="6" placeholder="000000" required autofocus />
+                </div>
+
+                <div class="actions">
+                    <button class="btn" type="submit">تحقق الآن</button>
+                    <a class="btn ghost" href="{% url 'otp' %}">إعادة إرسال الرمز</a>
+                </div>
+
+                <div class="hint">
+                    لم يصلك الرمز؟ افحص مجلد الرسائل غير المرغوب فيها (Spam).
+                </div>
+            </form>
+        </section>
+    </main>
+{% endblock %}

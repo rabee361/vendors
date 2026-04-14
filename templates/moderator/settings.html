@@ -1,0 +1,50 @@
+{% extends 'moderator/base.html' %}
+{% load static %}
+
+{% block title %}إدارة الإعدادات{% endblock %}
+{% block header %}الإعدادات{% endblock %}
+
+{% block content %}
+<div class="table-controls">
+    <div class="search-box">
+        <form method="get" action="{% url 'moderator_settings' %}">
+            <input type="text" name="q" value="{{ request.GET.q }}" placeholder="بحث عن إعداد...">
+            <i class="fas fa-search"></i>
+        </form>
+    </div>
+</div>
+
+<div class="card" style="padding: 0; overflow: hidden;">
+    <link rel="stylesheet" href="{% static 'css/tables.css' %}">
+    <table>
+        <thead>
+            <tr>
+                <th>اسم الإعداد</th>
+                <th>القيمة</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for setting in settings %}
+            <tr>
+                <td><b>{{ setting.name }}</b></td>
+                <td>{{ setting.value }}</td>
+                <td>
+                    <div style="display: flex; gap: 12px; font-size: 18px;">
+                        <a href="{% url 'moderator_setting_update' setting.id %}" style="color: var(--accent);" title="تعديل">
+                            <i class="fas fa-pen-to-square"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" style="text-align: center; padding: 40px; color: var(--muted);">
+                    لا يوجد إعدادات حالياً.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

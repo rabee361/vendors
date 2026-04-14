@@ -1,0 +1,455 @@
+from pickle import TRUE
+from django.db import models
+from decimal import Decimal, InvalidOperation
+from django.conf import settings
+from django.utils.text import slugify
+from django.contrib.auth.models import AbstractUser
+from django.core.validators import MaxValueValidator, MinValueValidator
+from utils.helper import generate_code, generate_coupon_code, get_expiration_time
+from utils.types import UserType, AdType, AdStatus, OrderStatus, CodeTypes
+from django.utils import timezone
+from utils.managers import CustomUserManager
+from django.core.exceptions import ValidationError
+
+
+class CustomUser(AbstractUser):
+    user_type = models.CharField(max_length=10, choices=UserType.choices, default=UserType.BUYER)
+    avatar = models.ImageField(upload_to='users/avatars/', blank=True, null=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    email = models.EmailField(max_length=140,unique=True)
+    is_verified = models.BooleanField(default=False)
+
+    @property
+    def is_buyer(self):
+        return self.user_type == UserType.BUYER
+
+    @property
+    def is_seller(self):
+        return self.user_type == UserType.SELLER
+
+    @property
+    def is_page_admin(self):
+        return self.user_type == UserType.ADMIN
+
+    def clean(self):
+        if self.avatar and self.avatar.size > 2 * 1024 * 1024:  # 2MB in bytes
+            raise ValidationError('حجم الصورة يجب أن لا يتجاوز 2 ميجابايت')
+
+        if self.avatar and not self.avatar.name.endswith(('.jpg', '.jpeg', '.png','webp', 'jfif')):
+            raise ValidationError('يجب أن يكون الصورة بصيغة jpg أو jpeg أو png أو webp')
+
+    objects = CustomUserManager()
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    def create_otp(self, code_type=CodeTypes.SIGNUP):
+        # Delete old unused codes of the same type for this email
+        OTPCode.objects.filter(email=self.email, code_type=code_type, is_used=False).delete()
+        
+        otp = OTPCode.objects.create(
+            code_type=code_type,
+            email=self.email,
+        )
+        return otp.code
+
+class Buyer(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='buyer_profile')
+    address = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Buyer: {self.user.username}"
+
+class Vendor(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='vendor_profile')
+    store_name = models.CharField(max_length=150)
+    category = models.ForeignKey('StoreCategory', on_delete=models.SET_NULL, null=True)
+    rating = models.DecimalField(max_digits=2, decimal_places=1, default=0)
+    address = models.CharField(max_length=300, blank=True)
+    phone = models.CharField(max_length=20, blank=True)
+    logo = models.ImageField(upload_to='vendors/avatars/', blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def clean(self):
+        if self.logo and self.logo.size > 2 * 1024 * 1024:  # 2MB in bytes
+            raise ValidationError('حجم الصورة يجب أن لا يتجاوز 2 ميجابايت')
+
+        if self.logo and not self.logo.name.endswith(('.jpg', '.jpeg', '.png','webp', 'jfif')):
+            raise ValidationError('يجب أن يكون الصورة بصيغة jpg أو jpeg أو png أو webp')
+
+    def __str__(self):
+        return self.store_name
+
+class ProductCategory(models.Model):
+    tenant = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='product_categories')
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True)
+    slug = models.SlugField(unique=True, allow_unicode=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name, allow_unicode=True)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = "Product Categories"
+
+class StoreCategory(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True)
+    image = models.ImageField(upload_to='categories/images/', blank=True)
+    slug = models.SlugField(unique=True, allow_unicode=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name, allow_unicode=True)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = "Categories"
+
+class Product(models.Model):
+    tenant = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='products')
+    name = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    stock = models.PositiveIntegerField(default=0)
+    category = models.ForeignKey(ProductCategory, on_delete=models.SET_NULL, null=True)
+    image = models.ImageField(upload_to='products/images/')
+    is_active = models.BooleanField(default=True)
+    is_sponsored_badge = models.BooleanField(default=False)
+    slug = models.SlugField(unique=True, allow_unicode=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name, allow_unicode=True)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def average_rating(self):
+        reviews = self.ratings.all()
+        if reviews:
+            return sum(review.rating for review in reviews) / len(reviews)
+        return 0.0
+
+    @property
+    def rating_count(self):
+        return self.ratings.count()
+
+    @property
+    def current_price(self):
+        today = timezone.now().date()
+        active_offer = self.offers.filter(
+            is_active=True,
+            start_date__lte=today,
+            end_date__gte=today
+        ).first()
+        if active_offer:
+            return active_offer.get_discounted_price()
+        return self.price
+
+class Offer(models.Model):
+    tenant = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='offers', null=True, blank=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='offers')
+    discount = models.PositiveIntegerField()
+    start_date = models.DateField()
+    end_date = models.DateField()
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def discount_price(self):
+        return f"{self.get_discounted_price():.2f}"
+
+    def get_discounted_price(self):
+        return self.product.price - (self.product.price * Decimal(self.discount) / Decimal(100))
+
+    def __str__(self):
+        return f"{self.discount}% off {self.product.name}"
+
+class SponsoredAd(models.Model):
+    tenant = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='ads')
+    ad_type = models.CharField(max_length=20, choices=AdType.choices)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_ads')
+    status = models.CharField(max_length=20, choices=AdStatus.choices, default=AdStatus.ACTIVE)
+    start_date = models.DateField(auto_now_add=True)
+    end_date = models.DateField()
+    budget = models.PositiveIntegerField(default=10)
+
+    @property
+    def click_count(self):
+        return self.click_records.count()
+
+    def __str__(self):
+        return f"Ad for {self.product.name} ({self.ad_type})"
+
+
+class SponsoredAdClick(models.Model):
+    ad = models.ForeignKey(SponsoredAd, on_delete=models.CASCADE, related_name='click_records')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True, related_name='sponsored_ad_clicks')
+    visitor_token = models.CharField(max_length=64, null=True, blank=True)
+    source_page = models.CharField(max_length=50, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['ad', 'user'],
+                condition=models.Q(user__isnull=False),
+                name='unique_sponsored_ad_click_per_user',
+            ),
+            models.UniqueConstraint(
+                fields=['ad', 'visitor_token'],
+                condition=models.Q(visitor_token__isnull=False),
+                name='unique_sponsored_ad_click_per_visitor',
+            ),
+        ]
+
+    def __str__(self):
+        identity = self.user.email if self.user else self.visitor_token
+        return f"{self.ad.product.name} - {identity}"
+
+class Cart(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+    session_key = models.CharField(max_length=40, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Cart {self.id} ({self.user or self.session_key})"
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.quantity} x {self.product.name}"
+
+class Favorite(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='favorites')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='favorited_by')
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'product')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.product.name}"
+
+class Order(models.Model):
+    STATUS_CHOICES = [
+        ('preparing', 'قيد التجهيز'),
+        ('shipped', 'تم الشحن'),
+        ('delivered', 'تم التسليم'),
+        ('cancelled', 'ملغي'),
+    ]
+    tenant = models.ForeignKey(Vendor, on_delete=models.CASCADE, null=True)
+    order_number = models.CharField(max_length=20, unique=True)
+    total = models.DecimalField(max_digits=10, decimal_places=2)
+    discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    notes = models.TextField(blank=True, null=True)
+    address = models.CharField(max_length=255)
+    city = models.CharField(max_length=100)
+    full_name = models.CharField(max_length=150)
+    phone = models.CharField(max_length=15)
+    email = models.EmailField()
+    shipping_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='preparing')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def total_cost(self):
+        if self.total:
+            return self.total + self.shipping_cost - self.discount_amount
+        return 0
+
+    def __str__(self):
+        return self.order_number
+
+class OrderItem(models.Model):
+    tenant = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='order_items')
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    quantity = models.PositiveIntegerField(default=1)
+    price_at_order = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.quantity} x {self.product.name if self.product else 'Deleted Product'}"
+
+    @property
+    def get_total(self):
+        return self.quantity * self.price_at_order
+
+class ContactMessage(models.Model):
+    name = models.CharField(max_length=150)
+    email = models.EmailField()
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Message from {self.name}"
+
+class VendorStats(models.Model):
+    tenant = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='stats')
+    week_start = models.DateField()
+    views = models.PositiveIntegerField(default=0)
+    sales_total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    conversion_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    visit_growth = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    best_product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Stats for {self.tenant.store_name} - {self.week_start}"
+
+
+class OTPCode(models.Model):
+    email = models.EmailField(max_length=255)
+    code = models.IntegerField(validators=[MinValueValidator(100000), MaxValueValidator(999999)], default=generate_code)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(default=get_expiration_time)
+    code_type = models.CharField(max_length=20, choices=CodeTypes.choices, default=CodeTypes.SIGNUP)
+    is_used = models.BooleanField(default=False)
+
+    @staticmethod
+    def check_limit(email):
+        return OTPCode.objects.filter(
+            email=email,
+            created_at__gt=timezone.now() - timezone.timedelta(minutes=15)
+        ).count() >= 5
+
+    @property
+    def is_expired(self):
+        return timezone.now() > self.expires_at
+
+    def __str__(self) -> str:
+        return f"{self.email} - {self.code} ({self.code_type})"
+
+class ProductRating(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='product_ratings')
+    product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='ratings')
+    rating = models.FloatField(validators=[MinValueValidator(1.0), MaxValueValidator(5.0)])
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('user', 'product')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.product.name} ({self.rating})"
+
+
+class Coupon(models.Model):
+    tenant = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='coupons')
+    code = models.CharField(max_length=8, default=generate_coupon_code)
+    value = models.DecimalField(max_digits=10, decimal_places=2)
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+    is_used = models.BooleanField(default=False)
+    orders_to_receive = models.IntegerField(default=50)
+    recipient_email = models.EmailField(blank=True, null=True)
+    sent_at = models.DateTimeField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('tenant', 'code')
+
+    def __str__(self):
+        return f"{self.code} ({self.value})"
+
+    @property
+    def is_valid(self):
+        now = timezone.now()
+        return not self.is_used and self.start_date <= now <= self.end_date
+
+
+class Setting(models.Model):
+    name = models.CharField(max_length=255)
+    value = models.CharField(max_length=255)
+
+    AD_SETTING_DEFAULTS = {
+        'minimum_ad_budget': 10,
+        'ad_click_cost': Decimal('1'),
+        'normal_ads_budget': 10,
+    }
+
+    @classmethod
+    def get_raw_value(cls, name, default=None):
+        value = cls.objects.filter(name=name).values_list('value', flat=True).first()
+        return default if value in (None, '') else value
+
+    @classmethod
+    def get_positive_integer_value(cls, name, default):
+        try:
+            value = int(Decimal(str(cls.get_raw_value(name, default))))
+        except (InvalidOperation, TypeError, ValueError):
+            return default
+        return value if value > 0 else default
+
+    @classmethod
+    def get_positive_decimal_value(cls, name, default):
+        try:
+            value = Decimal(str(cls.get_raw_value(name, default)))
+        except (InvalidOperation, TypeError, ValueError):
+            return Decimal(str(default))
+        return value if value > 0 else Decimal(str(default))
+
+    @classmethod
+    def get_sponsored_ad_settings(cls):
+        defaults = cls.AD_SETTING_DEFAULTS
+        return {
+            'minimum_ad_budget': cls.get_positive_integer_value(
+                'minimum_ad_budget',
+                defaults['minimum_ad_budget'],
+            ),
+            'ad_click_cost': cls.get_positive_decimal_value(
+                'ad_click_cost',
+                defaults['ad_click_cost'],
+            ),
+            'normal_ads_budget': cls.get_positive_integer_value(
+                'normal_ads_budget',
+                defaults['normal_ads_budget'],
+            ),
+        }
+
+    @classmethod
+    def calculate_sponsored_ad_click_limit(cls, budget, ad_click_cost=None):
+        try:
+            budget_value = Decimal(str(budget))
+        except (InvalidOperation, TypeError, ValueError):
+            return 0
+
+        if budget_value <= 0:
+            return 0
+
+        effective_click_cost = ad_click_cost
+        if effective_click_cost is None:
+            effective_click_cost = cls.get_sponsored_ad_settings()['ad_click_cost']
+
+        try:
+            effective_click_cost = Decimal(str(effective_click_cost))
+        except (InvalidOperation, TypeError, ValueError):
+            effective_click_cost = cls.AD_SETTING_DEFAULTS['ad_click_cost']
+
+        if effective_click_cost <= 0:
+            effective_click_cost = cls.AD_SETTING_DEFAULTS['ad_click_cost']
+
+        return int(budget_value / effective_click_cost)
+
+    def __str__(self):
+        return f"{self.name}: {self.value}"

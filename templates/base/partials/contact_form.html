@@ -1,0 +1,15 @@
+<form id="contact-form-container" hx-post="{% url 'home' %}" hx-target="#contact-form-container" hx-swap="outerHTML" style="display:grid; gap:10px; margin-top:10px">
+    {% csrf_token %}
+    {% for field in message_form %}
+    <div style="display:grid; gap:8px">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+        <div class="small error">{{ field.errors.0 }}</div>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <button class="btn" type="submit">إرسال</button>
+    <div class="small">* سيتم إرسال رسالتك إلى فريق الدعم.</div>
+</form>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>انتهاء ميزانية الإعلان</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: Tahoma, Arial, sans-serif;
+			background-color: #f3f7f9;
+			color: #1f2937;
+			line-height: 1.8;
+			padding: 20px 10px;
+		}
+
+		.email-container {
+			max-width: 640px;
+			margin: 0 auto;
+			background-color: #ffffff;
+			border: 1px solid #dce6eb;
+			border-radius: 14px;
+			overflow: hidden;
+		}
+
+		.header {
+			background: linear-gradient(135deg, #0f766e 0%, #0ea5a5 50%, #14b8a6 100%);
+			color: #ffffff;
+			padding: 28px 24px;
+			text-align: center;
+		}
+
+		.header h1 {
+			font-size: 25px;
+			margin-bottom: 8px;
+		}
+
+		.header p {
+			font-size: 15px;
+			opacity: 0.95;
+		}
+
+		.content {
+			padding: 32px 24px;
+		}
+
+		.hello {
+			font-size: 18px;
+			font-weight: 700;
+			color: #0f172a;
+			text-align: center;
+			margin-bottom: 14px;
+		}
+
+		.message {
+			font-size: 15px;
+			color: #334155;
+			margin-bottom: 20px;
+		}
+
+		.info-box {
+			background-color: #ecfeff;
+			border: 1px solid #99f6e4;
+			border-radius: 12px;
+			padding: 18px;
+			margin-bottom: 20px;
+		}
+
+		.info-box .title {
+			display: block;
+			font-size: 13px;
+			color: #0f766e;
+			margin-bottom: 10px;
+			font-weight: 700;
+		}
+
+		.info-box .value {
+			font-size: 22px;
+			font-weight: 800;
+			color: #0f766e;
+			margin-bottom: 8px;
+		}
+
+		.detail-row {
+			font-size: 14px;
+			color: #475569;
+			margin-bottom: 6px;
+		}
+
+		.note {
+			font-size: 14px;
+			color: #475569;
+			background-color: #f8fafc;
+			border: 1px dashed #cbd5e1;
+			border-radius: 10px;
+			padding: 14px;
+		}
+
+		.footer {
+			background-color: #f8fafc;
+			border-top: 1px solid #e2e8f0;
+			padding: 20px;
+			text-align: center;
+			color: #64748b;
+			font-size: 13px;
+		}
+
+		.footer .brand {
+			display: block;
+			color: #0f766e;
+			font-weight: 700;
+			margin-bottom: 6px;
+		}
+
+		@media only screen and (max-width: 600px) {
+			.header h1 {
+				font-size: 22px;
+			}
+
+			.content {
+				padding: 24px 16px;
+			}
+
+			.info-box .value {
+				font-size: 20px;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="email-container">
+		<div class="header">
+			<h1>تم إيقاف إعلانك الممول</h1>
+			<p>وصل الإعلان إلى الحد الأقصى من النقرات وفق الميزانية الحالية</p>
+		</div>
+
+		<div class="content">
+			<div class="hello">مرحباً {{ vendor.store_name }}،</div>
+			<div class="message">
+				أصبح الإعلان التالي غير نشط لأن عدد النقرات استهلك الميزانية المتاحة له.
+			</div>
+
+			<div class="info-box">
+				<span class="title">الإعلان المتأثر</span>
+				<div class="value">{{ ad.product.name }}</div>
+				<div class="detail-row">ميزانية الإعلان: {{ ad.budget }}</div>
+				<div class="detail-row">تكلفة النقرة الحالية: {{ ad_click_cost_display }}</div>
+				<div class="detail-row">الحد الأقصى للنقرات: {{ max_clicks }}</div>
+				<div class="detail-row">عدد النقرات المسجل: {{ ad.click_count }}</div>
+			</div>
+
+			<div class="note">
+				إذا كنت ترغب في استمرار عرض الإعلان لفترة أطول، قم بزيادة الميزانية ثم أعد تفعيله من لوحة التحكم الخاصة بمتجرك.
+			</div>
+		</div>
+
+		<div class="footer">
+			<span class="brand">Vendor Store</span>
+			<span>هذه رسالة إشعار تلقائية من النظام</span>
+		</div>
+	</div>
+</body>
+</html>

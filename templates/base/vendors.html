@@ -1,0 +1,33 @@
+{% extends 'base/base.html' %}
+{% block title %}البائعون | Marketplace{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <h1 style="margin:16px 0 6px; font-size:20px">قائمة البائعين</h1>
+  <p class="muted" style="margin:0; line-height:1.8">اختر متجرًا لعرض جميع منتجاته.</p>
+
+  <div class="products">
+    {% for vendor in vendors %}
+    <article class="card">
+      <div class="pad">
+          <div class="vendor-card">
+            <div style="text-align: right; display: flex; align-items: center; gap: 10px">
+              {% if vendor.logo %}
+              <img src="{{ vendor.logo.url }}" class="avatar" alt="{{ vendor.store_name }}">
+              {% else %}
+              <div class="avatar" aria-hidden="true"></div>
+              {% endif %}
+              <b>{{ vendor.store_name }}</b>
+              <span>{{ vendor.category.name|default:"عام" }}</span>
+            </div>
+            <a class="btn2 primary" href="{% url 'vendor_store' vendor.id %}"><span class="arrow"><i class="fas fa-arrow-left"></i></span></a>
+          </div>
+      </div>
+    </article>
+    {% empty %}
+    <p class="muted" style="grid-column: 1 / -1; text-align: center; padding: 20px;">لا يوجد بائعون حالياً.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

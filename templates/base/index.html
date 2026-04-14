@@ -1,0 +1,246 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/hero.css' %}">{% endblock %}
+
+{% block content %}
+
+<main class="container">
+
+  <!-- Hero -->
+  <section class="hero" aria-label="بانر ترحيبي">
+    <div class="hero-footer">
+      <div class="hero-stats">
+        <div class="stat-item"><b>{{ product_count }}+</b> <span>منتج متاح</span></div>
+        <div class="stat-item"><b>{{ vendor_count }}+</b> <span>بائع موثوق</span></div>
+        <div class="stat-item"><b>{{ orders_count }}+</b> <span>طلبات</span></div>
+        <div class="stat-item"><b>{{ category_count }}+</b> <span>تصنيفات</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Categories -->
+  <section id="categories" class="section">
+    <div class="section-head">
+      <div>
+        <h2>التصنيفات</h2>
+        <p>اختيار سريع للوصول للمنتجات حسب الصنف.</p>
+      </div>
+      <a class="chip" href="{% url 'category_list' %}">عرض كل التصنيفات</a>
+    </div>
+
+    <div class="grid4">
+      {% for category in categories %}
+      <div class="card cat" >
+        <div><b>{{ category.name }}</b><span>{{ category.description|truncatewords:5 }}</span></div>
+        <a class="btn2 primary" href="{% url 'product_list' %}?category={{ category.name }}" aria-label="عرض المتجر"><span class="arrow"><i class="fas fa-arrow-left"></i></span></a>
+      </div>
+
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Offers -->
+  <section id="deals" class="section">
+    <div class="section-head">
+      <div>
+        <h2>العروض</h2>
+        <p>عروض مميزة على منتجات مختارة.</p>
+      </div>
+      <a class="chip" href="{% url 'offer_list' %}">عرض المزيد</a>
+    </div>
+
+    <div class="grid3">
+      {% for offer in offers %}
+      <article class="card">
+        <div class="pimg">
+          <div class="ad-card-badges">
+            <span class="tag good">خصم {{ offer.discount }}%</span>
+            <span class="ad-expiry-badge">{{ offer.remaining_label }}</span>
+          </div>
+          {% if offer.product.image %}
+          <img src="{{ offer.product.image.url }}" alt="{{ offer.product.name }}">
+          {% else %}
+          <div class="placeholder"><i class="fas fa-image"></i></div>
+          {% endif %}
+        </div>
+        <div class="pad">
+          <h3 style="margin:10px 0 6px">{{ offer.product.name }}</h3>
+          <div class="muted">{{ offer.product.description }}</div>
+          <div class="pmeta">
+            <b class="price">${{ offer.discount_price }}</b>
+            <span class="muted"><s>${{ offer.product.price }}</s></span>
+          </div>
+          <div class="pactions">
+            <a class="paction-btn view" href="{% url 'product' offer.product.id %}" aria-label="عرض التفاصيل"><i class="fas fa-eye"></i></a>
+            <button class="paction-btn primary cart {% if offer.product.id|slugify in cart_product_ids %}active{% endif %}"
+              hx-post="{% url 'add_to_cart' offer.product.id %}" hx-vals='{"quantity": 1}'
+              hx-target="#cart" hx-swap="outerHTML" aria-label="إضافة للسلة"><i class="fas fa-cart-plus"></i></button>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Sponsored Ads -->
+  <section id="sponsored" class="section">
+    <div class="section-head">
+      <div>
+        <h2>الإعلانات الممولة</h2>
+        <p>منتجات مميزة تظهر هنا كإعلان ممول مستقل.</p>
+      </div>
+      <a class="chip" href="{% url 'ad_list' %}">عرض المزيد</a>
+    </div>
+
+    <div class="grid3">
+      {% for ad in ads %}
+      <article class="card">
+        <div class="pimg">
+          <div class="ad-card-badges">
+            <span class="badge">إعلان ممول</span>
+            <span class="ad-expiry-badge">{{ ad.remaining_label }}</span>
+          </div>
+          {% if ad.product.image %}
+          <img src="{{ ad.product.image.url }}" alt="{{ ad.product.name }}">
+          {% endif %}
+        </div>
+        <div class="pad">
+          <div class="muted">من متجر: {{ ad.tenant.store_name }}</div>
+          <h3 style="margin:6px 0">{{ ad.product }}</h3>
+          <div class="pmeta">
+            <span class="stars"> ⭐ {{ ad.product.average_rating }}</span>
+            <b class="price">${{ ad.product.price }}</b>
+          </div>
+          <div class="pactions">
+            <a class="paction-btn view" href="{% url 'sponsored_ad_click' ad.id %}?source=home" aria-label="عرض المنتج"><i class="fas fa-eye"></i></a>
+            <button class="paction-btn primary cart {% if ad.product.id|slugify in cart_product_ids %}active{% endif %}" 
+              hx-post="{% url 'add_to_cart' ad.product.id %}" hx-vals='{"quantity": 1}'
+              hx-target="#cart" hx-swap="outerHTML" aria-label="إضافة للسلة"><i class="fas fa-cart-plus"></i></button>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Products + Filters (Showing Featured/Latest) -->
+  <section id="products" class="section">
+    <div class="section-head">
+      <div>
+        <h2>المنتجات</h2>
+        <p>استكشف أحدث المنتجات المضافة للمتجر.</p>
+      </div>
+      <a class="chip" href="{% url 'product_list' %}">عرض المزيد</a>
+    </div>
+
+    <div class="shop">
+      <aside class="filters" aria-label="فلاتر المنتجات">
+        <h3>فلترة</h3>
+
+        <form method="get">
+          <div class="fgroup">
+            <label for="q">بحث</label>
+            <input hx-get="{% url 'home' %}" hx-target="#index_products_partial" hx-swap="innerHTML" hx-push-url="true"  id="q" name="q" type="search" hx-trigger="keyup changed" placeholder="اسم المنتج..." />
+          </div>
+
+          <div class="fgroup">
+              <label for="cat">الصنف (اكتب أو اختر)</label>
+              <input id="cat" name="category" list="cats" placeholder="مثال: إلكترونيات" hx-get="{% url 'home' %}"  hx-target="#index_products_partial" hx-swap="innerHTML" hx-push-url="true" 
+                  value="{{ category_name }}" hx-trigger="keyup changed" />
+              <datalist id="cats">
+                  {% for cat in categories %}
+                  <option value="{{ cat.name }}"></option>
+                  {% endfor %}
+              </datalist>
+          </div>
+
+          <div class="row2">
+              <div class="fgroup">
+                  <label for="min">السعر من</label>
+                  <input id="min" name="minPrice" type="number" placeholder="0"  hx-get="{% url 'home' %}"  hx-target="#index_products_partial" hx-swap="innerHTML" hx-push-url="true" value="{{ min_price }}" 
+                      hx-trigger="keyup changed" />
+              </div>
+              <div class="fgroup">
+                  <label for="max">السعر إلى</label>
+                  <input id="max" name="maxPrice" type="number" placeholder="999"  hx-get="{% url 'home' %}"  hx-target="#index_products_partial" hx-swap="innerHTML" hx-push-url="true" value="{{ max_price }}" 
+                      hx-trigger="keyup changed" />
+              </div>
+          </div>
+
+          <div class="fgroup">
+              <label for="rate">التقييم (اكتب أو اختر)</label>
+              <input id="rate" name="rating" list="rates" placeholder="مثال: 4.5" value="{{ rating }}" 
+                  hx-get="{% url 'home' %}"  hx-target="#index_products_partial" hx-swap="innerHTML" hx-push-url="true" hx-trigger="keyup changed" />
+              <datalist id="rates">
+                  <option value="5.0"></option>
+                  <option value="4.5"></option>
+                  <option value="4.0"></option>
+                  <option value="3.5"></option>
+              </datalist>
+          </div>
+
+          <button class="btn" hx-get="{% url 'home' %}" hx-target="#index_products_partial" hx-swap="innerHTML" hx-push-url="true" hx-trigger="submit" type="submit" style="width:100%">تطبيق الفلاتر</button>
+        </form>
+      </aside>
+
+      <div id="index_products_partial" class="products" aria-label="قائمة المنتجات">
+        {% include 'base/partials/index_products_partial.html' %}
+      </div>
+  </section>
+
+  <!-- Vendors -->
+  <section id="vendors" class="section">
+    <div class="section-head">
+      <div>
+        <h2>البائعون في المتجر</h2>
+        <p>اختر متجرًا لعرض جميع منتجاته.</p>
+      </div>
+      <a class="chip" href="{% url 'vendors' %}">عرض كل البائعين</a>
+    </div>
+
+    <div class="grid3">
+      {% for vendor in vendors %}
+      <article class="card pad">
+        <div class="vendor">
+          <div class="vendor-card">
+            <div style="text-align: right; display: flex; align-items: center; gap: 10px">
+              {% if vendor.logo %}
+              <img src="{{ vendor.logo.url }}" class="avatar" alt="{{ vendor.store_name }}">
+              {% else %}
+              <div class="avatar" aria-hidden="true"></div>
+              {% endif %}
+              <b>{{ vendor.store_name }}</b>
+              <span>{{ vendor.category.name }}</span>
+            </div>
+            <a class="btn2 primary" href="{% url 'vendor_store' vendor.id %} " aria-label="عرض المتجر"><span class="arrow"><i class="fas fa-arrow-left"></i></span></a>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- About + Contact -->
+  <section class="section two" aria-label="من نحن وتواصل معنا">
+    <article class="card pad">
+      <h2 style="margin:0 0 6px">من نحن</h2>
+      <p class="muted" style="margin:0; line-height:1.9">
+        نحن منصة تجارة إلكترونية متعددة البائعين، هدفنا توفير تجربة شراء سهلة وسريعة
+        مع نظام عروض وإعلانات ممولة لزيادة ظهور المنتجات المميزة بطريقة منظمة وغير مزعجة.
+      </p>
+      <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap">
+        <span class="tag">UX/UI</span>
+        <span class="tag">Multi-Vendor</span>
+        <span class="tag sponsored">Ads</span>
+      </div>
+    </article>
+
+    <article id="contact" class="card pad">
+      <h2 style="margin:0 0 6px">تواصل معنا</h2>
+      {% include 'base/partials/contact_form.html' %}
+    </article>
+  </section>
+
+</main>
+
+{% endblock %}

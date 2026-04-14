@@ -1,0 +1,91 @@
+{% load static %}
+<!doctype html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>لوحة البائع | Marketplace</title>
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="{% static 'css/vendor/main.css' %}">
+  <link rel="stylesheet" href="{% static 'css/vendor/breadcrumbs.css' %}">
+  <link rel="stylesheet" href="{% static 'css/vendor/tables.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+  <!-- Mobile Top Bar -->
+  <div class="mobile-topbar">
+    <div class="topbar-brand">
+      {% if user_vendor_profile.logo %}
+      <img src="{{ user_vendor_profile.logo.url }}" alt="Logo">
+      {% else %}
+      <span class="mark" aria-hidden="true"></span>
+      {% endif %}
+      <span>{{ user_vendor_profile.store_name }}</span>
+    </div>
+    <button class="hamburger-btn" id="hamburger-btn" aria-label="فتح القائمة">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+  </div>
+
+  <!-- Sidebar Backdrop -->
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+  <div class="shell">
+
+    <aside class="side" id="sidebar">
+      <a class="brand" href="{% url 'home' %}" aria-label="العودة للموقع">
+        {% if user_vendor_profile.logo %}
+          <img src="{{ user_vendor_profile.logo.url }}" alt="{{ user_vendor_profile.store_name }}" class="side-logo">
+        {% else %}
+          <span class="mark" aria-hidden="true"></span>
+        {% endif %}
+        <span>{{ user_vendor_profile.store_name }}</span>
+      </a>
+
+      <nav class="nav" aria-label="قائمة لوحة البائع">
+        <a class="nav-item {% if request.resolver_match.url_name == 'vendor_dashboard' %}active{% endif %}" href="{% url 'vendor_dashboard' %}">
+          <span class="nav-label"><i class="fa-solid fa-chart-pie"></i> الإحصائيات</span>
+        </a>
+        <a class="nav-item {% if request.resolver_match.url_name == 'vendor_products' %}active{% endif %}" href="{% url 'vendor_products' %}">
+          <span class="nav-label"><i class="fa-solid fa-box-open"></i> المنتجات</span>
+        </a>
+        <a class="nav-item {% if request.resolver_match.url_name == 'vendor_offers' %}active{% endif %}" href="{% url 'vendor_offers' %}">
+          <span class="nav-label"><i class="fa-solid fa-tags"></i> العروض</span>
+        </a>
+        <a class="nav-item {% if request.resolver_match.url_name == 'vendor_orders' %}active{% endif %}" href="{% url 'vendor_orders' %}">
+          <span class="nav-label"><i class="fa-solid fa-cart-shopping"></i> الطلبات</span>
+        </a>
+        <a class="nav-item {% if request.resolver_match.url_name == 'vendor_ads' %}active{% endif %}" href="{% url 'vendor_ads' %}">
+          <span class="nav-label"><i class="fa-solid fa-rectangle-ad"></i> الإعلانات الممولة</span>
+        </a>
+        <a class="nav-item {% if request.resolver_match.url_name == 'vendor_categories' %}active{% endif %}" href="{% url 'vendor_categories' %}">
+          <span class="nav-label"><i class="fa-solid fa-list"></i> الأصناف</span>
+        </a>
+        <a class="nav-item {% if request.resolver_match.url_name == 'vendor_coupons' %}active{% endif %}" href="{% url 'vendor_coupons' %}">
+          <span class="nav-label"><i class="fa-solid fa-ticket-simple"></i> كوبونات الخصم</span>
+        </a>
+        <a class="nav-item {% if request.resolver_match.url_name == 'vendor_settings' %}active{% endif %}" href="{% url 'vendor_settings' %}">
+          <span class="nav-label"><i class="fa-solid fa-gear"></i> إعدادات المتجر</span>
+        </a>
+        <a class="nav-item {% if request.resolver_match.url_name == 'logout' %}active{% endif %}" href="{% url 'logout' %}" style="margin-top:6px">
+          <span class="nav-label"><i class="fa-solid fa-right-from-bracket"></i> تسجيل خروج</span>
+        </a>
+      </nav>
+    </aside>
+
+    <main class="main">
+        
+    {% block content %}
+
+    {% endblock %}
+
+    </main>
+  </div>
+
+  <script src="{% static 'js/vendor/sidebar.js' %}"></script>
+</body>
+
+</html>
+

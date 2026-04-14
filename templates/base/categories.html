@@ -1,0 +1,41 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<section id="categories" class="section">
+  <div class="section-head">
+    <div>
+      <h2>التصنيفات</h2>
+      <p>استكشف المنتجات حسب الصنف (بحث بالاسم).</p>
+    </div>
+  </div>
+
+  <div class="shop">
+    <aside class="filters" aria-label="فلاتر التصنيفات">
+      <h3>البحث</h3>
+      <form action="{% url 'category_list' %}" method="get">
+        <div class="fgroup">
+          <label for="q">بحث بالاسم</label>
+          <input id="q" name="q" type="search" placeholder="اسم التصنيف..." value="{{ query }}" />
+        </div>
+        <button class="btn" type="submit" style="width:100%">بحث</button>
+      </form>
+    </aside>
+
+    <div class="products" aria-label="قائمة التصنيفات">
+      {% for category in categories %}
+      <article class="card">
+        <div class="pad">
+          <h3 style="margin:6px 0">{{ category.name }}</h3>
+          <p class="muted small">{{ category.description|truncatewords:10 }}</p>
+          <div class="pactions">
+            <a class="btn2 primary" href="{% url 'product_list' %}?category={{ category.name }}">عرض المنتجات</a>
+          </div>
+        </div>
+      </article>
+      {% empty %}
+      <p class="muted" style="grid-column: 1 / -1; text-align: center; padding: 20px;">لا توجد تصنيفات تطابق البحث.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

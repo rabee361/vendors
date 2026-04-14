@@ -1,0 +1,132 @@
+  {% extends 'auth/base.html' %}
+
+  {% block content %}
+
+  <title>تسجيل الدخول | Marketplace</title>
+  <main class="wrap">
+    <section class="brand">
+      <div class="logo">
+        <img class="logo-img" src="assets/logo.png" alt="Marketplace Logo">
+        <div>JBHN Market</div>
+      </div>
+
+      <h1>تجربة شراء وبيع احترافية — متعددة البائعين مع إعلانات ممولة</h1>
+
+      <div class="bullets">
+        <div class="pill"><span class="dot"></span><span>حساب مشتري: ينتقل للصفحة الرئيسية</span></div>
+        <div class="pill"><span class="dot g"></span><span>حساب بائع: ينتقل للوحة تحكم البائع</span></div>
+        <div class="pill"><span class="dot y"></span><span>إعلانات ممولة: قسم مستقل + وسم “ممول” على المنتج</span></div>
+      </div>
+
+    </section>
+
+    <section class="panel" aria-label="لوحة تسجيل الدخول">
+      <nav class="tabs" aria-label="اختيار نوع الحساب">
+        <a id="tab-buyer" class="active" href="javascript:void(0)" onclick="switchTab('buyer')">مشتري</a>
+        <a id="tab-seller" href="javascript:void(0)" onclick="switchTab('seller')">بائع</a>
+      </nav>
+
+      {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+        <div class="msg {{ message.tags }}">{{ message.message }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <form id="form-buyer" action="{% url 'login' %}" method="post" class="grid">
+        {% csrf_token %}
+        <input type="hidden" name="login_type" value="buyer">
+        
+        {% if buyer_form.non_field_errors %}
+        <div class="messages">
+          {% for error in buyer_form.non_field_errors %}
+          <div class="msg error">{{ error }}</div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="grid">
+          <div>
+            <label for="buyerEmail">البريد الإلكتروني</label>
+            <input id="buyerEmail" name="email" type="email" placeholder="name@example.com" value="{{ buyer_form.email.value|default:'' }}" required />
+            {% if buyer_form.email.errors %}
+              <div class="msg error">{{ buyer_form.email.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div>
+            <label for="buyerPass">كلمة المرور</label>
+            <input id="buyerPass" name="password" type="password" placeholder="••••••••" required />
+            {% if buyer_form.password.errors %}
+              <div class="msg error">{{ buyer_form.password.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="actions">
+            <button class="btn" type="submit">تسجيل الدخول كمشتري</button>
+            <a class="btn ghost" href="{% url 'home' %}">متابعة كزائر</a>
+          </div>
+          <div class="hint">ليس لديك حساب؟ <a href="{% url 'buyer_signup' %}">إنشاء حساب مشتري</a></div>
+        </div>
+      </form>
+
+      <form id="form-seller" action="{% url 'login' %}" method="post" class="grid" style="display:none;">
+        {% csrf_token %}
+        <input type="hidden" name="login_type" value="seller">
+
+        {% if seller_form.non_field_errors %}
+        <div class="messages">
+          {% for error in seller_form.non_field_errors %}
+          <div class="msg error">{{ error }}</div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <div>
+          <label for="sEmail">البريد الإلكتروني</label>
+          <input id="sEmail" name="email" type="email" placeholder="seller@store.com" value="{{ seller_form.email.value|default:'' }}" required />
+          {% if seller_form.email.errors %}
+            <div class="msg error">{{ seller_form.email.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <div>
+          <label for="sPass">كلمة المرور</label>
+          <input id="sPass" name="password" type="password" placeholder="••••••••" required />
+          {% if seller_form.password.errors %}
+            <div class="msg error">{{ seller_form.password.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <div class="actions">
+          <button class="btn" type="submit">دخول لوحة البائع</button>
+          <a class="btn ghost" href="javascript:void(0)" onclick="switchTab('buyer')">العودة للمشتري</a>
+        </div>
+        <div class="hint">ليس لديك حساب بائع؟ <a href="{% url 'vendor_signup' %}">انضم كبائع</a></div>
+      </form>
+
+    </section>
+  </main>
+
+  <script>
+    function switchTab(type) {
+      const buyerForm = document.getElementById('form-buyer');
+      const sellerForm = document.getElementById('form-seller');
+      const buyerTab = document.getElementById('tab-buyer');
+      const sellerTab = document.getElementById('tab-seller');
+
+      if (type === 'seller') {
+        buyerForm.style.display = 'none';
+        sellerForm.style.display = 'grid';
+        buyerTab.classList.remove('active');
+        sellerTab.classList.add('active');
+      } else {
+        buyerForm.style.display = 'grid';
+        sellerForm.style.display = 'none';
+        buyerTab.classList.add('active');
+        sellerTab.classList.remove('active');
+      }
+    }
+  </script>
+{% endblock %}

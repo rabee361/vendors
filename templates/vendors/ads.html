@@ -1,0 +1,63 @@
+{% extends 'vendors/base.html' %}
+
+{% block content %}
+
+<header class="page-header">
+  <ul class="breadcrumb">
+    <li><a href="{% url 'vendor_dashboard' %}"><i class="fa-solid fa-house"></i></a></li>
+    <li><span class="separator"><i class="fa-solid fa-chevron-left"></i></span></li>
+    <li><span class="current">الإعلانات الممولة</span></li>
+  </ul>
+  <div class="header-actions">
+    <a class="chip accent" href="{% url 'ad_add' %}">+ إنشاء إعلان</a>
+    <a class="chip" href="{% url 'vendor_store' vendor_id %}">عرض المتجر</a>
+    <a class="chip" href="{% url 'home' %}">زيارة الموقع</a>
+  </div>
+</header>
+
+
+      <section id="ads" class="section">
+
+        <div class="card pad" style="margin-top:12px">
+          <h2 style="margin:0 0 6px">إعلاناتك الحالية</h2>
+          <div style="overflow:auto; margin-top:12px">
+            <table aria-label="إعلانات ممولة">
+              <thead>
+                <tr>
+                  <th>المنتج</th>
+                  <th>النوع</th>
+                  <th>النقرات الفريدة</th>
+                  <th>الحالة</th>
+                  <th>الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for ad in ads %}
+                <tr>
+                  <td>{{ ad.product.name }}</td>
+                  <td>{{ ad.get_ad_type_display }}</td>
+                  <td>{% if ad.ad_type == 'section' %}{{ ad.db_clicks }}{% else %}-{% endif %}</td>
+                  <td><span class="status {% if ad.status == 'active' %}c{% elif ad.status == 'pending' %}p{% else %}r{% endif %}">{{ ad.get_status_display }}</span></td>
+                  <td>
+                    <div style="display: flex; gap: 8px;">
+                      <a href="{% url 'ad_update' ad.id %}" style="color: var(--accent);" title="تعديل">
+                        <i class="fas fa-edit"></i>
+                      </a>
+                      <a href="{% url 'ad_delete' ad.id %}" style="color: var(--danger);" title="حذف" onclick="return confirm('هل أنت متأكد من الحذف؟')">
+                        <i class="fas fa-trash"></i>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="5" style="text-align:center">لا يوجد إعلانات حالياً.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {% endblock %}
