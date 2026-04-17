@@ -2,9 +2,11 @@
 __pycache__
 .sql
 .env
+.github/
 *.sqlite3
 .agents/
 .vscode/
 skills/
 media/
 staticfiles/
+msg.md
