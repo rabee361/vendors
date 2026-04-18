@@ -4,7 +4,9 @@ FROM python:3.12-slim-bullseye
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    HOME=/home/app
+  HOME=/home/app \
+  DJANGO_STATIC_ROOT=/vol/web/static \
+  DJANGO_MEDIA_ROOT=/vol/web/media
 
 # Set work directory
 WORKDIR $HOME
@@ -29,8 +31,12 @@ RUN pip install --no-cache-dir daphne
 COPY . $HOME
 
 # Create a non-root user and change ownership
-RUN useradd -m appuser && chown -R appuser:appuser $HOME
+RUN useradd -m -u 1000 appuser \
+  && mkdir -p /vol/web/static /vol/web/media \
+  && chown -R appuser:appuser $HOME /vol/web
 USER appuser
+
+VOLUME ["/vol/web/static", "/vol/web/media"]
 
 # Healthcheck to ensure the container is running
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \

@@ -65,8 +65,30 @@
    docker build -t vendor-app .
    ```
 
-2. **تشغيل حاوية المشروع (Docker Container):**
-   عند التشغيل، ستقوم الحاوية (عبر ملف `entrypoint.sh` 📜) بتطبيق تهجير قاعدة البيانات وتجميع ملفات الاستايل تلقائياً، ثم تشغيل الخادم بواسطة `Daphne` 🐎.
+2. **إنشاء مجلدات دائمة للملفات الثابتة والوسائط على الخادم:**
+   هذه المجلدات يجب أن تكون نفسها التي يقرأ منها `nginx`.
    ```cmd
-   docker run -d -p 8000:8000 --name vendor-container vendor-app
+   mkdir -p /home/vendors/staticfiles /home/vendors/media
+   chown -R 1000:1000 /home/vendors/staticfiles /home/vendors/media
+   ```
+
+3. **تشغيل حاوية المشروع (Docker Container) مع bind mounts:**
+   عند التشغيل، ستقوم الحاوية (عبر ملف `entrypoint.sh` 📜) بتطبيق تهجير قاعدة البيانات وتجميع ملفات الاستايل تلقائياً داخل المسارات المركبة، ثم تشغيل الخادم بواسطة `Daphne` 🐎.
+   ```cmd
+   docker run -d -p 8000:8000 \
+     --name vendor-container \
+     -v /home/vendors/staticfiles:/vol/web/static \
+     -v /home/vendors/media:/vol/web/media \
+     vendor-app
+   ```
+
+4. **تأكد أن `nginx` يقرأ من نفس المسارات على الخادم:**
+   ```nginx
+   location /static/ {
+       alias /home/vendors/staticfiles/;
+   }
+
+   location /media/ {
+       alias /home/vendors/media/;
+   }
    ```
