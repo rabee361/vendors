@@ -1,6 +1,6 @@
 from django.urls import include
 from django.urls import path
-from .views import base, moderators, vendor
+from .views import base, buyer, moderators, vendor
 
 
 basePatterns = [
@@ -33,6 +33,13 @@ basePatterns = [
     path('checkout/success' , base.CheckoutSuccess.as_view() , name="checkout_success"),
     path('404/' , base.handler404.as_view() , name="404"),
     path('500/' , base.handler500.as_view() , name="500"),
+]
+
+buyerPatterns = [
+    path('profile/', buyer.BuyerProfileView.as_view(), name='buyer_profile'),
+    path('stats/', buyer.BuyerStatsView.as_view(), name='buyer_stats'),
+    path('orders/', buyer.BuyerOrdersView.as_view(), name='buyer_orders'),
+    path('orders/delete/<int:pk>/', buyer.BuyerOrderDeleteView.as_view(), name='buyer_order_delete'),
 ]
 
 moderatorPatterns = [
@@ -92,5 +99,6 @@ vendorPatterns = [
 urlpatterns = [
     path('', include(basePatterns)),
     path('moderator/', include(moderatorPatterns)),
+    path('buyer/', include(buyerPatterns)),
     path('vendor/', include(vendorPatterns))
 ]

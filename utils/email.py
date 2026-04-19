@@ -55,7 +55,6 @@ def send_new_product_email(store_name, recipients):
 
     return {'sent': sent, 'failed': failed}
 
-
 def send_ad_budget_exhausted_email(ad):
     webhook_url = "https://rabeehasan.online/n8n/webhook/30657344-665f-4bb8-a7ad-a8fa5f87c38f"
     vendor_email = getattr(ad.tenant.user, 'email', None)

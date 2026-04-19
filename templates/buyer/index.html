@@ -1,0 +1,78 @@
+{% extends 'buyer/base.html' %}
+
+{% block content %}
+
+<header class="page-header">
+	<ul class="breadcrumb">
+		<li><a href="{% url 'buyer_stats' %}"><i class="fa-solid fa-house"></i></a></li>
+		<li><span class="separator"><i class="fa-solid fa-chevron-left"></i></span></li>
+		<li><span class="current">الإحصائيات</span></li>
+	</ul>
+	<div class="header-actions">
+		<a class="chip" href="{% url 'buyer_profile' %}">الملف الشخصي</a>
+		<a class="chip" href="{% url 'home' %}">زيارة الموقع</a>
+	</div>
+</header>
+
+<section id="stats" class="section">
+	<div class="grid5">
+		<div class="kpi">
+			<i class="fa-solid fa-cart-shopping"></i>
+			<b>{{ stats.orders_count }}</b>
+			<span>إجمالي الطلبات</span>
+		</div>
+		<div class="kpi">
+			<i class="fa-solid fa-heart"></i>
+			<b>{{ stats.saved_products_count }}</b>
+			<span>منتجات محفوظة</span>
+		</div>
+		<div class="kpi">
+			<i class="fa-solid fa-star"></i>
+			<b>{{ stats.ratings_count }}</b>
+			<span>التقييمات</span>
+		</div>
+		<div class="kpi">
+			<i class="fa-solid fa-basket-shopping"></i>
+			<b>{{ stats.active_cart_items }}</b>
+			<span>عناصر في السلة</span>
+		</div>
+		<div class="kpi">
+			<i class="fa-solid fa-ticket-simple"></i>
+			<b>{{ stats.available_coupons_count }}</b>
+			<span>كوبونات متاحة</span>
+		</div>
+	</div>
+
+	<h2 style="margin:32px 0 16px; font-size: 1.5rem; color: var(--text); padding-right: 12px;">ملخص سريع</h2>
+
+	<div class="grid3">
+		<article class="kpi pad" style="align-items: flex-start; text-align: right;">
+			<div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+				<i class="fa-solid fa-store" style="color: var(--accent); margin-bottom: 0;"></i>
+				<span style="letter-spacing: normal; text-transform: none;">المتجر المفضل</span>
+			</div>
+			<b style="font-size: 24px;">{{ insights.favorite_store }}</b>
+			<span>آخر تفاعل مميز على الحساب</span>
+		</article>
+
+		<article class="kpi pad" style="align-items: flex-start; text-align: right;">
+			<div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+				<i class="fa-solid fa-receipt" style="color: #ff6b6b; margin-bottom: 0;"></i>
+				<span style="letter-spacing: normal; text-transform: none;">آخر طلب</span>
+			</div>
+			<b style="font-size: 24px;">#{{ insights.last_order_number }}</b>
+			<span>مرجع سريع لآخر عملية شراء</span>
+		</article>
+
+		<article class="kpi pad" style="align-items: flex-start; text-align: right;">
+			<div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+				<i class="fa-solid fa-gift" style="color: #ffcc66; margin-bottom: 0;"></i>
+				<span style="letter-spacing: normal; text-transform: none;">المكافأة القادمة</span>
+			</div>
+			<b style="font-size: 24px;">{{ insights.next_reward }}</b>
+			<span>بيانات تجريبية داخل لوحة المشتري</span>
+		</article>
+	</div>
+</section>
+
+{% endblock %}

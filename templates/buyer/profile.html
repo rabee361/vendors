@@ -1,0 +1,61 @@
+{% extends 'buyer/base.html' %}
+
+{% block content %}
+
+<header class="page-header">
+	<ul class="breadcrumb">
+		<li><a href="{% url 'buyer_stats' %}"><i class="fa-solid fa-house"></i></a></li>
+		<li><span class="separator"><i class="fa-solid fa-chevron-left"></i></span></li>
+		<li><span class="current">الملف الشخصي</span></li>
+	</ul>
+	<div class="header-actions">
+		<a class="chip accent" href="{% url 'change_password' %}">تغيير كلمة المرور</a>
+		<a class="chip" href="{% url 'home' %}">زيارة الموقع</a>
+	</div>
+</header>
+
+<article class="card pad" aria-label="الملف الشخصي">
+
+	{% if request.user.avatar %}
+	<div style="margin-bottom: 12px; text-align: center;">
+		<img src="{{ request.user.avatar.url }}" alt="الصورة الشخصية" style="width: 100px; height: 100px; object-fit: cover; border-radius: 12px; border: 2px solid var(--border);">
+	</div>
+	{% endif %}
+
+	{% if messages %}
+		<div style="display:grid; gap:8px; margin-bottom:12px;">
+			{% for message in messages %}
+				<div class="status c" style="display:block; width: fit-content;">{{ message }}</div>
+			{% endfor %}
+		</div>
+	{% endif %}
+
+	{% if form.non_field_errors %}
+		<div style="display:grid; gap:8px; margin-bottom:12px;">
+			{% for error in form.non_field_errors %}
+				<div class="status r" style="display:block; width: fit-content;">{{ error }}</div>
+			{% endfor %}
+		</div>
+	{% endif %}
+
+	<form method="post" enctype="multipart/form-data" style="display:grid; gap:10px; margin-top:12px">
+		{% csrf_token %}
+
+		{% for field in form %}
+		<div>
+			<label for="{{ field.id_for_label }}">{{ field.label }}</label>
+			{{ field }}
+			{% if field.errors %}
+				<div style="color: var(--danger); font-size: 12px;">{{ field.errors }}</div>
+			{% endif %}
+		</div>
+		{% endfor %}
+
+		<div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:4px;">
+			<button class="btn" type="submit">حفظ التغييرات</button>
+			<a class="chip" href="{% url 'change_password' %}">الانتقال إلى تغيير كلمة المرور</a>
+		</div>
+	</form>
+</article>
+
+{% endblock %}

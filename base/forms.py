@@ -456,6 +456,20 @@ class ChangePasswordForm(forms.Form):
         self.user.save()
         return self.user
 
+class BuyerProfileForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'email', 'avatar']
+        labels = {
+            'username': 'اسم المستخدم',
+            'email': 'البريد الإلكتروني',
+            'avatar': 'الصورة الشخصية',
+        }
+        widgets = {
+            'username': forms.TextInput(attrs={'placeholder': 'اسم المستخدم'}),
+            'email': forms.EmailInput(attrs={'placeholder': 'name@example.com'}),
+        }
+
 class CouponForm(forms.ModelForm):
     class Meta:
         model = Coupon

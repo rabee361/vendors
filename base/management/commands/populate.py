@@ -16,22 +16,86 @@ from datetime import date, timedelta
 User = get_user_model()
 
 # logical hardcoded data
-STORE_CATEGORIES = ["Electronics", "Fashion", "Home & Kitchen", "Health & Beauty", "Sports & Outdoors"]
-COMPANY_NAMES = ["NexaTech", "UrbanStyle", "PureGlow", "PeakPerformance", "HomeSphere", "SwiftMart", "EcoHaven"]
+STORE_CATEGORIES = ["الإلكترونيات", "الأزياء", "المنزل والمطبخ", "الصحة والجمال", "الرياضة والرحلات"]
+COMPANY_NAMES = ["تقنية النخبة", "ستايل المدينة", "نقاء الجمال", "قمة الأداء", "بيت الراحة", "سوق السرعة", "الواحة الخضراء"]
 PRODUCT_NAMES = {
-    "Electronics": ["UltraBook Pro", "Wireless Earbuds", "Smart Watch", "4K Monitor", "BT Speaker"],
-    "Fashion": ["Designer T-Shirt", "Leather Jacket", "Running Shoes", "Silk Scarf", "Denim Jeans"],
-    "Home & Kitchen": ["Espresso Machine", "Air Fryer", "Chef Knife Set", "Memory Foam Pillow", "Smart Bulb"],
-    "Health & Beauty": ["Face Serum", "Electric Toothbrush", "Yoga Mat", "Hair Dryer", "Nail Polish Kit"],
-    "Sports & Outdoors": ["Camping Tent", "Dumbbell Set", "Mountain Bike", "Hiking Boots", "Tennis Racket"]
+    "الإلكترونيات": [
+        "حاسوب محمول",
+        "سماعات لاسلكية",
+        "ساعة ذكية",
+        "شاشة 4K",
+        "مكبر صوت بلوتوث",
+        "هاتف ذكي",
+        "جهاز لوحي",
+        "كاميرا رقمية",
+        "لوحة مفاتيح ميكانيكية",
+        "فأرة ألعاب",
+    ],
+    "الأزياء": [
+        "قميص بتصميم عصري",
+        "جاكيت جلدي",
+        "حذاء رياضي",
+        "وشاح حريري",
+        "بنطال جينز",
+        "فستان أنيق",
+        "حقيبة يد",
+        "نظارة شمسية",
+        "عباية عملية",
+        "قميص كاجوال",
+    ],
+    "المنزل والمطبخ": [
+        "آلة تحضير القهوة",
+        "قلاية هوائية",
+        "طقم سكاكين",
+        "وسادة ميموري فوم",
+        "مصباح ذكي",
+        "خلاط كهربائي",
+        "طاولة جانبية",
+        "طقم قدور",
+        "مفرش طاولة",
+        "مكنسة كهربائية",
+    ],
+    "الصحة والجمال": [
+        "سيروم للوجه",
+        "فرشاة أسنان كهربائية",
+        "سجادة يوغا",
+        "مجفف شعر",
+        "طقم طلاء أظافر",
+        "كريم ترطيب",
+        "عطر ناعم",
+        "ماكينة حلاقة",
+        "غسول للبشرة",
+        "جهاز مساج",
+    ],
+    "الرياضة والرحلات": [
+        "خيمة رحلات",
+        "طقم دمبل",
+        "دراجة جبلية",
+        "حذاء للمشي",
+        "مضرب تنس",
+        "حقيبة ظهر",
+        "زجاجة رياضية",
+        "كرة قدم",
+        "جهاز تمارين منزلي",
+        "كرسي تخييم",
+    ],
 }
-CITIES = ["Baghdad", "Erbil", "Basra", "Mosul", "Sulaymaniyah", "Duhok", "Kirkuk"]
+PRODUCT_VARIANTS = ["برو", "ماكس", "بلس", "ألترا", "إير", "إكس", "سمارت", "إصدار حديث", "إصدار فاخر", "إصدار عملي"]
+DEFAULT_PRODUCT_NAMES = ["منتج مميز", "منتج عملي", "منتج عصري"]
+VENDOR_CATEGORY_NAMES = ["الأساسيات", "وصل حديثاً", "الأكثر مبيعاً"]
+CITIES = ["بغداد", "أربيل", "البصرة", "الموصل", "السليمانية", "دهوك", "كركوك"]
 DESCRIPTIONS = [
-    "Premium quality and high durability for long-term use.",
-    "Modern design for everyday use, crafted with recycled materials.",
-    "Best value for your money with top-rated performance characteristics.",
-    "Limited edition item, highly sought after by enthusiasts.",
-    "Ergonomic features designed for maximum comfort and efficiency."
+    "جودة عالية ومتانة ممتازة للاستخدام طويل الأمد.",
+    "تصميم عصري للاستخدام اليومي مع خامات مختارة بعناية.",
+    "قيمة ممتازة مقابل السعر مع أداء موثوق ومميز.",
+    "إصدار محدود يناسب من يبحث عن القطع المميزة.",
+    "مزايا عملية تمنح راحة وكفاءة في الاستخدام اليومي."
+]
+ORDER_NOTES = ["يرجى الاتصال قبل التوصيل", "اترك الطلب عند الباب", "يرجى التعامل بحذر", None]
+CONTACT_MESSAGES = [
+    "لدي استفسار بخصوص طلبي الأخير. هل يمكنكم المساعدة؟",
+    "أرغب في معرفة موعد التوصيل المتوقع لهذا المنتج.",
+    "هل هذا المنتج متوفر بألوان أو مقاسات أخرى؟",
 ]
 AD_SETTINGS = {
     'ad_click_cost': '5',
@@ -42,6 +106,30 @@ AD_SETTINGS = {
 
 def random_decimal(min_value, max_value, places=2):
     return Decimal(str(round(random.uniform(min_value, max_value), places)))
+
+
+def generate_unique_product_name(store_category_name, used_names):
+    base_names = PRODUCT_NAMES.get(store_category_name, DEFAULT_PRODUCT_NAMES)
+    candidates = list(base_names)
+    candidates.extend(
+        f"{base_name} {variant}"
+        for base_name in base_names
+        for variant in PRODUCT_VARIANTS
+    )
+    random.shuffle(candidates)
+
+    for candidate in candidates:
+        if candidate not in used_names:
+            used_names.add(candidate)
+            return candidate
+
+    fallback_index = 1
+    while True:
+        candidate = f"{random.choice(base_names)} إصدار خاص {fallback_index}"
+        if candidate not in used_names:
+            used_names.add(candidate)
+            return candidate
+        fallback_index += 1
 
 class Command(BaseCommand):
     help = 'Populate the database with fake data'
@@ -118,7 +206,7 @@ class Command(BaseCommand):
                 defaults={
                     'store_name': COMPANY_NAMES[i % len(COMPANY_NAMES)],
                     'category': random.choice(store_categories),
-                    'address': f"{random.choice(CITIES)}, Street {random.randint(1, 100)}",
+                    'address': f"{random.choice(CITIES)}، شارع {random.randint(1, 100)}",
                     'phone': f"+9647{random.randint(700000000, 799999999)}",
                 }
             )
@@ -146,29 +234,29 @@ class Command(BaseCommand):
             
             buyer, created = Buyer.objects.get_or_create(
                 user=user,
-                defaults={'address': f"{random.choice(CITIES)}, District {random.randint(1, 20)}"}
+                defaults={'address': f"{random.choice(CITIES)}، حي {random.randint(1, 20)}"}
             )
             buyers.append(buyer)
 
         # 5. Create Product Categories and Products
         self.stdout.write("Generating Products and Categories...")
         all_products = []
+        used_product_names = set(Product.objects.values_list('name', flat=True))
         for idx, vendor in enumerate(vendors):
             # Create a few categories per vendor
-            vendor_cats = ["Essentials", "New Arrivals", "Best Sellers"]
+            vendor_cats = VENDOR_CATEGORY_NAMES
             for cat_name in vendor_cats:
                 p_cat, created = ProductCategory.objects.get_or_create(
                     tenant=vendor,
                     name=f"{vendor.store_name} {cat_name}",
-                    defaults={'description': f"Selected {cat_name} from {vendor.store_name}"}
+                    defaults={'description': f"منتجات {cat_name} من متجر {vendor.store_name}"}
                 )
                 
                 # Fetch product names based on vendor's store category
-                store_cat_name = vendor.category.name
-                available_products = PRODUCT_NAMES.get(store_cat_name, ["General Product"])
+                store_cat_name = vendor.category.name if vendor.category else None
                 
                 for i in range(random.randint(3, 6)):
-                    prod_name = f"{vendor.store_name} {random.choice(available_products)} {random.randint(1, 1000)}"
+                    prod_name = generate_unique_product_name(store_cat_name, used_product_names)
                     product, created = Product.objects.get_or_create(
                         tenant=vendor,
                         name=prod_name,
@@ -257,12 +345,12 @@ class Command(BaseCommand):
                 tenant=vendor,
                 order_number=order_num,
                 total=0,
-                full_name=f"Customer {i}",
+                full_name=f"العميل {i + 1}",
                 email=f"customer_{i}@example.com",
                 phone=f"+9639{random.randint(30000000, 99999999)}",
                 city=random.choice(CITIES),
-                address=f"Street {random.randint(1, 50)}, House {random.randint(1, 100)}",
-                notes=random.choice(["Please call before delivery", "Leave at the door", "Fragile items", None]),
+                address=f"شارع {random.randint(1, 50)}، منزل {random.randint(1, 100)}",
+                notes=random.choice(ORDER_NOTES),
                 shipping_cost=shipping,
                 status='preparing'
             )
@@ -303,9 +391,9 @@ class Command(BaseCommand):
             
             # Messages
             ContactMessage.objects.create(
-                name=f"Customer {random.randint(1, 100)}",
+                name=f"العميل {random.randint(1, 100)}",
                 email=f"customer{random.randint(1, 100)}@example.com",
-                message="I have a question about my recent order. Can you please help?",
+                message=random.choice(CONTACT_MESSAGES),
             )
 
         # 11. OTP Codes

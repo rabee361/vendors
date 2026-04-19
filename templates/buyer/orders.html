@@ -1,0 +1,69 @@
+{% extends 'buyer/base.html' %}
+
+{% block content %}
+
+<header class="page-header">
+	<ul class="breadcrumb">
+		<li><a href="{% url 'buyer_stats' %}"><i class="fa-solid fa-house"></i></a></li>
+		<li><span class="separator"><i class="fa-solid fa-chevron-left"></i></span></li>
+		<li><span class="current">الطلبات</span></li>
+	</ul>
+	<div class="header-actions">
+		<a class="chip" href="{% url 'buyer_profile' %}">الملف الشخصي</a>
+		<a class="chip" href="{% url 'home' %}">زيارة الموقع</a>
+	</div>
+</header>
+
+<section id="orders" class="section">
+	<div class="card pad">
+		<h2 style="margin:0 0 6px">طلباتي</h2>
+		<p class="muted" style="margin:0; line-height:1.8">عرض الطلبات المرتبطة ببريدك الإلكتروني الحالي.</p>
+
+		{% if messages %}
+			<div style="display:grid; gap:8px; margin-top:12px;">
+				{% for message in messages %}
+					<div class="status c" style="display:block; width: fit-content;">{{ message }}</div>
+				{% endfor %}
+			</div>
+		{% endif %}
+
+		<div style="overflow:auto; margin-top:12px">
+			<table aria-label="جدول الطلبات">
+				<thead>
+					<tr>
+						<th>رقم الطلب</th>
+						<th>المتجر</th>
+						<th>الإجمالي</th>
+						<th>الحالة</th>
+						<th>التاريخ</th>
+						<th>الإجراءات</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for order in orders %}
+					<tr>
+						<td>#{{ order.order_number }}</td>
+						<td>{{ order.tenant.store_name|default:'-' }}</td>
+						<td><b>${{ order.total_cost }}</b></td>
+						<td><span class="status {% if order.status == 'preparing' %}p{% elif order.status == 'shipped' or order.status == 'delivered' %}c{% else %}r{% endif %}">{{ order.get_status_display }}</span></td>
+						<td>{{ order.created_at|date:"Y-m-d" }}</td>
+						<td>
+							<div style="display: flex; gap: 8px;">
+								<a href="{% url 'buyer_order_delete' order.id %}" style="color: var(--danger);" title="حذف" onclick="return confirm('هل أنت متأكد من حذف هذا الطلب؟')">
+									<i class="fas fa-trash"></i>
+								</a>
+							</div>
+						</td>
+					</tr>
+					{% empty %}
+					<tr>
+						<td colspan="6" style="text-align:center">لا يوجد طلبات مرتبطة بهذا الحساب حالياً.</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</section>
+
+{% endblock %}
