@@ -4,13 +4,13 @@ from decimal import Decimal
 
 from django.contrib.auth import authenticate, get_user_model
 from django.db import transaction
-from django.db.models import Avg, Count, Prefetch
+from django.db.models import Prefetch
 from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
-from base.models import Offer, Order, OrderItem, Product
-from utils.types import OrderStatus
+from base.models import Offer, Order, OrderItem, Product, SponsoredAd
+from utils.types import AdStatus, AdType, OrderStatus
 from utils.validators import SyrianPhoneValidator
 
 User = get_user_model()
@@ -51,21 +51,59 @@ class APILoginSerializer(serializers.Serializer):
 
 
 class ProductListSerializer(serializers.ModelSerializer):
-	current_price = serializers.SerializerMethodField()
+	is_available = serializers.SerializerMethodField()
 
 	class Meta:
 		model = Product
 		fields = [
 			'id',
 			'name',
-            'current_price'
+			'price',
+			'is_available',
 		]
 
-	def get_current_price(self, obj):
-		active_offer = self._get_active_offer(obj)
+	def get_is_available(self, obj):
+		return obj.is_active and obj.stock > 0
+
+
+class OfferListSerializer(serializers.ModelSerializer):
+	product_id = serializers.IntegerField(source='product_id', read_only=True)
+	product_name = serializers.CharField(source='product.name', read_only=True)
+	discounted_price = serializers.SerializerMethodField()
+
+	class Meta:
+		model = Offer
+		fields = [
+			'id',
+			'product_id',
+			'product_name',
+			'discount',
+			'discounted_price',
+		]
+
+	def get_discounted_price(self, obj):
+		return obj.get_discounted_price()
+
+
+class SponsoredAdListSerializer(serializers.ModelSerializer):
+	product_id = serializers.IntegerField(source='product_id', read_only=True)
+	product_name = serializers.CharField(source='product.name', read_only=True)
+	discount = serializers.SerializerMethodField()
+
+	class Meta:
+		model = SponsoredAd
+		fields = [
+			'id',
+			'product_id',
+			'product_name',
+			'discount',
+		]
+
+	def get_discount(self, obj):
+		active_offer = ProductListSerializer._get_active_offer(obj.product)
 		if active_offer:
-			return active_offer.get_discounted_price()
-		return obj.price
+			return active_offer.discount
+		return 0
 
 	@staticmethod
 	def _get_active_offer(product):
@@ -238,16 +276,40 @@ class OrderCreateSerializer(serializers.Serializer):
 
 
 def get_product_list_queryset():
+	return Product.objects.order_by('-created_at')
+
+
+def get_active_offer_queryset():
+	today = timezone.now().date()
+	return (
+		Offer.objects.select_related('product')
+		.filter(
+		is_active=True,
+		start_date__lte=today,
+		end_date__gte=today,
+		)
+		.order_by('created_at', 'pk')
+	)
+
+
+def get_sponsored_ad_queryset():
 	today = timezone.now().date()
 	active_offers = Offer.objects.filter(
 		is_active=True,
 		start_date__lte=today,
 		end_date__gte=today,
-	).order_by('created_at')
+	).order_by('created_at', 'pk')
 
 	return (
-		Product.objects.filter(is_active=True)
-		.select_related('tenant', 'tenant__category', 'category')
-		.prefetch_related(Prefetch('offers', queryset=active_offers, to_attr='active_offers'))
-		.order_by('-created_at')
+		SponsoredAd.objects.select_related('product')
+		.prefetch_related(
+			Prefetch('product__offers', queryset=active_offers, to_attr='active_offers')
+		)
+		.filter(
+			ad_type=AdType.SECTION,
+			status=AdStatus.ACTIVE,
+			start_date__lte=today,
+			end_date__gte=today,
+		)
+		.order_by('-start_date', '-pk')
 	)

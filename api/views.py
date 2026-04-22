@@ -4,7 +4,16 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .serializers import APILoginSerializer, OrderCreateSerializer, ProductListSerializer, get_product_list_queryset
+from .serializers import (
+	APILoginSerializer,
+	OfferListSerializer,
+	OrderCreateSerializer,
+	ProductListSerializer,
+	SponsoredAdListSerializer,
+	get_active_offer_queryset,
+	get_product_list_queryset,
+	get_sponsored_ad_queryset,
+)
 
 
 class APILoginAPIView(APIView):
@@ -22,12 +31,29 @@ class ProductListAPIView(APIView):
 	authentication_classes = [TokenAuthentication]
 
 	def get(self, request, *args, **kwargs):
-		serializer = ProductListSerializer(
+		products = ProductListSerializer(
 			get_product_list_queryset(),
 			many=True,
 			context={'request': request},
 		)
-		return Response(serializer.data, status=status.HTTP_200_OK)
+		offers = OfferListSerializer(
+			get_active_offer_queryset(),
+			many=True,
+			context={'request': request},
+		)
+		sponsored_ads = SponsoredAdListSerializer(
+			get_sponsored_ad_queryset(),
+			many=True,
+			context={'request': request},
+		)
+		return Response(
+			{
+				'products': products.data,
+				'offers': offers.data,
+				'sponsored_ads': sponsored_ads.data,
+			},
+			status=status.HTTP_200_OK,
+		)
 
 
 class OrderCreateAPIView(APIView):
