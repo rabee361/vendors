@@ -127,6 +127,7 @@ class BuyerSignupView(UserAlreadyLoggedInMixin, FormView):
         user = User.objects.create_user(
             username=data['email'],
             email=data['email'],
+            telegram_id=data['telegram_id'],
             password=data['password'],
             first_name=data['full_name'],
             user_type=UserType.BUYER

@@ -18,6 +18,7 @@ class CustomUser(AbstractUser):
     phone = models.CharField(max_length=20, blank=True, null=True)
     email = models.EmailField(max_length=140,unique=True)
     is_verified = models.BooleanField(default=False)
+    telegram_id = models.CharField(max_length=50, blank=True, null=True)
 
     @property
     def is_buyer(self):

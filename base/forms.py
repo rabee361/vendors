@@ -144,6 +144,9 @@ class BuyerSignupForm(forms.Form):
     email = forms.EmailField(widget=forms.EmailInput(attrs={
         'id': 'email', 'placeholder': 'name@example.com', 'required': True
     }))
+    telegram_id = forms.CharField(max_length=50, widget=forms.TextInput(attrs={
+        'id': 'telegramId', 'placeholder': 'Telegram ID', 'required': True
+    }))
     password = forms.CharField(widget=forms.PasswordInput(attrs={
         'id': 'password', 'placeholder': '••••••••', 'required': True
     }))
@@ -165,6 +168,12 @@ class BuyerSignupForm(forms.Form):
         if User.objects.filter(email=email).exists():
             raise ValidationError("هذا البريد الإلكتروني مسجل مسبقاً.")
         return email
+
+    def clean_telegram_id(self):
+        telegram_id = self.cleaned_data.get('telegram_id')
+        if User.objects.filter(telegram_id=telegram_id).exists():
+            raise ValidationError("هذا المعرف على تيليجرام مسجل مسبقاً.")
+        return telegram_id
 
 class OTPForm(forms.Form):
     email = forms.EmailField(widget=forms.EmailInput(attrs={

@@ -3,6 +3,7 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from base.models import CustomUser
 
 from .serializers import (
 	APILoginSerializer,
@@ -27,10 +28,19 @@ class APILoginAPIView(APIView):
 		return Response(payload, status=status.HTTP_200_OK)
 
 
-class ProductListAPIView(APIView):
-	# authentication_classes = [AllowAny]
+class HasTelegramAPIView(APIView):
+	authentication_classes = [TokenAuthentication]
 
-	def get(self, request, *args, **kwargs):
+	def get(self, request):
+		telegram_id = request.query_params.get('telegramID')
+		has_telegram = CustomUser.objects.filter(telegram_id=telegram_id).exists()
+		return Response({'has_telegram': has_telegram}, status=status.HTTP_200_OK)
+
+
+class ProductListAPIView(APIView):
+	authentication_classes = [TokenAuthentication]
+
+	def get(self, request):
 		products = ProductListSerializer(
 			get_product_list_queryset(),
 			many=True,

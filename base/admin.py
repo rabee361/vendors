@@ -17,13 +17,13 @@ class VendorInline(admin.StackedInline):
 
 @admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin):
-    list_display = ('id','username', 'email', 'user_type', 'is_staff', 'is_superuser', 'is_verified')
+    list_display = ('id','username', 'email', 'user_type', 'is_staff', 'is_superuser', 'is_verified','telegram_id')
     list_filter = ('user_type', 'is_staff', 'is_superuser', 'is_verified')
     fieldsets = UserAdmin.fieldsets + (
-        (None, {'fields': ('user_type', 'is_verified')}),
+        (None, {'fields': ('user_type', 'is_verified', 'telegram_id')}),
     )
     add_fieldsets = UserAdmin.add_fieldsets + (
-        (None, {'fields': ('user_type', 'is_verified')}),
+        (None, {'fields': ('user_type', 'is_verified', 'telegram_id')}),
     )
     inlines = [BuyerInline, VendorInline]
 
