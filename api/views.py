@@ -28,7 +28,7 @@ class APILoginAPIView(APIView):
 
 
 class ProductListAPIView(APIView):
-	authentication_classes = [TokenAuthentication]
+	# authentication_classes = [AllowAny]
 
 	def get(self, request, *args, **kwargs):
 		products = ProductListSerializer(

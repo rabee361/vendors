@@ -1,3 +1,4 @@
+from typing import Any, Literal
 import uuid
 from collections import OrderedDict
 from decimal import Decimal
@@ -67,7 +68,7 @@ class ProductListSerializer(serializers.ModelSerializer):
 
 
 class OfferListSerializer(serializers.ModelSerializer):
-	product_id = serializers.IntegerField(source='product_id', read_only=True)
+	product_id = serializers.IntegerField(source='product.id', read_only=True)
 	product_name = serializers.CharField(source='product.name', read_only=True)
 	discounted_price = serializers.SerializerMethodField()
 
@@ -86,7 +87,7 @@ class OfferListSerializer(serializers.ModelSerializer):
 
 
 class SponsoredAdListSerializer(serializers.ModelSerializer):
-	product_id = serializers.IntegerField(source='product_id', read_only=True)
+	product_id = serializers.IntegerField(source='product.id', read_only=True)
 	product_name = serializers.CharField(source='product.name', read_only=True)
 	discount = serializers.SerializerMethodField()
 
@@ -99,8 +100,8 @@ class SponsoredAdListSerializer(serializers.ModelSerializer):
 			'discount',
 		]
 
-	def get_discount(self, obj):
-		active_offer = ProductListSerializer._get_active_offer(obj.product)
+	def get_discount(self, obj) -> Any | Literal[0]:
+		active_offer = self._get_active_offer(obj.product)
 		if active_offer:
 			return active_offer.discount
 		return 0
