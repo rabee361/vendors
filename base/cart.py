@@ -1,5 +1,6 @@
 from django.conf import settings
 from .models import Cart, CartItem, Product
+from .recommendations import get_cart_recommendations
 
 class CartService:
     def __init__(self, request):
@@ -109,14 +110,13 @@ class CartService:
             cart_product_ids_list = [str(pid) for pid in CartItem.objects.filter(cart__user=self.request.user).values_list('product_id', flat=True)]
         else:
             cart_product_ids_list = list(self.cart.keys())
-        vendor_ids = [v.id for v in grouped_items.keys()]
+        suggested = get_cart_recommendations(
+            self.request.user,
+            cart_product_ids_list,
+            limit=int(getattr(settings, 'RECOMMENDATION_CART_LIMIT', 2)),
+        )
 
-        if vendor_ids:
-            suggested = Product.objects.filter(
-                tenant_id__in=vendor_ids, is_active=True
-            ).exclude(id__in=cart_product_ids_list).order_by('?')[:2]
-        else:
-            suggested = Product.objects.filter(is_active=True).order_by('?')[:2]
+        print("suggested:", suggested)
 
         return {
             'grouped_items': dict(grouped_items),

@@ -103,6 +103,15 @@ DATABASES = {
 }
 
 
+PRODUCT_EMBEDDING_MODEL = os.environ.get("PRODUCT_EMBEDDING_MODEL", "intfloat/multilingual-e5-base")
+PRODUCT_EMBEDDING_DIMENSIONS = int(os.environ.get("PRODUCT_EMBEDDING_DIMENSIONS", "768"))
+PRODUCT_EMBEDDING_DEVICE = os.environ.get("PRODUCT_EMBEDDING_DEVICE", "cpu")
+RECOMMENDATION_PRODUCT_LIMIT = int(os.environ.get("RECOMMENDATION_PRODUCT_LIMIT", "6"))
+RECOMMENDATION_CART_LIMIT = int(os.environ.get("RECOMMENDATION_CART_LIMIT", "2"))
+RECOMMENDATION_USER_LIMIT = int(os.environ.get("RECOMMENDATION_USER_LIMIT", "12"))
+RECOMMENDATION_EMBEDDING_BATCH_SIZE = int(os.environ.get("RECOMMENDATION_EMBEDDING_BATCH_SIZE", "32"))
+
+
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 

@@ -355,6 +355,79 @@ class ProductRating(models.Model):
         return f"{self.user.username} - {self.product.name} ({self.rating})"
 
 
+class ProductEmbedding(models.Model):
+    product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='embedding')
+    model_name = models.CharField(max_length=100)
+    content_hash = models.CharField(max_length=64, db_index=True)
+    vector = models.JSONField(default=list)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['product_id']
+
+    def __str__(self):
+        return f"Embedding for {self.product.name}"
+
+
+class ProductRecommendation(models.Model):
+    SOURCE_EMBEDDING = 'embedding'
+    SOURCE_HYBRID = 'hybrid'
+    SOURCE_CHOICES = [
+        (SOURCE_EMBEDDING, 'Embedding'),
+        (SOURCE_HYBRID, 'Hybrid'),
+    ]
+
+    source_product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='outgoing_recommendations')
+    recommended_product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='incoming_recommendations')
+    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default=SOURCE_HYBRID)
+    rank = models.PositiveSmallIntegerField()
+    score = models.FloatField()
+    reason = models.CharField(max_length=120, blank=True)
+    generated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['rank', '-score', 'recommended_product_id']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['source_product', 'recommended_product', 'source'],
+                name='unique_product_recommendation_per_source',
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.source_product.name} -> {self.recommended_product.name} ({self.source})"
+
+
+class UserRecommendation(models.Model):
+    SOURCE_EMBEDDING = 'embedding'
+    SOURCE_HYBRID = 'hybrid'
+    SOURCE_CHOICES = [
+        (SOURCE_EMBEDDING, 'Embedding'),
+        (SOURCE_HYBRID, 'Hybrid'),
+    ]
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='recommendations')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='user_recommendations')
+    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default=SOURCE_HYBRID)
+    rank = models.PositiveSmallIntegerField()
+    score = models.FloatField()
+    reason = models.CharField(max_length=120, blank=True)
+    generated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['rank', '-score', 'product_id']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'product', 'source'],
+                name='unique_user_recommendation_per_source',
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.user.email} -> {self.product.name} ({self.source})"
+
+
 class Coupon(models.Model):
     tenant = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='coupons')
     code = models.CharField(max_length=8, default=generate_coupon_code)

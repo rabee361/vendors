@@ -9,5 +9,5 @@ __pycache__
 skills/
 media/
 staticfiles/
-msg.md
 bot.json
+*.md

@@ -17,13 +17,13 @@
     
     <div class="compare-body">
       <!-- Carousel ABOVE the table -->
-      {% if store_products %}
+      {% if related_products %}
       <div class="compare-carousel-section">
         <div class="small muted" style="text-align:center; margin-bottom: 10px;">اختر منتج للمقارنة</div>
         <div class="compare-carousel-wrapper">
           <button class="carousel-arrow carousel-arrow-right" id="carousel-prev" aria-label="السابق"><i class="fas fa-chevron-right"></i></button>
           <div class="compare-carousel-viewport" id="compare-carousel">
-            {% for s_product in store_products %}
+            {% for s_product in related_products %}
             <div class="compare-card {% if forloop.first %}active{% endif %}" 
                  data-index="{{ forloop.counter0 }}"
                  data-name="{{ s_product.name }}"
@@ -151,10 +151,10 @@
   </div>
 
   <!-- Store Products Slider -->
-  {% if store_products %}
-  <section class="store-slider-section" aria-label="منتجات أخرى من نفس المتجر">
+  {% if related_products %}
+  <section class="store-slider-section" aria-label="منتجات مشابهة">
     <div class="slider-header">
-      <h2>المزيد من متجر: {{ product.tenant.store_name }}</h2>
+      <h2>منتجات مشابهة قد تعجبك</h2>
       <div class="slider-controls">
         <button class="slider-btn prev" aria-label="السابق"><i class="fas fa-chevron-right"></i></button>
         <button class="slider-btn next" aria-label="التالي"><i class="fas fa-chevron-left"></i></button>
@@ -162,7 +162,54 @@
     </div>
     <div class="slider-container" id="store-slider">
       <div class="slider-track">
-        {% for s_product in store_products %}
+        {% for s_product in related_products %}
+        <article class="card slider-item">
+          <div class="pimg">
+            {% if s_product.is_sponsored_badge %}
+            <span class="badge">ممول</span>
+            {% endif %}
+            {% if s_product.image %}
+            <img src="{{ s_product.image.url }}" alt="{{ s_product.name }}">
+            {% else %}
+            <div class="placeholder"></div>
+            {% endif %}
+          </div>
+          <div class="pad">
+            <h3 class="slider-card-title">{{ s_product.name }}</h3>
+            <div class="pmeta" style="margin-top: auto;">
+              <span class="stars">
+                {% if s_product.average_rating >= 1 %}★{% else %}☆{% endif %}
+                {% if s_product.average_rating >= 2 %}★{% else %}☆{% endif %}
+                {% if s_product.average_rating >= 3 %}★{% else %}☆{% endif %}
+                {% if s_product.average_rating >= 4 %}★{% else %}☆{% endif %}
+                {% if s_product.average_rating >= 5 %}★{% else %}☆{% endif %}
+              </span>
+              <b class="price">${{ s_product.price }}</b>
+            </div>
+            <div class="pactions" style="margin-top: 12px;">
+                <a class="paction-btn view" href="{% url 'product' s_product.id %}" aria-label="عرض التفاصيل"><i class="fas fa-eye"></i></a>
+                <button class="paction-btn primary cart {% if s_product.id|slugify in cart_product_ids %}active{% endif %}" hx-post="{% url 'add_to_cart' s_product.id %}" hx-vals='{"quantity": 1}' hx-target="#cart" hx-swap="outerHTML" aria-label="إضافة للسلة"><i class="fas fa-cart-plus"></i></button>
+            </div>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  {% if recommended_products %}
+  <section class="store-slider-section" aria-label="منتجات موصى بها لك">
+    <div class="slider-header">
+      <h2>منتجات موصى بها لك</h2>
+      <div class="slider-controls">
+        <button class="slider-btn prev" aria-label="السابق"><i class="fas fa-chevron-right"></i></button>
+        <button class="slider-btn next" aria-label="التالي"><i class="fas fa-chevron-left"></i></button>
+      </div>
+    </div>
+    <div class="slider-container">
+      <div class="slider-track">
+        {% for s_product in recommended_products %}
         <article class="card slider-item">
           <div class="pimg">
             {% if s_product.is_sponsored_badge %}
@@ -201,21 +248,26 @@
 </div>
 
 <script>
-  // Slider Logic
   document.addEventListener('DOMContentLoaded', () => {
-    const slider = document.getElementById('store-slider');
-    if (!slider) return;
-    const prevBtn = document.querySelector('.slider-btn.prev');
-    const nextBtn = document.querySelector('.slider-btn.next');
     const scrollAmount = 300; // Approx card width + gap
 
-    prevBtn?.addEventListener('click', () => {
-        // Since RTL, scrolling "previous" might mean scrolling right (positive)
-        slider.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-    });
-    
-    nextBtn?.addEventListener('click', () => {
-        slider.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    document.querySelectorAll('.store-slider-section').forEach((section) => {
+      const slider = section.querySelector('.slider-container');
+      const prevBtn = section.querySelector('.slider-btn.prev');
+      const nextBtn = section.querySelector('.slider-btn.next');
+
+      if (!slider) {
+        return;
+      }
+
+      prevBtn?.addEventListener('click', () => {
+          // Since RTL, scrolling "previous" might mean scrolling right (positive)
+          slider.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      });
+
+      nextBtn?.addEventListener('click', () => {
+          slider.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+      });
     });
 
     // Rating Logic Setup

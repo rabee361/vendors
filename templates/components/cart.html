@@ -77,7 +77,7 @@
                         </div>
                         <div class="s-info">
                             <div class="s-name">{{ s_product.name }}</div>
-                            <div class="s-rating">⭐ {{ s_product.average_rating|floatformat:1 }}</div>
+                            <div class="s-rating">⭐ {% if s_product.average_rating > 0.0 %} {{ s_product.average_rating|floatformat:1 }} {% else %} لا يوجد {% endif %}</div>
                             <button class="s-add-btn" hx-post="{% url 'add_to_cart' s_product.id %}" hx-vals='{"quantity": 1}' hx-target="#cart .drawer" hx-select=".drawer" hx-swap="outerHTML">
                                 <i class="fas fa-plus"></i>
                             </button>
@@ -112,7 +112,7 @@
                         </div>
                         <div class="s-info">
                             <div class="s-name">{{ s_product.name }}</div>
-                            <div class="s-rating">⭐ {{ s_product.average_rating|floatformat:1 }}</div>
+                            <div class="s-rating">⭐ {% if s_product.average_rating > 0.0 %} {{ s_product.average_rating|floatformat:1 }} {% else %} لا يوجد {% endif %}</div>
                             <button class="s-add-btn" hx-post="{% url 'add_to_cart' s_product.id %}" hx-vals='{"quantity": 1}' hx-target="#cart .drawer" hx-select=".drawer" hx-swap="outerHTML">
                                 <i class="fas fa-plus"></i>
                             </button>

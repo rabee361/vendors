@@ -1,11 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import (
-    CustomUser, Buyer,
-    ProductCategory, Vendor, Product, Offer, SponsoredAd, 
-    Cart, CartItem, Favorite, Order, OrderItem, 
-    ContactMessage, VendorStats, StoreCategory, OTPCode, ProductRating, Coupon, SponsoredAdClick, Setting
-)
+from .models import *
 
 class BuyerInline(admin.StackedInline):
     model = Buyer
@@ -37,6 +32,18 @@ class ProductCategoryAdmin(admin.ModelAdmin):
 class StoreCategoryAdmin(admin.ModelAdmin):
     list_display = ('id','name', 'slug', 'created_at')
     prepopulated_fields = {'slug': ('name',)}
+
+@admin.register(ProductEmbedding)
+class ProductEmbeddingAdmin(admin.ModelAdmin):
+    list_display = ('id','product', 'model_name', 'created_at')
+
+@admin.register(ProductRecommendation)
+class ProductRecommendationAdmin(admin.ModelAdmin):
+    list_display = ('id','source_product', 'recommended_product', 'score', 'rank', 'generated_at')
+
+@admin.register(UserRecommendation)
+class UserRecommendationAdmin(admin.ModelAdmin):
+    list_display = ('id','user', 'product', 'score', 'rank', 'generated_at')
 
 @admin.register(Vendor)
 class VendorAdmin(admin.ModelAdmin):

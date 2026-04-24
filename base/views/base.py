@@ -14,6 +14,7 @@ from utils.mixins import UserAlreadyLoggedInMixin
 from urllib.parse import quote
 from ..cart import CartService
 from ..favorite import FavoriteService
+from ..recommendations import get_related_products, get_user_recommendations
 from ..sponsored_ads import SponsoredAdClickService
 from django.db.models import Q, Avg
 from ..models import *
@@ -392,12 +393,8 @@ class ProductListView(View):
 class ProductDetailView(View):
     def get(self, request, product_id):
         product = get_object_or_404(Product.objects.select_related('tenant', 'category', 'tenant__category'), id=product_id)
-        
-        # Get 6 newest active products from the same store, excluding this product
-        store_products = Product.objects.filter(
-            tenant=product.tenant, 
-            is_active=True
-        ).exclude(id=product.id).order_by('-created_at')[:6]
+        related_products = get_related_products(product, limit=6)
+        recommended_products = get_user_recommendations(request.user, limit=6, exclude_ids=[product_id])
 
         # Get the user's rating if they are logged in
         user_rating = None
@@ -408,13 +405,14 @@ class ProductDetailView(View):
 
         cart_product_ids = []
         if request.user.is_authenticated:
-            cart = CartService(request)
-            cart_items = cart.get_items()
-            cart_product_ids = [str(item.id) for item in getattr(cart_items, 'all', lambda: cart_items)()]
+            cart_context = CartService(request).get_context()
+            cart_product_ids = cart_context['cart_product_ids']
 
         context = {
             'product': product,
-            'store_products': store_products,
+            'related_products': related_products,
+            'recommended_products': recommended_products,
+            'store_products': related_products,
             'user_rating': user_rating,
             'cart_product_ids': cart_product_ids
         }

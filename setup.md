@@ -1,7 +1,7 @@
 # 🚀 دليل إعداد وتشغيل المشروع
 
 هذا الملف يشرح كيفية تشغيل المشروع على بيئة التطوير المحلية (Local Environment) وبيئة الإنتاج (Production / Global Environment). 
-المشروع يعتمد على قاعدة بيانات **SQLite** 💾 لكلا البيئتين.
+المشروع يعتمد على قاعدة بيانات **SQLite** 💾، مع دعم توصيات الذكاء الاصطناعي عبر تخزين الـ embeddings داخل قاعدة البيانات بصيغة JSON.
 
 ---
 
@@ -30,19 +30,35 @@
    pip install -r requirements.txt
    ```
 
-4. **تطبيق تجهيزات قاعدة البيانات (Migrations):**
+4. **إعداد نموذج الـ embeddings المحلي:**
+   بشكل افتراضي سيستخدم المشروع النموذج المفتوح `intfloat/multilingual-e5-base` عبر `SentenceTransformer`، ويمكنك تغيير الجهاز أو النموذج عند الحاجة:
+   ```cmd
+   set PRODUCT_EMBEDDING_MODEL=intfloat/multilingual-e5-base
+   set PRODUCT_EMBEDDING_DEVICE=cpu
+   ```
+
+   عند أول تشغيل لأمر توليد الـ embeddings سيتم تنزيل ملفات النموذج محلياً.
+
+5. **تطبيق تجهيزات قاعدة البيانات (Migrations):**
    سيقوم هذا الأمر بتهيئة قاعدة البيانات `db.sqlite3` 🗄️:
    ```cmd
    python manage.py makemigrations
    python manage.py migrate
    ```
 
-5. **تعبئة داتا مزيفة:**
+6. **تعبئة داتا مزيفة:**
    ```cmd
    python manage.py populate
    ```
 
-6. **تشغيل خادم التطوير:**
+7. **توليد embeddings والتوصيات:**
+   بعد وجود بيانات ومنتجات فعالة:
+   ```cmd
+   python manage.py refresh_product_embeddings
+   python manage.py refresh_ai_recommendations
+   ```
+
+8. **تشغيل خادم التطوير:**
    ```cmd
    python manage.py runserver
    ```
