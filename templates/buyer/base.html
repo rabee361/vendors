@@ -45,7 +45,7 @@
 				<a class="nav-item {% if request.resolver_match.url_name == 'buyer_stats' %}active{% endif %}" href="{% url 'buyer_stats' %}">
 					<span class="nav-label"><i class="fa-solid fa-chart-pie"></i> الإحصائيات</span>
 				</a>
-				<a class="nav-item {% if request.resolver_match.url_name == 'buyer_orders' %}active{% endif %}" href="{% url 'buyer_orders' %}">
+				<a class="nav-item {% if request.resolver_match.url_name == 'buyer_orders' or request.resolver_match.url_name == 'buyer_order_detail' %}active{% endif %}" href="{% url 'buyer_orders' %}">
 					<span class="nav-label"><i class="fa-solid fa-cart-shopping"></i> الطلبات</span>
 				</a>
 				<a class="nav-item {% if request.resolver_match.url_name == 'buyer_profile' %}active{% endif %}" href="{% url 'buyer_profile' %}">

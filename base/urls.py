@@ -39,6 +39,7 @@ buyerPatterns = [
     path('profile/', buyer.BuyerProfileView.as_view(), name='buyer_profile'),
     path('stats/', buyer.BuyerStatsView.as_view(), name='buyer_stats'),
     path('orders/', buyer.BuyerOrdersView.as_view(), name='buyer_orders'),
+    path('orders/<int:pk>/', buyer.BuyerOrderDetailView.as_view(), name='buyer_order_detail'),
     path('orders/delete/<int:pk>/', buyer.BuyerOrderDeleteView.as_view(), name='buyer_order_delete'),
 ]
 

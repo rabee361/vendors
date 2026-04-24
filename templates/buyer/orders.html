@@ -49,6 +49,9 @@
 						<td>{{ order.created_at|date:"Y-m-d" }}</td>
 						<td>
 							<div style="display: flex; gap: 8px;">
+								<a href="{% url 'buyer_order_detail' order.id %}" style="color: var(--accent);" title="التفاصيل" aria-label="تفاصيل الطلب">
+									<i class="fas fa-eye"></i>
+								</a>
 								<a href="{% url 'buyer_order_delete' order.id %}" style="color: var(--danger);" title="حذف" onclick="return confirm('هل أنت متأكد من حذف هذا الطلب؟')">
 									<i class="fas fa-trash"></i>
 								</a>

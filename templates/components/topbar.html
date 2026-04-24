@@ -9,6 +9,9 @@
             </a>
 
             <nav class="quick" aria-label="وصول سريع">
+            {% if request.user.is_authenticated and not request.user.is_seller %}
+            <a class="chip" href="{% url 'buyer_profile' %}">لوحة التحكم</a>
+            {% endif %}
             <a class="chip" href="{% url 'home' %}#categories">التصنيفات</a>
             <a class="chip" href="{% url 'home' %}#deals">العروض</a>
             <a class="chip" href="{% url 'home' %}#sponsored">الإعلانات الممولة</a>

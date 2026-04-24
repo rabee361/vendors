@@ -77,6 +77,18 @@ class BuyerOrdersView(BuyerRequiredMixin, View):
 		return render(request, self.template_name, {'orders': orders})
 
 
+class BuyerOrderDetailView(BuyerRequiredMixin, View):
+	template_name = 'buyer/order_detail.html'
+
+	def get(self, request, pk):
+		order = get_object_or_404(
+			Order.objects.select_related('tenant').prefetch_related('items__product', 'items__product__category'),
+			pk=pk,
+			email=request.user.email,
+		)
+		return render(request, self.template_name, {'order': order})
+
+
 class BuyerOrderDeleteView(BuyerRequiredMixin, View):
 	def get(self, request, pk):
 		order = get_object_or_404(Order, pk=pk, email=request.user.email)

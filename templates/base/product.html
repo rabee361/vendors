@@ -98,14 +98,8 @@
       <h1 style="margin: 0 0 12px; font-size: 28px; line-height: 1.3;">{{ product.name }}</h1>
       
       <div style="display:flex; align-items:center; gap:10px; margin-bottom:20px;">
-        <span class="stars">
-          {% if product.average_rating >= 1 %}★{% else %}☆{% endif %}
-          {% if product.average_rating >= 2 %}★{% else %}☆{% endif %}
-          {% if product.average_rating >= 3 %}★{% else %}☆{% endif %}
-          {% if product.average_rating >= 4 %}★{% else %}☆{% endif %}
-          {% if product.average_rating >= 5 %}★{% else %}☆{% endif %}
-        </span>
-        <span class="muted">{{ product.average_rating|floatformat:1 }} ({{ product.rating_count }} تقييم)</span>
+        <span class="stars">⭐</span>
+        <span class="muted">{{ product.average_rating|floatformat:1 }}   ({{ product.rating_count }} تقييم)</span>
       </div>
 
       <div class="price" style="font-size: 32px; margin-bottom: 24px; color: var(--warn);">${{ product.price }}</div>
@@ -175,15 +169,10 @@
             {% endif %}
           </div>
           <div class="pad">
+            <div class="muted">من متجر: {{ s_product.tenant.store_name }}</div>
             <h3 class="slider-card-title">{{ s_product.name }}</h3>
             <div class="pmeta" style="margin-top: auto;">
-              <span class="stars">
-                {% if s_product.average_rating >= 1 %}★{% else %}☆{% endif %}
-                {% if s_product.average_rating >= 2 %}★{% else %}☆{% endif %}
-                {% if s_product.average_rating >= 3 %}★{% else %}☆{% endif %}
-                {% if s_product.average_rating >= 4 %}★{% else %}☆{% endif %}
-                {% if s_product.average_rating >= 5 %}★{% else %}☆{% endif %}
-              </span>
+              <span class="stars">⭐ {% if s_product.average_rating > 0.0 %} {{ s_product.average_rating }} {% else %} لا يوجد {% endif %}</span>
               <b class="price">${{ s_product.price }}</b>
             </div>
             <div class="pactions" style="margin-top: 12px;">
@@ -222,15 +211,10 @@
             {% endif %}
           </div>
           <div class="pad">
+            <div class="muted">من متجر: {{ s_product.tenant.store_name }}</div>
             <h3 class="slider-card-title">{{ s_product.name }}</h3>
             <div class="pmeta" style="margin-top: auto;">
-              <span class="stars">
-                {% if s_product.average_rating >= 1 %}★{% else %}☆{% endif %}
-                {% if s_product.average_rating >= 2 %}★{% else %}☆{% endif %}
-                {% if s_product.average_rating >= 3 %}★{% else %}☆{% endif %}
-                {% if s_product.average_rating >= 4 %}★{% else %}☆{% endif %}
-                {% if s_product.average_rating >= 5 %}★{% else %}☆{% endif %}
-              </span>
+              <span class="stars">⭐ {% if s_product.average_rating > 0.0 %} {{ s_product.average_rating }} {% else %} لا يوجد {% endif %}</span>
               <b class="price">${{ s_product.price }}</b>
             </div>
             <div class="pactions" style="margin-top: 12px;">

@@ -51,7 +51,7 @@
 .form-group textarea:focus {
     border-color: var(--accent);
     outline: none;
-    box-shadow: 0 0 0 4px rgba(110, 168, 255, 0.1);
+    box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.1);
 }
 
 .error {
@@ -96,7 +96,7 @@
 
 .upload-btn:hover {
     background: var(--accent);
-    color: white;
+    color: var(--text-on-accent);
 }
 
 .upload-btn input {
@@ -130,13 +130,13 @@
 
 .btn.accent {
     background: var(--grad-accent);
-    color: white;
-    box-shadow: 0 4px 15px rgba(110, 168, 255, 0.3);
+    color: var(--text-on-accent);
+    box-shadow: 0 4px 15px rgba(var(--accent-rgb), 0.3);
 }
 
 .btn.accent:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(110, 168, 255, 0.4);
+    box-shadow: 0 6px 20px rgba(var(--accent-rgb), 0.4);
 }
 
 .btn.muted {

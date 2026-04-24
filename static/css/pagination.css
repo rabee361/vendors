@@ -29,15 +29,15 @@
 
 .page-link:hover {
     background: var(--grad-accent);
-    color: white;
+    color: var(--text-on-accent);
     transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(110, 168, 255, 0.3);
+    box-shadow: 0 5px 15px rgba(var(--accent-rgb), 0.3);
     border-color: transparent;
 }
 
 .page-link.active {
     background: var(--grad-accent);
-    color: white;
+    color: var(--text-on-accent);
     border-color: transparent;
     cursor: default;
 }

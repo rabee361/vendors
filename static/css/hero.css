@@ -63,7 +63,7 @@
     width: min(980px, 100%);
     border: 1px solid var(--line);
     border-radius: calc(var(--r) + 6px);
-    background: rgba(15, 26, 47, .97);
+    background: rgba(var(--panel-rgb), .97);
     box-shadow: var(--shadow);
     overflow: hidden;
     margin: auto;
@@ -76,5 +76,5 @@
     justify-content: space-between;
     align-items: center;
     gap: 10px;
-    background: linear-gradient(180deg, rgba(110, 168, 255, .12), rgba(255, 255, 255, .02));
+    background: linear-gradient(180deg, rgba(var(--accent-rgb), .12), rgba(var(--white-rgb), .02));
 }

@@ -35,14 +35,19 @@
   <div class="shell">
 
     <aside class="side" id="sidebar">
-      <a class="brand" href="{% url 'home' %}" aria-label="العودة للموقع">
-        {% if user_vendor_profile.logo %}
-          <img src="{{ user_vendor_profile.logo.url }}" alt="{{ user_vendor_profile.store_name }}" class="side-logo">
-        {% else %}
-          <span class="mark" aria-hidden="true"></span>
-        {% endif %}
-        <span>{{ user_vendor_profile.store_name }}</span>
-      </a>
+      <div class="side-head">
+        <a class="brand" href="{% url 'home' %}" aria-label="العودة للموقع">
+          {% if user_vendor_profile.logo %}
+            <img src="{{ user_vendor_profile.logo.url }}" alt="{{ user_vendor_profile.store_name }}" class="side-logo">
+          {% else %}
+            <span class="mark" aria-hidden="true"></span>
+          {% endif %}
+          <span>{{ user_vendor_profile.store_name }}</span>
+        </a>
+        <button id="theme-toggler" class="theme-toggle side-theme-toggle" type="button" aria-label="تبديل المظهر">
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
 
       <nav class="nav" aria-label="قائمة لوحة البائع">
         <a class="nav-item {% if request.resolver_match.url_name == 'vendor_dashboard' %}active{% endif %}" href="{% url 'vendor_dashboard' %}">
@@ -84,6 +89,7 @@
     </main>
   </div>
 
+  <script src="{% static 'js/theme-toggle.js' %}"></script>
   <script src="{% static 'js/vendor/sidebar.js' %}"></script>
 </body>
 

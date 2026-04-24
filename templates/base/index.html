@@ -64,7 +64,9 @@
           {% endif %}
         </div>
         <div class="pad">
+          <div class="muted">من متجر: {{ offer.tenant.store_name }}</div>
           <h3 style="margin:10px 0 6px">{{ offer.product.name }}</h3>
+          <span class="stars">⭐ {% if offer.product.average_rating > 0.0 %} {{ offer.product.average_rating }} {% else %} لا يوجد {% endif %}</span>
           <div class="muted">{{ offer.product.description }}</div>
           <div class="pmeta">
             <b class="price">${{ offer.discount_price }}</b>

@@ -3,34 +3,66 @@
 :root {
     /* Dark Theme (Default) */
     --bg: #0b1220;
+    --bg-rgb: 11, 18, 32;
     --panel: #0f1a2f;
+    --panel-rgb: 15, 26, 47;
     --card: #101d36;
+    --card-rgb: 16, 29, 54;
     --muted: #9fb0d0;
+    --muted-rgb: 159, 176, 208;
     --text: #eaf0ff;
+    --text-rgb: 234, 240, 255;
     --line: rgba(255, 255, 255, .10);
+    --white-rgb: 255, 255, 255;
+    --black-rgb: 0, 0, 0;
     --accent: #6ea8ff;
+    --accent-rgb: 110, 168, 255;
     --accent2: #39d98a;
+    --accent2-rgb: 57, 217, 138;
     --warn: #ffcc66;
+    --warn-rgb: 255, 204, 102;
     --danger: #ff6b6b;
+    --danger-rgb: 255, 107, 107;
+    --text-on-accent: #ffffff;
+    --text-on-dark: #f6f8ff;
+    --warn-soft: #ffe9b7;
+    --success-soft: #c7ffe6;
+    --danger-soft: #ffb7b7;
+    --star: #ffd27a;
     --shadow: 0 18px 50px rgba(0, 0, 0, .45);
     --r: 18px;
     --container: 1200px;
     
     /* Gradients */
-    --grad-accent: linear-gradient(135deg, rgba(110, 168, 255, .95), rgba(57, 217, 138, .85));
-    --grad-btn: linear-gradient(135deg, rgba(110, 168, 255, .26), rgba(57, 217, 138, .10));
-    --grad-panel: linear-gradient(180deg, rgba(255, 255, 255, .03), transparent);
+    --grad-accent: linear-gradient(135deg, rgba(var(--accent-rgb), .95), rgba(var(--accent2-rgb), .85));
+    --grad-btn: linear-gradient(135deg, rgba(var(--accent-rgb), .26), rgba(var(--accent2-rgb), .10));
+    --grad-panel: linear-gradient(180deg, rgba(var(--white-rgb), .03), transparent);
 }
 
 [data-theme="light"] {
-    --bg: #d8e2ee;
-    --panel: #e3ebf4;
-    --card: #edf2f8;
-    --text: #1d2a40;
-    --muted: #61748e;
-    --line: rgba(61, 88, 128, .16);
-    --shadow: 0 10px 28px rgba(46, 70, 110, .10);
-    --grad-panel: linear-gradient(180deg, rgba(90, 130, 184, .10), transparent);
+    --bg: #edf6ff;
+    --bg-rgb: 237, 246, 255;
+    --panel: #f7fbff;
+    --panel-rgb: 247, 251, 255;
+    --card: #ffffff;
+    --card-rgb: 255, 255, 255;
+    --text: #163a63;
+    --text-rgb: 22, 58, 99;
+    --muted: #5d80aa;
+    --muted-rgb: 93, 128, 170;
+    --line: rgba(88, 137, 204, .20);
+    --accent: #2f7de1;
+    --accent-rgb: 47, 125, 225;
+    --shadow: 0 12px 30px rgba(68, 116, 181, .14);
+    --text-on-accent: #ffffff;
+    --text-on-dark: #f6f8ff;
+    --warn-soft: #8c5f12;
+    --success-soft: #137a52;
+    --danger-soft: #b84c4c;
+    --star: #c58a1b;
+    --grad-accent: linear-gradient(135deg, rgba(47, 125, 225, .96), rgba(117, 183, 255, .92));
+    --grad-btn: linear-gradient(135deg, rgba(47, 125, 225, .18), rgba(117, 183, 255, .10));
+    --grad-panel: linear-gradient(180deg, rgba(103, 164, 233, .12), rgba(255, 255, 255, .72));
 }
 
 * {
