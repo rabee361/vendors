@@ -1,7 +1,10 @@
 import requests
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AnonymousUser
 from django.template.loader import render_to_string
 
 from base.models import Setting
+from base.recommendations import get_user_recommendations
 
 def send_otp_email(otp_code, email):
     webhook_url = "https://rabeehasan.online/n8n/webhook/30657344-665f-4bb8-a7ad-a8fa5f87c38f"
@@ -121,11 +124,22 @@ def send_coupon_email(coupon, customer_name, email, store_name):
 def send_order_confirmed_email(order, store_name, vendor_email):
     webhook_url = "https://rabeehasan.online/n8n/webhook/30657344-665f-4bb8-a7ad-a8fa5f87c38f"
 
+    buyer = get_user_model().objects.filter(email=order.email).first() or AnonymousUser()
+    ordered_product_ids = list(
+        order.items.filter(product__isnull=False).values_list('product_id', flat=True)
+    )
+    recommended_products = get_user_recommendations(
+        buyer,
+        limit=3,
+        exclude_ids=ordered_product_ids,
+    )
+
     subject = f"تم تأكيد وشحن طلبك من متجر {store_name}"
     html_message = render_to_string('emails/order_confirmed.html', {
         'order': order,
         'store_name': store_name,
         'vendor_email': vendor_email,
+        'recommended_products': recommended_products,
     })
 
     payload = {

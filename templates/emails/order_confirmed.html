@@ -148,6 +148,53 @@
 			margin-bottom: 18px;
 		}
 
+		.recommendations {
+			background: linear-gradient(180deg, #f8fff9 0%, #f0fdf4 100%);
+			border: 1px solid #bbf7d0;
+			border-radius: 14px;
+			padding: 20px;
+			margin-bottom: 18px;
+		}
+
+		.recommendations-title {
+			font-size: 18px;
+			font-weight: 700;
+			color: #14532d;
+			margin-bottom: 6px;
+		}
+
+		.recommendations-text {
+			font-size: 14px;
+			color: #4b5563;
+			margin-bottom: 12px;
+		}
+
+		.recommendations-table {
+			width: 100%;
+			border-collapse: separate;
+			border-spacing: 0 10px;
+		}
+
+		.recommendation-card {
+			background-color: #ffffff;
+			border: 1px solid #d7e3dc;
+			border-radius: 12px;
+			padding: 14px 16px;
+		}
+
+		.recommendation-name {
+			font-size: 15px;
+			font-weight: 700;
+			color: #111827;
+			margin-bottom: 6px;
+		}
+
+		.recommendation-price {
+			font-size: 14px;
+			font-weight: 700;
+			color: #166534;
+		}
+
 		.footer {
 			background-color: #f8fafc;
 			border-top: 1px solid #e2e8f0;
@@ -230,6 +277,27 @@
 				<p><strong>العنوان:</strong> {{ order.address }}، {{ order.city }}</p>
 				<p><strong>الهاتف:</strong> {{ order.phone }}</p>
 			</div>
+
+			{% if recommended_products %}
+			<div class="recommendations">
+				<div class="recommendations-title">منتجات قد تعجبك أيضاً</div>
+				<div class="recommendations-text">اخترنا لك 3 منتجات بناءً على تفضيلاتك واهتماماتك الأخيرة.</div>
+				<table class="recommendations-table" role="presentation">
+					<tbody>
+						{% for product in recommended_products %}
+						<tr>
+							<td>
+								<div class="recommendation-card">
+									<div class="recommendation-name">{{ product.name }}</div>
+									<div class="recommendation-price">${{ product.current_price|floatformat:2 }}</div>
+								</div>
+							</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+			{% endif %}
 
 			<div class="note">
 				لأي استفسار أو معلومات إضافية حول طلبك، يرجى التواصل مع المتجر عبر البريد الإلكتروني: <strong>{{ vendor_email }}</strong>
